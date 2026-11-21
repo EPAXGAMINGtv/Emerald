@@ -1,7 +1,6 @@
 #include "cfg/Config.hpp"
 #include "cfg/Log.hpp"
 #include "eemerge/Emerge.h"
-#include "emrldgui/Gui.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -29,12 +28,6 @@ int main() {
 
     emgr::Emerge emerge;
     emerge.EmergeSync();
-
-    emrldgui::Gui gui;
-    if (gui.init()) {
-        gui.run();
-        gui.shutdown();
-    }
 
     spdlog::info("Emerald exiting");
     cfg::log::shutdown();
