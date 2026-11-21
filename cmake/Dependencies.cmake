@@ -6,6 +6,44 @@ if(POLICY CMP0000)
     set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Minimum CMake policy version for third-party subprojects" FORCE)
 endif()
 
+if(MSVC)
+    target_compile_options(project_dependencies INTERFACE
+        /W4
+        /permissive-
+        /w14242 /w14254 /w14263 /w14265 /w14287 /we4289
+        /w14296 /w14311 /w14545 /w14546 /w14547 /w14549
+        /w14555 /w14619 /w14640 /w14826 /w14905 /w14906 /w14928
+    )
+else()
+    target_compile_options(project_dependencies INTERFACE
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wall>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wextra>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wpedantic>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wshadow>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wformat=2>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wconversion>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wsign-conversion>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wcast-align>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wcast-qual>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wold-style-cast>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wnull-dereference>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wdouble-promotion>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Woverloaded-virtual>
+        $<$<COMPILE_LANGUAGE:C,CXX>:-Wnon-virtual-dtor>
+        $<$<COMPILE_LANGUAGE:CXX>:-Wextra-semi>
+        $<$<COMPILE_LANGUAGE:CXX>:-Wzero-as-null-pointer-constant>
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(project_dependencies INTERFACE
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Weverything>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-c++98-compat>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-c++98-compat-pedantic>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-padded>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-unsafe-buffer-usage>
+        )
+    endif()
+endif()
+
 find_package(SDL2 QUIET)
 
 if(TARGET SDL2::SDL2)

@@ -5,6 +5,7 @@ file(GLOB_RECURSE CFG_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
+list(FILTER CFG_SOURCES EXCLUDE REGEX ".*/Log\\.(cpp|hpp)$")
 
 add_library(cfg SHARED ${CFG_SOURCES})
 
