@@ -22,19 +22,16 @@ namespace emgui {
         explicit EventKeyboard(SDL_Window* window);
         EventKeyboard(const SDL_Event& event, SDL_Window* window);
 
-        //some functions here ->
+        //some getters here ->
         EventType getType() const override;
         std::vector<Uint32> getSDLEventTypes() const override;
         EventFactory getFactory() const override;
-
         SDL_Keycode getKey() const;
         SDL_Keymod getModifiers() const;
-
         bool isPressed() const;
         bool isReleased() const;
         bool isRepeat() const;
 
-        //some getters here ->
         Uint32 getWindowID() const;
         SDL_Window* getWindow() const;
 

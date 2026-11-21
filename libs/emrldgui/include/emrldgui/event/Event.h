@@ -28,7 +28,6 @@ namespace emgui {
 
     class Event {
     public:
-        //default type, derived events hide this with their own TYPE ->
         static constexpr EventType TYPE = 0;
 
         virtual ~Event() = default;
@@ -38,7 +37,6 @@ namespace emgui {
         virtual std::vector<Uint32> getSDLEventTypes() const = 0;
         virtual EventFactory getFactory() const = 0;
 
-        //a listener can set this to stop the remaining listeners ->
         bool handled = false;
     };
 

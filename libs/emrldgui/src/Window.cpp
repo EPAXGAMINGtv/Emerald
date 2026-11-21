@@ -4,6 +4,7 @@
 
 #include "../include/emrldgui/Window.h"
 #include "../include/emrldgui/event/EventKeyboard.h"
+#include "../include/emrldgui/event/EventMouse.h"
 
 #include <SDL.h>
 
@@ -26,8 +27,9 @@ namespace emgui {
         //each window initializes its own event manager here ->
         eventManager_ = EventManager::create(window_);
 
-        //keyboard events are registered for every window by default ->
+        //keyboard and mouse events are registered for every window by default ->
         EventManager::registerEvent(window_, EventKeyboard(window_));
+        EventManager::registerEvent(window_, EventMouse(window_));
 
         spdlog::info("Created window {}",title_);
     }

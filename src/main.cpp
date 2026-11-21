@@ -18,7 +18,9 @@
 #include "emrldgui/EmeraldGUI.h"
 #include "emrldgui/Window.h"
 #include "emrldgui/event/EventKeyboard.h"
+#include "emrldgui/event/EventMouse.h"
 #include "emrldgui/input/Keyboard.h"
+#include "emrldgui/input/Mouse.h"
 
 
 
@@ -50,6 +52,11 @@ int main() {
 
     emgui::Keyboard keyboard(window);
 
+    //Mouse uses the EventMouse that is registered by default ->
+    emgui::Mouse mouse(window);
+
+
+
     while (!window.shouldClose()) {
         window.updateWindow();
 
@@ -58,7 +65,13 @@ int main() {
             window.closeWindow();
         }
 
+        if (mouse.isButtonPressed(SDL_BUTTON_LEFT)) {
+            spdlog::info("Left mouse button pressed at {} {}", mouse.getX(), mouse.getY());
+        }
+
+        spdlog::info("Mouse pos x:{} and y:{}", mouse.getX(), mouse.getY());
         keyboard.clearFrameState();
+        mouse.clearFrameState();
     }
 
     spdlog::info("Emerald exiting");
