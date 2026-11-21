@@ -1,3 +1,11 @@
+//
+// Created by epax on 21.11.26.
+//
+
+//
+// small test for the per window event system
+//
+
 #include <unistd.h>
 
 #include "cfg/Config.hpp"
@@ -9,6 +17,10 @@
 
 #include "emrldgui/EmeraldGUI.h"
 #include "emrldgui/Window.h"
+#include "emrldgui/event/EventKeyboard.h"
+#include "emrldgui/input/Keyboard.h"
+
+
 
 int main() {
     auto logger = spdlog::stdout_color_mt("emerald");
@@ -36,11 +48,19 @@ int main() {
     emrldgui::EmeraldGUI emeraldGUI;
     emgui::Window window= emgui::Window("test",1920,1080,static_cast<SDL_WindowFlags>(SDL_WINDOW_MAXIMIZED|SDL_WINDOW_RESIZABLE|SDL_WINDOW_SHOWN));
 
+    emgui::Keyboard keyboard(window);
+
     while (!window.shouldClose()) {
         window.updateWindow();
+
+        if (keyboard.isPressed(SDLK_ESCAPE)) {
+            spdlog::info("Escape pressed, closing window");
+            window.closeWindow();
+        }
+
+        keyboard.clearFrameState();
     }
 
-    window.~Window();
     spdlog::info("Emerald exiting");
     spdlog::shutdown();
     return 0;

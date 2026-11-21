@@ -7,7 +7,12 @@
 //
 
 #pragma once
+
+#include "event/EventManager.h"
+
 #include <SDL_video.h>
+
+#include <memory>
 #include <string>
 
 namespace emgui {
@@ -32,6 +37,16 @@ namespace emgui {
         SDL_Window* getWindow() const {
             return window_;
         }
+
+        //every window owns its own event manager, use this to register new events ->
+        EventManager& getEventManager() {
+            return *eventManager_;
+        }
+
+        const EventManager& getEventManager() const {
+            return *eventManager_;
+        }
+
         std::string getTitle()  const {
             return title_;
         }
@@ -53,6 +68,6 @@ namespace emgui {
         std::string  title_;
         SDL_WindowFlags flags_;
         SDL_Window* window_ = nullptr;
+        std::unique_ptr<EventManager> eventManager_;
     };
 }
-

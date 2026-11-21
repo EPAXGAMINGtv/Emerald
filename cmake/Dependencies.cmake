@@ -129,3 +129,11 @@ else()
         target_link_libraries(project_dependencies INTERFACE spdlog)
     endif()
 endif()
+
+#third party headers are system headers, so their warnings stay out of our files ->
+if(TARGET spdlog)
+    set_target_properties(spdlog PROPERTIES SYSTEM TRUE)
+endif()
+if(DEFINED spdlog_SOURCE_DIR)
+    target_include_directories(project_dependencies SYSTEM INTERFACE "${spdlog_SOURCE_DIR}/include")
+endif()

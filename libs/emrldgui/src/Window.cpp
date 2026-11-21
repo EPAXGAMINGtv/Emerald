@@ -3,11 +3,14 @@
 //
 
 #include "../include/emrldgui/Window.h"
+#include "../include/emrldgui/event/EventKeyboard.h"
 
 #include <SDL.h>
 
 
 #include "spdlog/spdlog.h"
+
+#include <vector>
 
 namespace emgui {
 
@@ -19,6 +22,13 @@ namespace emgui {
             std::string("SDL_CreateWindow failed: ") + SDL_GetError()
             );
         }
+
+        //each window initializes its own event manager here ->
+        eventManager_ = EventManager::create(window_);
+
+        //keyboard events are registered for every window by default ->
+        EventManager::registerEvent(window_, EventKeyboard(window_));
+
         spdlog::info("Created window {}",title_);
     }
 
@@ -31,16 +41,33 @@ namespace emgui {
     void Window::updateWindow() {
         SDL_Event event;
 
+        //events of other windows are collected and pushed back for their own manager ->
+        std::vector<SDL_Event> otherWindowEvents;
+        const Uint32 windowID = SDL_GetWindowID(window_);
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 shouldClose_ = true;
+                continue;
             }
 
             if (event.type == SDL_WINDOWEVENT &&
                 event.window.event == SDL_WINDOWEVENT_CLOSE &&
-                event.window.windowID == SDL_GetWindowID(window_)) {
+                event.window.windowID == windowID) {
                 shouldClose_ = true;
-                }
+            }
+
+            const Uint32 eventWindowID = EventManager::getWindowID(event);
+
+            if (eventWindowID == 0 || eventWindowID == windowID) {
+                eventManager_->processEvent(event);
+            } else {
+                otherWindowEvents.push_back(event);
+            }
+        }
+
+        for (SDL_Event& otherEvent : otherWindowEvents) {
+            SDL_PushEvent(&otherEvent);
         }
 
         if (window_ == nullptr) {
