@@ -10,9 +10,9 @@
 namespace emrg {
     class CMDline {
     public:
-        CMDline(std::string & workingDirectory);
+        explicit CMDline(std::string workingDirectory = {});
     private:
-        std::string & workingDir_;
+        std::string workingDir_;
     };
 } // emrg
 

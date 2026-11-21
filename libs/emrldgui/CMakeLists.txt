@@ -1,6 +1,12 @@
-add_library(emrldgui SHARED
-    src/Gui.cpp
+file(GLOB_RECURSE EMRLDGUI_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
+
+add_library(emrldgui SHARED ${EMRLDGUI_SOURCES})
 
 add_library(Emerald::emrldgui ALIAS emrldgui)
 

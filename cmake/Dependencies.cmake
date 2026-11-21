@@ -1,16 +1,11 @@
 include(FetchContent)
 
-# Common dependency interface so all libs and the main project can link against
-# the same third-party dependencies.
 add_library(project_dependencies INTERFACE)
 
-# CMake 4 removed compatibility with projects declaring cmake_minimum_required < 3.5.
-# Some fetched dependencies still do, so provide a minimum policy version for them.
 if(POLICY CMP0000)
     set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Minimum CMake policy version for third-party subprojects" FORCE)
 endif()
 
-# ---- SDL2 (GUI/input/media) ----
 find_package(SDL2 QUIET)
 
 if(TARGET SDL2::SDL2)
@@ -38,8 +33,6 @@ else()
         set(SDL_TEST OFF CACHE BOOL "" FORCE)
         set(SDL_SHARED ON CACHE BOOL "" FORCE)
         set(SDL_STATIC OFF CACHE BOOL "" FORCE)
-        # SDL2 2.30.x audio/pipewire backend is incompatible with newer PipeWire headers
-        # (e.g. PipeWire 1.6.x). Disable PipeWire for fetched SDL2 to keep builds reliable.
         set(SDL_PIPEWIRE OFF CACHE BOOL "" FORCE)
         set(SDL_PIPEWIRE_SHARED OFF CACHE BOOL "" FORCE)
         FetchContent_Declare(
@@ -58,7 +51,6 @@ else()
     endif()
 endif()
 
-# ---- YAML config library (yaml-cpp) ----
 find_package(yaml-cpp QUIET)
 if(TARGET yaml-cpp::yaml-cpp)
     target_link_libraries(project_dependencies INTERFACE yaml-cpp::yaml-cpp)
@@ -80,7 +72,6 @@ else()
     endif()
 endif()
 
-# ---- Logging library (spdlog) ----
 find_package(spdlog QUIET)
 if(TARGET spdlog::spdlog)
     target_link_libraries(project_dependencies INTERFACE spdlog::spdlog)

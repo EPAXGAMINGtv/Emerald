@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Output shared libraries and the main binary into predictable locations
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -18,9 +17,13 @@ include(cmake/Dependencies.cmake)
 
 add_subdirectory(libs)
 
-add_executable(Emerald src/main.cpp
-        libs/eemerge/include/eemerge/Emerge.cpp
-        libs/eemerge/include/eemerge/Emerge.h)
+file(GLOB_RECURSE EMERALD_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+)
+
+add_executable(Emerald ${EMERALD_SOURCES})
 
 target_link_libraries(Emerald
     PRIVATE

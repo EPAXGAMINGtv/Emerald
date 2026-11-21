@@ -1,8 +1,9 @@
-//
-// Created by epax on 21.11.26.
-//
+#include "eemerge/CMDline.h"
 
-#include "CMDline.h"
+#include <utility>
 
 namespace emrg {
-} // emrg
+
+CMDline::CMDline(std::string workingDirectory) : workingDir_(std::move(workingDirectory)) {}
+
+} // namespace emrg

@@ -1,7 +1,12 @@
-add_library(cfg SHARED
-    src/Config.cpp
-    src/Log.cpp
+file(GLOB_RECURSE CFG_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
+
+add_library(cfg SHARED ${CFG_SOURCES})
 
 add_library(Emerald::cfg ALIAS cfg)
 
