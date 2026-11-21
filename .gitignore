@@ -1,0 +1,56 @@
+# Build directories
+/build/
+/cmake-build-*/
+/out/
+/CMakeFiles/
+/CMakeCache.txt
+
+# CMake / Ninja / Make generated files
+compile_commands.json
+CMakeUserPresets.json
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
+ninja_build.log
+.ninja_deps
+.ninja_log
+build.ninja
+Makefile
+
+# Compiled objects and binaries
+*.o
+*.obj
+*.so
+*.so.*
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+*.out
+*.app
+
+# Debug / profiling
+*.pdb
+*.gcda
+*.gcno
+*.gcov
+perf.data
+perf.data.*
+
+# IDEs / editors
+/.idea/
+/.vscode/
+/.cache/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs and local runtime files
+*.log
+/emerald.yaml
+
+# FetchContent / dependency checkouts in build dirs are ignored by /cmake-build-*/
+# but keep local dependency caches out too
+/_deps/
