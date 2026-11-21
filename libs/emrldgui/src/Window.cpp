@@ -23,7 +23,7 @@ namespace emgui {
     }
 
     Window::~Window() {
-        spdlog::info("Window destructor called closing SDL2 Window!: ",title_);
+        spdlog::info("Window destructor called closing SDL2 Window!: {}",title_);
         closeWindow();
     }
 
@@ -61,7 +61,7 @@ namespace emgui {
 
     void Window::setTitle(std::string  title) {
         //sets new titlé and updates the title_ variable
-        if (!title.empty()) {
+        if (!title.empty() && window_ != nullptr) {
             title_ = title;
             SDL_SetWindowTitle(window_, title_.c_str());
             spdlog::info("Setted title {}",title_);
@@ -72,7 +72,7 @@ namespace emgui {
 
     void Window::setHeight(int height) {
         //sets the window height and updates the height_ variable
-        if (height >0) {
+        if (height >0  && window_ != nullptr) {
             height_ = height;
             SDL_SetWindowSize(window_, width_, height_);
             spdlog::info("Setted height {}",height_);
@@ -83,7 +83,7 @@ namespace emgui {
 
     void Window::setWidth(int width) {
         //same for width
-        if (width >0) {
+        if (width >0 && window_ != nullptr) {
             width_ = width;
             SDL_SetWindowSize(window_, width_, height_);
             spdlog::info("Setted width {}",width_);

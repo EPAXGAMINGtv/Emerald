@@ -25,23 +25,23 @@ namespace emgui {
         void closeWindow();
 
         //some getters here ->
-        bool shouldClose() {
+        bool shouldClose() const {
             return shouldClose_;
         }
 
-        SDL_Window* getWindow() {
+        SDL_Window* getWindow() const {
             return window_;
         }
-        std::string getTitle() {
+        std::string getTitle()  const {
             return title_;
         }
-        int getHeight() {
+        int getHeight()  const {
             return height_;
         }
-        int getWidth() {
+        int getWidth() const {
             return width_;
         }
-        SDL_WindowFlags getFlags() {
+        SDL_WindowFlags getFlags()  const {
             return flags_;
         }
 
