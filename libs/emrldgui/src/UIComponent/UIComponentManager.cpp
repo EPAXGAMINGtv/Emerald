@@ -14,12 +14,51 @@ namespace emgui {
         }
 
         components_.push_back(ComponentEntry{nullptr, component});
+        finalizeRegistration(component);
+    }
+
+    void UIComponentManager::finalizeRegistration(UIComponent* component) {
+        if (component == nullptr) {
+            return;
+        }
+
+        styleManager_.loadComponent(component->getComponentName());
+        component->setStyleChangeCallback(
+            [this](UIComponent& changed) {
+                applyStylesTo(&changed);
+            }
+        );
+        styleManager_.applyTo(*component);
+    }
+
+    void UIComponentManager::detachComponent(UIComponent* component) {
+        if (component != nullptr) {
+            component->setStyleChangeCallback({});
+        }
+    }
+
+    void UIComponentManager::applyStylesTo(UIComponent* component) {
+        if (component != nullptr && contains(component)) {
+            styleManager_.applyTo(*component);
+        }
+    }
+
+    void UIComponentManager::reloadStyles() {
+        styleManager_.reload();
+
+        for (const ComponentEntry& entry : components_) {
+            if (UIComponent* component = entry.get()) {
+                styleManager_.applyTo(*component);
+            }
+        }
     }
 
     void UIComponentManager::removeComponent(UIComponent* component) {
         if (component == nullptr) {
             return;
         }
+
+        detachComponent(component);
 
         components_.erase(
             std::remove_if(
@@ -50,7 +89,11 @@ namespace emgui {
     }
 
     void UIComponentManager::clear() {
-        //only owned components are deleted, external components stay alive ->
+        //detach callbacks before owned components are destroyed ->
+        for (const ComponentEntry& entry : components_) {
+            detachComponent(entry.get());
+        }
+
         components_.clear();
     }
 

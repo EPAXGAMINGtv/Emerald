@@ -90,6 +90,11 @@ namespace emgui {
             return *uiComponentManager_;
         }
 
+        //shortcut to res/style/*.css loading and reload() ->
+        StyleManager& getStyleManager() {
+            return uiComponentManager_->getStyleManager();
+        }
+
         std::string getTitle()  const {
             return title_;
         }

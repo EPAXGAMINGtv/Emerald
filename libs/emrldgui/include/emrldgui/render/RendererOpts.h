@@ -7,8 +7,8 @@
 #include <string>
 #include <tuple>
 
-#include "Font.h"
 #include "RenderContext.h"
+#include "emrldgui/resource/FontManager.h"
 
 namespace emgui {
     class RendererOpts {
@@ -32,6 +32,12 @@ namespace emgui {
             void fillCircle(const SDL_Point& center, int radius, const SDL_Color& color);
             void drawTexture(SDL_Texture* texture, const SDL_Rect& destination);
             void drawText(const std::string& text, const SDL_Point& position, const SDL_Color& color);
+            void drawText(
+                const std::string& text,
+                const SDL_Point& position,
+                const SDL_Color& color,
+                const FontSpec& fontSpec
+            );
 
         private:
             friend class RendererOpts;
@@ -69,6 +75,12 @@ namespace emgui {
         void fillCircle(const SDL_Point& center, int radius, const SDL_Color& color);
         void drawTexture(SDL_Texture* texture, const SDL_Rect& destination);
         void drawText(const std::string& text, const SDL_Point& position, const SDL_Color& color);
+        void drawText(
+            const std::string& text,
+            const SDL_Point& position,
+            const SDL_Color& color,
+            const FontSpec& fontSpec
+        );
 
         //old typo kept as an alias, use drawLine instead ->
         void drawlLine(const SDL_Point& start, const SDL_Point& end, const SDL_Color& color) {
@@ -91,12 +103,14 @@ namespace emgui {
             return renderer_;
         }
 
-        bool isFontValid() const {
-            return font_.isValid();
-        }
+        bool isFontValid() const;
 
     private:
-        using TextCacheKey = std::tuple<std::string, Uint8, Uint8, Uint8, Uint8>;
+        using TextCacheKey = std::tuple<
+            std::string,
+            Uint8, Uint8, Uint8, Uint8,
+            std::string, int, std::string
+        >;
 
         struct CachedText {
             SDL_Texture* texture = nullptr;
@@ -108,7 +122,8 @@ namespace emgui {
 
         RenderContext& context_;
         SDL_Renderer* renderer_ = nullptr;
-        Font font_;
+        mutable FontManager fontManager_;
+        FontSpec defaultFontSpec_;
         SDL_Color clearColor_{0, 0, 0, 255};
         std::map<TextCacheKey, CachedText> textCache_;
     };

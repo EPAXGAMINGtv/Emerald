@@ -47,7 +47,11 @@ namespace emgui {
     } // namespace
 
     RendererOpts::RendererOpts(RenderContext& context, int fontSize, std::string fontPath)
-        : context_(context), font_(fontSize, std::move(fontPath)) {
+        : context_(context) {
+        //an explicit path is treated like a font family, ResourceManager resolves res/font/... ->
+        defaultFontSpec_.family = fontPath.empty() ? "LiberationSans" : std::move(fontPath);
+        defaultFontSpec_.size = fontSize;
+
         //-1 selects the default renderer, 0 means no special flags ->
         renderer_ = SDL_CreateRenderer(context_.getWindow(), -1, 0);
 
@@ -191,16 +195,35 @@ namespace emgui {
         const SDL_Point& position,
         const SDL_Color& color
     ) {
-        if (renderer_ == nullptr) {
+        drawText(text, position, color, defaultFontSpec_);
+    }
+
+    void RendererOpts::drawText(
+        const std::string& text,
+        const SDL_Point& position,
+        const SDL_Color& color,
+        const FontSpec& fontSpec
+    ) {
+        if (renderer_ == nullptr || text.empty()) {
             return;
         }
 
-        //same text/color/font reuses its texture instead of re-rendering every frame ->
-        const TextCacheKey key{text, color.r, color.g, color.b, color.a};
+        Font* font = fontManager_.getFont(fontSpec);
+
+        if (font == nullptr || !font->isValid()) {
+            return;
+        }
+
+        //text, color and font settings together identify one cached texture ->
+        const TextCacheKey key{
+            text,
+            color.r, color.g, color.b, color.a,
+            fontSpec.family, fontSpec.size, fontSpec.style
+        };
         auto cached = textCache_.find(key);
 
         if (cached == textCache_.end()) {
-            SDL_Surface* surface = font_.renderSurface(text, color);
+            SDL_Surface* surface = font->renderSurface(text, color);
 
             if (surface == nullptr) {
                 return;
@@ -228,6 +251,10 @@ namespace emgui {
         };
 
         SDL_RenderCopy(renderer_, cached->second.texture, nullptr, &destination);
+    }
+
+    bool RendererOpts::isFontValid() const {
+        return fontManager_.getFont(defaultFontSpec_)->isValid();
     }
 
     void RendererOpts::clear() {
@@ -312,6 +339,15 @@ namespace emgui {
         const SDL_Color& color
     ) {
         opts_.drawText(text, position, color);
+    }
+
+    void RendererOpts::Frame::drawText(
+        const std::string& text,
+        const SDL_Point& position,
+        const SDL_Color& color,
+        const FontSpec& fontSpec
+    ) {
+        opts_.drawText(text, position, color, fontSpec);
     }
 
 } // emgui

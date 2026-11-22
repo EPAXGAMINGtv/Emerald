@@ -10,6 +10,15 @@ add_library(emrldgui SHARED ${EMRLDGUI_SOURCES})
 
 add_library(Emerald::emrldgui ALIAS emrldgui)
 
+#ship res/ next to the executable and keep the source path as a dev fallback ->
+add_custom_command(TARGET emrldgui POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/res"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res"
+    COMMENT "Copying emrldgui resources"
+)
+target_compile_definitions(emrldgui PUBLIC EMERLDGUI_RES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/res")
+
 target_include_directories(emrldgui
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

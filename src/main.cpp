@@ -59,7 +59,11 @@ int main() {
         auto& rendererOpts = window.getRendererOpts();
 
         emgui::Text helloWorldTextComponent("Hello, World!", 10, 10);
-        emgui::Text helloWorldTextComponent2("Hello, World22!", 50, 10);
+        helloWorldTextComponent.setStyleClass("title");
+
+        emgui::Text helloWorldTextComponent2("Hello, World22!", 50, 60);
+        helloWorldTextComponent2.setStyleId("mainTitle");
+
         window.getUIComponentManager().addComponent(&helloWorldTextComponent);
         window.getUIComponentManager().addComponent(&helloWorldTextComponent2);
 

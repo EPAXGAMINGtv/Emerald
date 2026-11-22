@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "UIComponent.h"
+#include "emrldgui/style/StyleManager.h"
 
 namespace emgui {
 
@@ -39,6 +40,7 @@ namespace emgui {
             T& reference = *component;
 
             components_.push_back(ComponentEntry{std::move(component), nullptr});
+            finalizeRegistration(&reference);
 
             return reference;
         }
@@ -51,11 +53,23 @@ namespace emgui {
         void render(RendererOpts& renderer);
         void clear();
 
+        //CSS helpers ->
+        StyleManager& getStyleManager() {
+            return styleManager_;
+        }
+
+        void applyStylesTo(UIComponent* component);
+        void reloadStyles();
+
         std::size_t getComponentCount() const;
         bool contains(UIComponent* component) const;
 
     private:
+        void finalizeRegistration(UIComponent* component);
+        void detachComponent(UIComponent* component);
+
         std::vector<ComponentEntry> components_;
+        StyleManager styleManager_;
     };
 
 } // emgui

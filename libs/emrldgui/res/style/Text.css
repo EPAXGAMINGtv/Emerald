@@ -1,0 +1,24 @@
+/*
+ * Default styling for emgui::Text components.
+ * Set component.setStyleClass("title") to use the rule below.
+ */
+
+Text {
+    color: #ffffff;
+    font-family: "LiberationSans";
+    font-size: 24px;
+    font-style: normal;
+}
+
+Text.title {
+    color: #ffcc55;
+    font-size: 32px;
+    font-style: bold;
+}
+
+#mainTitle {
+    color: rgba(120, 200, 255, 255);
+    font-family: "LiberationSans";
+    font-size: 28px;
+    font-style: italic;
+}
