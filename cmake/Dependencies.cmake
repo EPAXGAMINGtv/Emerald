@@ -89,6 +89,48 @@ else()
     endif()
 endif()
 
+find_package(SDL2_ttf QUIET)
+if(TARGET SDL2_ttf::SDL2_ttf)
+    target_link_libraries(project_dependencies INTERFACE SDL2_ttf::SDL2_ttf)
+else()
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(SDL2_TTF IMPORTED_TARGET QUIET SDL2_ttf)
+        if(TARGET PkgConfig::SDL2_TTF)
+            target_link_libraries(project_dependencies INTERFACE PkgConfig::SDL2_TTF)
+        endif()
+    endif()
+
+    if(NOT TARGET PkgConfig::SDL2_TTF)
+        message(STATUS "SDL2_ttf not found on system; fetching SDL2_ttf via FetchContent")
+        set(SDL2TTF_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+        set(SDL2TTF_SAMPLES OFF CACHE BOOL "" FORCE)
+        set(SDL2TTF_INSTALL OFF CACHE BOOL "" FORCE)
+        set(SDL2TTF_VENDORED OFF CACHE BOOL "" FORCE)
+        FetchContent_Declare(
+            SDL_ttf
+            GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
+            GIT_TAG release-2.20.2
+            GIT_SUBMODULES ""
+        )
+        FetchContent_MakeAvailable(SDL_ttf)
+
+        if(TARGET SDL2_ttf::SDL2_ttf)
+            target_link_libraries(project_dependencies INTERFACE SDL2_ttf::SDL2_ttf)
+        elseif(TARGET SDL2_ttf)
+            target_link_libraries(project_dependencies INTERFACE SDL2_ttf)
+        endif()
+    endif()
+endif()
+
+#third party headers are system headers, so their warnings stay out of our files ->
+if(TARGET SDL2_ttf)
+    set_target_properties(SDL2_ttf PROPERTIES SYSTEM TRUE)
+endif()
+if(DEFINED SDL_ttf_SOURCE_DIR)
+    target_include_directories(project_dependencies SYSTEM INTERFACE "${SDL_ttf_SOURCE_DIR}")
+endif()
+
 find_package(yaml-cpp QUIET)
 if(TARGET yaml-cpp::yaml-cpp)
     target_link_libraries(project_dependencies INTERFACE yaml-cpp::yaml-cpp)
@@ -107,6 +149,15 @@ else()
         target_link_libraries(project_dependencies INTERFACE yaml-cpp::yaml-cpp)
     elseif(TARGET yaml-cpp)
         target_link_libraries(project_dependencies INTERFACE yaml-cpp)
+    endif()
+
+    #yaml-cpp 0.8.0 uses uint16_t without including <cstdint> on newer compilers ->
+    if(TARGET yaml-cpp)
+        if(MSVC)
+            target_compile_options(yaml-cpp PRIVATE /FIcstdint)
+        else()
+            target_compile_options(yaml-cpp PRIVATE -include cstdint)
+        endif()
     endif()
 endif()
 

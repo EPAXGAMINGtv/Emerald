@@ -27,6 +27,12 @@ namespace emgui {
         //each window initializes its own event manager here ->
         eventManager_ = EventManager::create(window_);
 
+        //each window generates its own render context here ->
+        rendererContext_ = std::make_unique<RenderContext>(window_);
+
+        //the renderer belongs to the window, so RendererOpts is created here too ->
+        rendererOpts_ = std::make_unique<RendererOpts>(*rendererContext_);
+
         //keyboard and mouse events are registered for every window by default ->
         EventManager::registerEvent(window_, EventKeyboard(window_));
         EventManager::registerEvent(window_, EventMouse(window_));
@@ -36,6 +42,11 @@ namespace emgui {
 
     Window::~Window() {
         spdlog::info("Window destructor called closing SDL2 Window!: {}",title_);
+
+        //the renderer must die before its SDL_Window ->
+        rendererOpts_.reset();
+        eventManager_.reset();
+
         closeWindow();
     }
 
@@ -73,6 +84,11 @@ namespace emgui {
         }
 
         if (window_ == nullptr) {
+            return;
+        }
+
+        //a renderer owns the backbuffer, surface updates would conflict with it ->
+        if (SDL_GetRenderer(window_) != nullptr) {
             return;
         }
 

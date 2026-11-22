@@ -21,7 +21,7 @@
 #include "emrldgui/event/EventMouse.h"
 #include "emrldgui/input/Keyboard.h"
 #include "emrldgui/input/Mouse.h"
-
+#include "emrldgui/render/RendererOpts.h"
 
 
 int main() {
@@ -48,17 +48,32 @@ int main() {
     emerge.EmergeSync();
 
     emrldgui::EmeraldGUI emeraldGUI;
-    emgui::Window window= emgui::Window("test",1920,1080,static_cast<SDL_WindowFlags>(SDL_WINDOW_MAXIMIZED|SDL_WINDOW_RESIZABLE|SDL_WINDOW_SHOWN));
+    emgui::Window window = emgui::Window("test", 1920, 1080,
+                                         static_cast<SDL_WindowFlags>(
+                                             SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN));
 
     emgui::Keyboard keyboard(window);
 
-    //Mouse uses the EventMouse that is registered by default ->
     emgui::Mouse mouse(window);
 
+    //the window owns its RendererOpts now ->
+    auto &rendererOpts = window.getRendererOpts();
 
+    const SDL_Point textpos{30, 30};
+    const SDL_Color textcolor{255, 255, 255, 255};
+    const SDL_Rect rect{10, 10, 10, 10};
 
     while (!window.shouldClose()) {
         window.updateWindow();
+
+
+        auto frame = rendererOpts.beginFrame();
+        frame.fillRect(rect, textcolor);
+        frame.drawRect({10, 30, 10, 10}, textcolor);
+        frame.drawCircle({60, 60}, 20, textcolor);
+        frame.drawLine({0, 0}, {100, 0}, textcolor);
+        frame.drawText("Hello World!", textpos, textcolor);
+
 
         if (keyboard.isPressed(SDLK_ESCAPE)) {
             spdlog::info("Escape pressed, closing window");

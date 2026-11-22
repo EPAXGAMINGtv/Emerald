@@ -9,6 +9,8 @@
 #pragma once
 
 #include "event/EventManager.h"
+#include "render/RenderContext.h"
+#include "render/RendererOpts.h"
 
 #include <SDL_video.h>
 
@@ -47,6 +49,24 @@ namespace emgui {
             return *eventManager_;
         }
 
+        //the window creates its own render context, use this for RendererOpts ->
+        RenderContext& getRendererContext() {
+            return *rendererContext_;
+        }
+
+        const RenderContext& getRendererContext() const {
+            return *rendererContext_;
+        }
+
+        //the window owns the renderer too, no need to create RendererOpts manually ->
+        RendererOpts& getRendererOpts() {
+            return *rendererOpts_;
+        }
+
+        const RendererOpts& getRendererOpts() const {
+            return *rendererOpts_;
+        }
+
         std::string getTitle()  const {
             return title_;
         }
@@ -69,5 +89,7 @@ namespace emgui {
         SDL_WindowFlags flags_;
         SDL_Window* window_ = nullptr;
         std::unique_ptr<EventManager> eventManager_;
+        std::unique_ptr<RenderContext> rendererContext_;
+        std::unique_ptr<RendererOpts> rendererOpts_;
     };
 }

@@ -1,0 +1,42 @@
+//
+// Created by epax on 21.11.26.
+//
+
+//
+// ttf font used by RendererOpts::drawText
+//
+
+#pragma once
+
+#include <SDL_ttf.h>
+
+#include <string>
+
+namespace emgui {
+    class Font {
+    public:
+        //Constructor and Destructor here ->
+        explicit Font(int fontSize = 24, std::string path = {});
+        ~Font();
+
+        Font(const Font&) = delete;
+        Font& operator=(const Font&) = delete;
+
+        //some functions here ->
+        void draw(
+            SDL_Renderer* renderer,
+            const std::string& text,
+            const SDL_Point& position,
+            const SDL_Color& color
+        ) const;
+
+        //some getters here ->
+        bool isValid() const {
+            return font_ != nullptr;
+        }
+
+    private:
+        //variables
+        TTF_Font* font_ = nullptr;
+    };
+} // emgui
