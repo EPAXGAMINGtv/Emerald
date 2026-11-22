@@ -57,9 +57,21 @@ namespace emgui {
     }
 
     RendererOpts::~RendererOpts() {
+        //textures belong to this renderer, so they must die before it ->
+        clearTextCache();
+
         if (renderer_ != nullptr) {
             SDL_DestroyRenderer(renderer_);
         }
+    }
+
+    void RendererOpts::clearTextCache() {
+        for (const auto& entry : textCache_) {
+            if (entry.second.texture != nullptr) {
+                SDL_DestroyTexture(entry.second.texture);
+            }
+        }
+        textCache_.clear();
     }
 
     void RendererOpts::drawRect(const SDL_Rect& rect, const SDL_Color& color) {
@@ -179,7 +191,43 @@ namespace emgui {
         const SDL_Point& position,
         const SDL_Color& color
     ) {
-        font_.draw(renderer_, text, position, color);
+        if (renderer_ == nullptr) {
+            return;
+        }
+
+        //same text/color/font reuses its texture instead of re-rendering every frame ->
+        const TextCacheKey key{text, color.r, color.g, color.b, color.a};
+        auto cached = textCache_.find(key);
+
+        if (cached == textCache_.end()) {
+            SDL_Surface* surface = font_.renderSurface(text, color);
+
+            if (surface == nullptr) {
+                return;
+            }
+
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
+
+            if (texture == nullptr) {
+                spdlog::error("SDL_CreateTextureFromSurface failed: {}", SDL_GetError());
+                SDL_FreeSurface(surface);
+                return;
+            }
+
+            const CachedText entry{texture, surface->w, surface->h};
+            SDL_FreeSurface(surface);
+
+            cached = textCache_.emplace(key, entry).first;
+        }
+
+        const SDL_Rect destination = {
+            position.x,
+            position.y,
+            cached->second.width,
+            cached->second.height
+        };
+
+        SDL_RenderCopy(renderer_, cached->second.texture, nullptr, &destination);
     }
 
     void RendererOpts::clear() {

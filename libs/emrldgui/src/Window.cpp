@@ -2,9 +2,10 @@
 // Created by epax on 21.11.26.
 //
 
-#include "../include/emrldgui/Window.h"
-#include "../include/emrldgui/event/EventKeyboard.h"
-#include "../include/emrldgui/event/EventMouse.h"
+#include "emrldgui/Window.h"
+#include "emrldgui/EmeraldGUI.h"
+#include "emrldgui/event/EventKeyboard.h"
+#include "emrldgui/event/EventMouse.h"
 
 #include <SDL.h>
 
@@ -14,6 +15,11 @@
 #include <vector>
 
 namespace emgui {
+
+    namespace {
+        //one global SDL_QUIT closes every window, not just the one polling it ->
+        bool g_globalQuitRequested = false;
+    } // namespace
 
     Window::Window(std::string  title,int width,int heigh,SDL_WindowFlags flags) :  width_(width), height_(heigh),title_(title), flags_(flags) {
         spdlog::info("Creating window {}",title_);
@@ -40,30 +46,56 @@ namespace emgui {
         EventManager::registerEvent(window_, EventKeyboard(window_));
         EventManager::registerEvent(window_, EventMouse(window_));
 
+        //let EmeraldGUI shut this window down before SDL quits ->
+        if (auto* gui = emrldgui::EmeraldGUI::active()) {
+            gui->registerWindow(this);
+        }
+
         spdlog::info("Created window {}",title_);
     }
 
     Window::~Window() {
         spdlog::info("Window destructor called closing SDL2 Window!: {}",title_);
 
+        shutdown();
+
+        if (auto* gui = emrldgui::EmeraldGUI::active()) {
+            gui->unregisterWindow(this);
+        }
+    }
+
+    void Window::shutdown() {
         //the renderer must die before its SDL_Window ->
         uiComponentManager_.reset();
         rendererOpts_.reset();
         eventManager_.reset();
+        rendererContext_.reset();
 
         closeWindow();
+    }
+
+    bool Window::isGlobalQuitRequested() {
+        return g_globalQuitRequested;
+    }
+
+    void Window::requestGlobalQuit() {
+        g_globalQuitRequested = true;
+    }
+
+    void Window::resetGlobalQuit() {
+        g_globalQuitRequested = false;
     }
 
     //some  functions here->
     void Window::updateWindow() {
         SDL_Event event;
 
-        //events of other windows are collected and pushed back for their own manager ->
         std::vector<SDL_Event> otherWindowEvents;
         const Uint32 windowID = SDL_GetWindowID(window_);
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
+                requestGlobalQuit();
                 shouldClose_ = true;
                 continue;
             }
@@ -87,7 +119,6 @@ namespace emgui {
             SDL_PushEvent(&otherEvent);
         }
 
-        //components get their per-frame update together with the window ->
         if (uiComponentManager_ != nullptr) {
             uiComponentManager_->update();
         }
@@ -96,7 +127,6 @@ namespace emgui {
             return;
         }
 
-        //a renderer owns the backbuffer, surface updates would conflict with it ->
         if (SDL_GetRenderer(window_) != nullptr) {
             return;
         }
@@ -154,8 +184,8 @@ namespace emgui {
 
     void Window::closeWindow() {
         //closes window
-        spdlog::info("Closing window {}",title_);
         if (window_ != nullptr) {
+            spdlog::info("Closing window {}", title_);
             SDL_DestroyWindow(window_);
             window_ = nullptr;
         }

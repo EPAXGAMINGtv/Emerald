@@ -2,7 +2,7 @@
 // Created by epax on 21.11.26.
 //
 
-#include "../../include/emrldgui/event/EventManager.h"
+#include "emrldgui/event/EventManager.h"
 
 #include <algorithm>
 
@@ -16,6 +16,13 @@ namespace emgui {
     //Constructor and Destructor here ->
     EventManager::EventManager(SDL_Window* window) {
         init(window);
+    }
+
+    EventManager::~EventManager() {
+        //do not leave a dangling manager pointer on a still living window ->
+        if (window_ != nullptr) {
+            SDL_SetWindowData(window_, kWindowDataKey, nullptr);
+        }
     }
 
     //static functions here ->
@@ -90,12 +97,60 @@ namespace emgui {
         }
     }
 
-    void EventManager::addEventListener(EventType type, EventCallback callback) {
-        listeners_[type].push_back(std::move(callback));
+    EventManager::ListenerId EventManager::addEventListener(
+        EventType type,
+        EventCallback callback
+    ) {
+        const ListenerId id = nextListenerId_++;
+
+        listeners_[type].push_back(Listener{id, std::move(callback)});
+        listenerTypes_[id] = type;
+
+        return id;
+    }
+
+    void EventManager::removeListener(ListenerId id) {
+        const auto typeEntry = listenerTypes_.find(id);
+
+        if (typeEntry == listenerTypes_.end()) {
+            return;
+        }
+
+        const auto listenerEntry = listeners_.find(typeEntry->second);
+
+        if (listenerEntry != listeners_.end()) {
+            auto& listeners = listenerEntry->second;
+            listeners.erase(
+                std::remove_if(
+                    listeners.begin(),
+                    listeners.end(),
+                    [id](const Listener& listener) {
+                        return listener.id == id;
+                    }
+                ),
+                listeners.end()
+            );
+
+            if (listeners.empty()) {
+                listeners_.erase(listenerEntry);
+            }
+        }
+
+        listenerTypes_.erase(typeEntry);
     }
 
     void EventManager::removeListeners(EventType type) {
-        listeners_.erase(type);
+        const auto listenerEntry = listeners_.find(type);
+
+        if (listenerEntry == listeners_.end()) {
+            return;
+        }
+
+        for (const Listener& listener : listenerEntry->second) {
+            listenerTypes_.erase(listener.id);
+        }
+
+        listeners_.erase(listenerEntry);
     }
 
     void EventManager::processEvent(const SDL_Event& event) {
@@ -118,12 +173,12 @@ namespace emgui {
                     continue;
                 }
 
-                for (auto& callback : listeners->second) {
+                for (auto& listener : listeners->second) {
                     if (guiEvent->handled) {
                         break;
                     }
 
-                    callback(*guiEvent);
+                    listener.callback(*guiEvent);
                 }
             }
         }

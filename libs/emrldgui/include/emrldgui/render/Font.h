@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <SDL.h>
 #include <SDL_ttf.h>
 
 #include <string>
@@ -23,6 +24,12 @@ namespace emgui {
         Font& operator=(const Font&) = delete;
 
         //some functions here ->
+        //returns an owned surface, caller must SDL_FreeSurface it ->
+        SDL_Surface* renderSurface(
+            const std::string& text,
+            const SDL_Color& color
+        ) const;
+
         void draw(
             SDL_Renderer* renderer,
             const std::string& text,

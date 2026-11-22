@@ -25,7 +25,19 @@ namespace emgui {
         Window(std::string  title,int width=1920,int height=1080,SDL_WindowFlags flags = static_cast<SDL_WindowFlags>(SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE));
         ~Window();
 
+        //a window owns SDL resources, so it is neither copyable nor movable ->
+        Window(const Window&) = delete;
+        Window& operator=(const Window&) = delete;
+        Window(Window&&) = delete;
+        Window& operator=(Window&&) = delete;
+
+        //static quit state shared by all windows ->
+        static bool isGlobalQuitRequested();
+        static void requestGlobalQuit();
+        static void resetGlobalQuit();
+
         //some  functions here->
+        void shutdown();
         void updateWindow() ;
         void renderUI();
         void setTitle(std::string title) ;
@@ -35,7 +47,7 @@ namespace emgui {
 
         //some getters here ->
         bool shouldClose() const {
-            return shouldClose_;
+            return shouldClose_ || isGlobalQuitRequested();
         }
 
         SDL_Window* getWindow() const {

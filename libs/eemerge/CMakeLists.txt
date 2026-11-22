@@ -16,9 +16,9 @@ target_include_directories(eemerge
         $<INSTALL_INTERFACE:include>
 )
 
+#eemerge only needs spdlog, which comes from project_dependencies ->
 target_link_libraries(eemerge
     PUBLIC
-        cfg
         project_dependencies
 )
 

@@ -2,29 +2,28 @@
 // Created by epax on 21.11.26.
 //
 
-#include "../include/emrldgui/input/Mouse.h"
+#include "emrldgui/input/Mouse.h"
 
 namespace emgui {
 
     //Constructor and Destructor here ->
     Mouse::Mouse(Window& window) : window_(window) {
-        //register EventMouse(window) with a void callback on this window ->
-        EventManager::registerEvent(
+        //register EventMouse(window) and keep only our own listener id ->
+        listenerId_ = EventManager::registerEvent(
             window_.getWindow(),
             EventMouse(window_.getWindow()),
             [this](EventMouse& event) {
                 onMouseEvent(event);
             }
         );
-
-        registered_ = EventManager::getForWindow(window_.getWindow()) != nullptr;
     }
 
     Mouse::~Mouse() {
-        //remove the callbacks that still hold this mouse ->
-        if (registered_ && window_.getWindow() != nullptr) {
+        //remove only the callback that holds this mouse ->
+        if (listenerId_ != EventManager::kInvalidListener &&
+            window_.getWindow() != nullptr) {
             if (auto* manager = EventManager::getForWindow(window_.getWindow())) {
-                manager->removeListeners(EventMouse::TYPE);
+                manager->removeListener(listenerId_);
             }
         }
     }

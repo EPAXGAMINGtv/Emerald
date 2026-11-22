@@ -3,7 +3,9 @@
 //
 #pragma once
 #include <SDL.h>
+#include <map>
 #include <string>
+#include <tuple>
 
 #include "Font.h"
 #include "RenderContext.h"
@@ -11,6 +13,7 @@
 namespace emgui {
     class RendererOpts {
     public:
+        //small RAII helper: clears at the beginning, presents at the end of the scope ->
         class Frame {
         public:
             ~Frame();
@@ -37,6 +40,7 @@ namespace emgui {
             RendererOpts& opts_;
         };
 
+        //fontPath empty selects a bundled/system TTF font ->
         explicit RendererOpts(
             RenderContext& context,
             int fontSize = 24,
@@ -71,14 +75,18 @@ namespace emgui {
             drawLine(start, end, color);
         }
 
+        //clear() always uses clearColor_, so draw colors cannot leak onto the whole screen ->
         void clear();
         void clear(const SDL_Color& color);
 
+        //put the rendered backbuffer on the window ->
         void present();
 
+        //frame helpers: clear at start, present when the Frame goes out of scope ->
         Frame beginFrame();
         Frame beginFrame(const SDL_Color& clearColor);
 
+        //some getters here ->
         SDL_Renderer* getRenderer() const {
             return renderer_;
         }
@@ -88,9 +96,20 @@ namespace emgui {
         }
 
     private:
+        using TextCacheKey = std::tuple<std::string, Uint8, Uint8, Uint8, Uint8>;
+
+        struct CachedText {
+            SDL_Texture* texture = nullptr;
+            int width = 0;
+            int height = 0;
+        };
+
+        void clearTextCache();
+
         RenderContext& context_;
         SDL_Renderer* renderer_ = nullptr;
         Font font_;
         SDL_Color clearColor_{0, 0, 0, 255};
+        std::map<TextCacheKey, CachedText> textCache_;
     };
 } // emgui

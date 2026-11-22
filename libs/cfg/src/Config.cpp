@@ -70,40 +70,44 @@ bool Config::load_or_create(const std::filesystem::path& path) {
 }
 
 bool Config::save() const {
-    return const_cast<Config*>(this)->save(path_);
+    return writeToFile(path_);
 }
 
 bool Config::save(const std::filesystem::path& path) {
     path_ = path;
-    if (path_.empty()) {
+    return writeToFile(path_);
+}
+
+bool Config::writeToFile(const std::filesystem::path& path) const {
+    if (path.empty()) {
         spdlog::warn("cfg::Config::save called with empty path");
         return false;
     }
 
     try {
-        if (path_.has_parent_path()) {
-            std::filesystem::create_directories(path_.parent_path());
+        if (path.has_parent_path()) {
+            std::filesystem::create_directories(path.parent_path());
         }
 
-        std::ofstream out(path_, std::ios::out | std::ios::trunc);
+        std::ofstream out(path, std::ios::out | std::ios::trunc);
         if (!out.is_open()) {
-            spdlog::error("Failed to open config for writing: {}", path_.string());
+            spdlog::error("Failed to open config for writing: {}", path.string());
             return false;
         }
 
         YAML::Emitter emitter;
         emitter << root_;
         if (!emitter.good()) {
-            spdlog::error("Failed to serialize config '{}': {}", path_.string(), emitter.GetLastError());
+            spdlog::error("Failed to serialize config '{}': {}", path.string(), emitter.GetLastError());
             return false;
         }
 
         out << emitter.c_str();
         out << '\n';
-        spdlog::debug("Saved config to {}", path_.string());
+        spdlog::debug("Saved config to {}", path.string());
         return true;
     } catch (const std::exception& e) {
-        spdlog::error("Failed to save config '{}': {}", path_.string(), e.what());
+        spdlog::error("Failed to save config '{}': {}", path.string(), e.what());
         return false;
     }
 }

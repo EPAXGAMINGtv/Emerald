@@ -6,14 +6,11 @@
 // small test for the per window event system
 //
 
-#include <unistd.h>
-
 #include "cfg/Config.hpp"
 #include "eemerge/Emerge.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <X11/Xproto.h>
 
 #include "emrldgui/EmeraldGUI.h"
 #include "emrldgui/Window.h"
@@ -49,42 +46,43 @@ int main() {
     emgr::Emerge emerge;
     emerge.EmergeSync();
 
-    emrldgui::EmeraldGUI emeraldGUI;
-    emgui::Window window = emgui::Window("test", 1920, 1080,
-                                         static_cast<SDL_WindowFlags>(
-                                             SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN));
+    {
+        emrldgui::EmeraldGUI emeraldGUI;
+        emgui::Window window = emgui::Window("test", 1920, 1080,
+                                             static_cast<SDL_WindowFlags>(
+                                                 SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN));
 
-    emgui::Keyboard keyboard(window);
+        emgui::Keyboard keyboard(window);
 
-    emgui::Mouse mouse(window);
+        emgui::Mouse mouse(window);
 
-    auto& rendererOpts = window.getRendererOpts();
+        auto& rendererOpts = window.getRendererOpts();
 
-    //the window already owns the manager, so we only register our existing component ->
-    emgui::Text helloWorldTextComponent("Hello, World!", 10, 10);
-    emgui::Text helloWorldTextComponent2("Hello, World22!", 50, 10);
-    window.getUIComponentManager().addComponent(&helloWorldTextComponent);
-    window.getUIComponentManager().addComponent(&helloWorldTextComponent2);
+        emgui::Text helloWorldTextComponent("Hello, World!", 10, 10);
+        emgui::Text helloWorldTextComponent2("Hello, World22!", 50, 10);
+        window.getUIComponentManager().addComponent(&helloWorldTextComponent);
+        window.getUIComponentManager().addComponent(&helloWorldTextComponent2);
 
-    while (!window.shouldClose()) {
-        window.updateWindow();
+        while (!window.shouldClose()) {
+            window.updateWindow();
 
-        auto frame = rendererOpts.beginFrame();
-        window.renderUI();
+            auto frame = rendererOpts.beginFrame();
+            window.renderUI();
 
 
-        if (keyboard.isPressed(SDLK_ESCAPE)) {
-            spdlog::info("Escape pressed, closing window");
-            window.closeWindow();
+            if (keyboard.isPressed(SDLK_ESCAPE)) {
+                spdlog::info("Escape pressed, closing window");
+                window.closeWindow();
+            }
+
+            if (mouse.isButtonPressed(SDL_BUTTON_LEFT)) {
+                spdlog::info("Left mouse button pressed at {} {}", mouse.getX(), mouse.getY());
+            }
+
+            spdlog::debug("Mouse pos x:{} and y:{}", mouse.getX(), mouse.getY());
+            keyboard.clearFrameState();
+            mouse.clearFrameState();
         }
-
-        if (mouse.isButtonPressed(SDL_BUTTON_LEFT)) {
-            spdlog::info("Left mouse button pressed at {} {}", mouse.getX(), mouse.getY());
-        }
-
-        spdlog::info("Mouse pos x:{} and y:{}", mouse.getX(), mouse.getY());
-        keyboard.clearFrameState();
-        mouse.clearFrameState();
     }
 
     spdlog::info("Emerald exiting");

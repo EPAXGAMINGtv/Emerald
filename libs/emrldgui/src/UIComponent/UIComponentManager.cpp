@@ -54,7 +54,7 @@ namespace emgui {
         components_.clear();
     }
 
-    size_t UIComponentManager::getComponentCount() const {
+    std::size_t UIComponentManager::getComponentCount() const {
         return components_.size();
     }
 

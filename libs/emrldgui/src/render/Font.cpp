@@ -2,7 +2,7 @@
 // Created by epax on 21.11.26.
 //
 
-#include "../../include/emrldgui/render/Font.h"
+#include "emrldgui/render/Font.h"
 
 #include <filesystem>
 
@@ -34,9 +34,9 @@ namespace emgui {
 
     //Constructor and Destructor here ->
     Font::Font(int fontSize, std::string path) {
-        if (TTF_WasInit() == 0 && TTF_Init() != 0) {
-            spdlog::error("TTF_Init failed: {}", TTF_GetError());
-            return;
+        //TTF lifetime is owned by EmeraldGUI, Font only opens/closes its face ->
+        if (TTF_WasInit() == 0) {
+            spdlog::warn("TTF is not initialized; create emrldgui::EmeraldGUI before using Font");
         }
 
         if (path.empty()) {
@@ -60,20 +60,36 @@ namespace emgui {
     }
 
     //some functions here ->
-    void Font::draw(
-        SDL_Renderer* renderer,
+    SDL_Surface* Font::renderSurface(
         const std::string& text,
-        const SDL_Point& position,
         const SDL_Color& color
     ) const {
-        if (renderer == nullptr || font_ == nullptr) {
-            return;
+        if (font_ == nullptr) {
+            return nullptr;
         }
 
         SDL_Surface* surface = TTF_RenderText_Blended(font_, text.c_str(), color);
 
         if (surface == nullptr) {
             spdlog::error("TTF_RenderText_Blended failed: {}", TTF_GetError());
+        }
+
+        return surface;
+    }
+
+    void Font::draw(
+        SDL_Renderer* renderer,
+        const std::string& text,
+        const SDL_Point& position,
+        const SDL_Color& color
+    ) const {
+        if (renderer == nullptr) {
+            return;
+        }
+
+        SDL_Surface* surface = renderSurface(text, color);
+
+        if (surface == nullptr) {
             return;
         }
 

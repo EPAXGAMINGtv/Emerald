@@ -16,10 +16,9 @@ target_include_directories(emrldgui
         $<INSTALL_INTERFACE:include>
 )
 
+#project_dependencies provides SDL2, SDL2_ttf and spdlog; no cfg/eemerge dependency here ->
 target_link_libraries(emrldgui
     PUBLIC
-        cfg
-        eemerge
         project_dependencies
 )
 

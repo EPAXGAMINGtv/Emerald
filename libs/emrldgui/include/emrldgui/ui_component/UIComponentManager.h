@@ -51,7 +51,7 @@ namespace emgui {
         void render(RendererOpts& renderer);
         void clear();
 
-        size_t getComponentCount() const;
+        std::size_t getComponentCount() const;
         bool contains(UIComponent* component) const;
 
     private:

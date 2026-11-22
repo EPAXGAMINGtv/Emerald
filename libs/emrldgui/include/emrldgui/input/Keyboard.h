@@ -22,6 +22,12 @@ namespace emgui {
         explicit Keyboard(Window& window);
         ~Keyboard();
 
+        //a listener captures 'this', so copies and moves would dangle ->
+        Keyboard(const Keyboard&) = delete;
+        Keyboard& operator=(const Keyboard&) = delete;
+        Keyboard(Keyboard&&) = delete;
+        Keyboard& operator=(Keyboard&&) = delete;
+
         //some functions here ->
         bool isDown(SDL_Keycode key) const;
         bool isPressed(SDL_Keycode key) const;
@@ -36,7 +42,7 @@ namespace emgui {
 
         //variables
         Window& window_;
-        bool registered_ = false;
+        EventManager::ListenerId listenerId_ = EventManager::kInvalidListener;
         std::unordered_map<SDL_Keycode, bool> down_;
         std::unordered_map<SDL_Keycode, bool> pressed_;
         std::unordered_map<SDL_Keycode, bool> released_;

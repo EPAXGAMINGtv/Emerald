@@ -2,29 +2,28 @@
 // Created by epax on 21.11.26.
 //
 
-#include "../include/emrldgui/input/Keyboard.h"
+#include "emrldgui/input/Keyboard.h"
 
 namespace emgui {
 
     //Constructor and Destructor here ->
     Keyboard::Keyboard(Window& window) : window_(window) {
-        //register EventKeyboard(window) with a void callback on this window ->
-        EventManager::registerEvent(
+        //register EventKeyboard(window) and keep only our own listener id ->
+        listenerId_ = EventManager::registerEvent(
             window_.getWindow(),
             EventKeyboard(window_.getWindow()),
             [this](EventKeyboard& event) {
                 onKeyboardEvent(event);
             }
         );
-
-        registered_ = EventManager::getForWindow(window_.getWindow()) != nullptr;
     }
 
     Keyboard::~Keyboard() {
-        //remove the callbacks that still hold this keyboard ->
-        if (registered_ && window_.getWindow() != nullptr) {
+        //remove only the callback that holds this keyboard ->
+        if (listenerId_ != EventManager::kInvalidListener &&
+            window_.getWindow() != nullptr) {
             if (auto* manager = EventManager::getForWindow(window_.getWindow())) {
-                manager->removeListeners(EventKeyboard::TYPE);
+                manager->removeListener(listenerId_);
             }
         }
     }
@@ -64,7 +63,7 @@ namespace emgui {
             pressed_[key] = false;
         }
 
-        event.handled = true;
+        //do not mark handled, other listeners must still receive keyboard events
     }
 
 } // emgui

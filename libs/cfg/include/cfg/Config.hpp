@@ -99,6 +99,9 @@ private:
     YAML::Node lookup(std::string_view key) const;
     YAML::Node ensure(std::string_view key);
 
+    //const save() and save(path) share this write-only implementation ->
+    bool writeToFile(const std::filesystem::path& path) const;
+
     std::filesystem::path path_;
     YAML::Node root_ = YAML::Node(YAML::NodeType::Map);
 };

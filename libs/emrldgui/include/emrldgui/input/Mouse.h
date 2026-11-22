@@ -22,6 +22,12 @@ namespace emgui {
         explicit Mouse(Window& window);
         ~Mouse();
 
+        //a listener captures 'this', so copies and moves would dangle ->
+        Mouse(const Mouse&) = delete;
+        Mouse& operator=(const Mouse&) = delete;
+        Mouse(Mouse&&) = delete;
+        Mouse& operator=(Mouse&&) = delete;
+
         //some functions here ->
         bool isButtonDown(Uint8 button) const;
         bool isButtonPressed(Uint8 button) const;
@@ -43,7 +49,7 @@ namespace emgui {
 
         //variables
         Window& window_;
-        bool registered_ = false;
+        EventManager::ListenerId listenerId_ = EventManager::kInvalidListener;
 
         int x_ = 0;
         int y_ = 0;

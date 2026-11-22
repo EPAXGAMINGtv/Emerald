@@ -12,10 +12,10 @@
 
 #include <SDL.h>
 
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <type_traits>
-#include <typeindex>
 #include <unordered_map>
 #include <vector>
 
@@ -25,26 +25,36 @@ namespace emgui {
     public:
         using EventFactory = emgui::EventFactory;
         using EventCallback = std::function<void(Event&)>;
+        using ListenerId = std::size_t;
+
+        static constexpr ListenerId kInvalidListener = 0;
+
+        struct Listener {
+            ListenerId id = kInvalidListener;
+            EventCallback callback;
+        };
 
         //Constructor and Destructor here ->
         explicit EventManager(SDL_Window* window);
-        ~EventManager() = default;
+        ~EventManager();
 
         //static functions here ->
         static std::unique_ptr<EventManager> create(SDL_Window* window);
         static EventManager* getForWindow(SDL_Window* window);
 
-        //register an event for a window, callback is a void function ->
+        //register an event for a window, returns the id of the added listener ->
         template<typename T, typename Callback>
-        static void registerEvent(SDL_Window* window, const T& event, Callback callback) {
+        static ListenerId registerEvent(SDL_Window* window, const T& event, Callback callback) {
             static_assert(
                 std::is_base_of_v<Event, T>,
                 "T must inherit from Event"
             );
 
             if (auto* manager = getForWindow(window)) {
-                manager->registerEvent(event, std::move(callback));
+                return manager->registerEvent(event, std::move(callback));
             }
+
+            return kInvalidListener;
         }
 
         template<typename T>
@@ -76,24 +86,24 @@ namespace emgui {
         }
 
         template<typename T, typename Callback>
-        void registerEvent(const T& event, Callback callback) {
+        ListenerId registerEvent(const T& event, Callback callback) {
             static_assert(
                 std::is_base_of_v<Event, T>,
                 "T must inherit from Event"
             );
 
             registerEventImpl(event);
-            addEventListener<T>(std::move(callback));
+            return addEventListener<T>(std::move(callback));
         }
 
         template<typename T, typename Callback>
-        void addEventListener(Callback callback) {
+        ListenerId addEventListener(Callback callback) {
             static_assert(
                 std::is_base_of_v<Event, T>,
                 "T must inherit from Event"
             );
 
-            addEventListener(
+            return addEventListener(
                 T::TYPE,
                 [callback = std::move(callback)](Event& event) {
                     if (auto* typedEvent = dynamic_cast<T*>(&event)) {
@@ -103,7 +113,8 @@ namespace emgui {
             );
         }
 
-        void addEventListener(EventType type, EventCallback callback);
+        ListenerId addEventListener(EventType type, EventCallback callback);
+        void removeListener(ListenerId id);
         void removeListeners(EventType type);
         void processEvent(const SDL_Event& event);
 
@@ -127,8 +138,10 @@ namespace emgui {
         //variables
         SDL_Window* window_ = nullptr;
         Uint32 windowID_ = 0;
+        ListenerId nextListenerId_ = 1;
         std::unordered_map<Uint32, std::vector<EventRegistration>> registrations_;
-        std::unordered_map<EventType, std::vector<EventCallback>> listeners_;
+        std::unordered_map<EventType, std::vector<Listener>> listeners_;
+        std::unordered_map<ListenerId, EventType> listenerTypes_;
     };
 
 } // emgui
