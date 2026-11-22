@@ -22,6 +22,10 @@ namespace emgui {
             return;
         }
 
+        if (window_ != nullptr) {
+            component->setWindow(*window_);
+        }
+
         styleManager_.loadComponent(component->getComponentName());
         component->setStyleChangeCallback(
             [this](UIComponent& changed) {

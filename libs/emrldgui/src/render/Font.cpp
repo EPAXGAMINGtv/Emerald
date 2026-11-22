@@ -77,6 +77,22 @@ namespace emgui {
         return surface;
     }
 
+    bool Font::measure(const std::string& text, int& width, int& height) const {
+        width = 0;
+        height = 0;
+
+        if (font_ == nullptr) {
+            return false;
+        }
+
+        if (TTF_SizeText(font_, text.c_str(), &width, &height) != 0) {
+            spdlog::error("TTF_SizeText failed: {}", TTF_GetError());
+            return false;
+        }
+
+        return true;
+    }
+
     void Font::draw(
         SDL_Renderer* renderer,
         const std::string& text,

@@ -13,7 +13,7 @@ namespace emgui {
         int specificity(const CssRule& rule) {
             int result = 0;
 
-            if (!rule.component.empty()) {
+            if (!rule.component.empty() && rule.component != "*") {
                 ++result;
             }
             if (!rule.styleClass.empty()) {
@@ -32,7 +32,8 @@ namespace emgui {
             const std::string& styleClass,
             const std::string& id
         ) {
-            if (!rule.component.empty() && rule.component != componentName) {
+            if (!rule.component.empty() && rule.component != "*" &&
+                rule.component != componentName) {
                 return false;
             }
             if (!rule.styleClass.empty() && rule.styleClass != styleClass) {

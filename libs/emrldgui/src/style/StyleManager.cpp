@@ -15,6 +15,8 @@
 namespace emgui {
 
     void StyleManager::loadComponent(const std::string& componentName) {
+        loadTheme();
+
         if (componentName.empty()) {
             return;
         }
@@ -43,22 +45,49 @@ namespace emgui {
         );
     }
 
+    void StyleManager::loadTheme() {
+        if (themeLoaded_) {
+            return;
+        }
+
+        themeLoaded_ = true;
+        const auto path = ResourceManager::stylePath("Theme");
+
+        if (!std::filesystem::exists(path)) {
+            spdlog::warn("No theme stylesheet at {}", path.string());
+            themeSheet_.clear();
+            return;
+        }
+
+        themeSheet_ = CssParser::parseFile(path);
+        spdlog::info(
+            "Loaded CSS '{}' with {} rule(s)",
+            path.string(),
+            themeSheet_.getRules().size()
+        );
+    }
+
     const StyleSheet* StyleManager::getSheet(const std::string& componentName) const {
         const auto it = sheets_.find(componentName);
         return it == sheets_.end() ? nullptr : &it->second;
     }
 
     void StyleManager::applyTo(UIComponent& component) {
-        const StyleSheet* sheet = getSheet(component.getComponentName());
+        loadTheme();
 
-        if (sheet == nullptr) {
-            return;
+        StyleValues values = StyleResolver::resolve(themeSheet_, component);
+
+        if (const StyleSheet* sheet = getSheet(component.getComponentName())) {
+            values.merge(StyleResolver::resolve(*sheet, component));
         }
 
-        component.applyStyle(StyleResolver::resolve(*sheet, component));
+        component.applyStyle(values);
     }
 
     void StyleManager::reload() {
+        themeLoaded_ = false;
+        loadTheme();
+
         const auto componentNames = [this]() {
             std::vector<std::string> names;
             names.reserve(paths_.size());

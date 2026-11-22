@@ -8,6 +8,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace emgui {
 
@@ -28,10 +29,19 @@ namespace emgui {
         ) const;
 
         int getInt(const std::string& property, int fallback) const;
+        bool getBool(const std::string& property, bool fallback) const;
+        float getFloat(const std::string& property, float fallback) const;
         SDL_Color getColor(
             const std::string& property,
             const SDL_Color& fallback
         ) const;
+        std::vector<SDL_Color> getColors(
+            const std::string& property,
+            const std::vector<SDL_Color>& fallback = {}
+        ) const;
+
+        //theme values are applied first, component values overwrite them ->
+        void merge(const StyleValues& other);
 
     private:
         std::map<std::string, std::string> values_;

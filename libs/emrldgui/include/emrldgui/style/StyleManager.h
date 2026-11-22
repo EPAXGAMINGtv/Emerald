@@ -23,8 +23,12 @@ namespace emgui {
         void reload();
 
     private:
+        void loadTheme();
+
         std::map<std::string, std::filesystem::path> paths_;
         std::map<std::string, StyleSheet> sheets_;
+        StyleSheet themeSheet_;
+        bool themeLoaded_ = false;
     };
 
 } // emgui

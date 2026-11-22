@@ -41,6 +41,7 @@ namespace emgui {
 
         //the UI manager belongs to the window just like the event manager ->
         uiComponentManager_ = std::make_unique<UIComponentManager>();
+        uiComponentManager_->setWindow(this);
 
         //keyboard and mouse events are registered for every window by default ->
         EventManager::registerEvent(window_, EventKeyboard(window_));

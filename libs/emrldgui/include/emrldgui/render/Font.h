@@ -30,6 +30,8 @@ namespace emgui {
             const SDL_Color& color
         ) const;
 
+        bool measure(const std::string& text, int& width, int& height) const;
+
         void draw(
             SDL_Renderer* renderer,
             const std::string& text,

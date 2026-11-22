@@ -15,6 +15,8 @@
 
 namespace emgui {
 
+    class Window;
+
     class UIComponentManager {
     private:
         //owned components are destroyed with the manager, external ones are only referenced ->
@@ -53,6 +55,15 @@ namespace emgui {
         void render(RendererOpts& renderer);
         void clear();
 
+        //the owning window injects itself here so every component can use it ->
+        void setWindow(Window* window) {
+            window_ = window;
+        }
+
+        Window* getWindow() const {
+            return window_;
+        }
+
         //CSS helpers ->
         StyleManager& getStyleManager() {
             return styleManager_;
@@ -70,6 +81,7 @@ namespace emgui {
 
         std::vector<ComponentEntry> components_;
         StyleManager styleManager_;
+        Window* window_ = nullptr;
     };
 
 } // emgui

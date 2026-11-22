@@ -46,13 +46,32 @@ namespace emgui {
         bool parseColorValue(const std::string& value, SDL_Color& output) {
             const std::string normalized = lower(value);
 
-            if (normalized == "white") output = {255, 255, 255, 255};
-            else if (normalized == "black") output = {0, 0, 0, 255};
-            else if (normalized == "red") output = {255, 0, 0, 255};
-            else if (normalized == "green") output = {0, 128, 0, 255};
-            else if (normalized == "blue") output = {0, 0, 255, 255};
-            else if (normalized == "transparent") output = {0, 0, 0, 0};
-            else if (normalized.starts_with("#")) {
+            if (normalized == "white") {
+                output = {255, 255, 255, 255};
+                return true;
+            }
+            if (normalized == "black") {
+                output = {0, 0, 0, 255};
+                return true;
+            }
+            if (normalized == "red") {
+                output = {255, 0, 0, 255};
+                return true;
+            }
+            if (normalized == "green") {
+                output = {0, 128, 0, 255};
+                return true;
+            }
+            if (normalized == "blue") {
+                output = {0, 0, 255, 255};
+                return true;
+            }
+            if (normalized == "transparent") {
+                output = {0, 0, 0, 0};
+                return true;
+            }
+
+            if (normalized.starts_with("#")) {
                 const std::string_view hex(normalized);
                 unsigned char r = 0;
                 unsigned char g = 0;
@@ -117,6 +136,22 @@ namespace emgui {
             return value;
         }
 
+        std::string trim(std::string_view value) {
+            std::size_t first = 0;
+            while (first < value.size() &&
+                   std::isspace(static_cast<unsigned char>(value[first])) != 0) {
+                ++first;
+            }
+
+            std::size_t last = value.size();
+            while (last > first &&
+                   std::isspace(static_cast<unsigned char>(value[last - 1])) != 0) {
+                --last;
+            }
+
+            return std::string(value.substr(first, last - first));
+        }
+
     } // namespace
 
     std::string StyleValues::getString(
@@ -136,12 +171,56 @@ namespace emgui {
 
         std::string value = unquote(it->second);
 
-        if (!value.empty() && lower(value).ends_with("px")) {
+        const std::string normalized = lower(value);
+
+        if (normalized.ends_with("px") || normalized.ends_with("ms")) {
             value.erase(value.size() - 2);
         }
 
         try {
             return std::stoi(value);
+        } catch (const std::exception&) {
+            return fallback;
+        }
+    }
+
+    bool StyleValues::getBool(const std::string& property, bool fallback) const {
+        const auto it = values_.find(property);
+
+        if (it == values_.end()) {
+            return fallback;
+        }
+
+        const std::string value = lower(unquote(it->second));
+
+        if (value == "true" || value == "yes" || value == "on" || value == "1") {
+            return true;
+        }
+        if (value == "false" || value == "no" || value == "off" || value == "0") {
+            return false;
+        }
+
+        return fallback;
+    }
+
+    float StyleValues::getFloat(const std::string& property, float fallback) const {
+        const auto it = values_.find(property);
+
+        if (it == values_.end()) {
+            return fallback;
+        }
+
+        std::string value = unquote(it->second);
+        const std::string normalized = lower(value);
+
+        if (normalized.ends_with("%")) {
+            value.erase(value.size() - 1);
+        } else if (normalized.ends_with("px") || normalized.ends_with("ms")) {
+            value.erase(value.size() - 2);
+        }
+
+        try {
+            return std::stof(value);
         } catch (const std::exception&) {
             return fallback;
         }
@@ -164,6 +243,53 @@ namespace emgui {
         }
 
         return result;
+    }
+
+    std::vector<SDL_Color> StyleValues::getColors(
+        const std::string& property,
+        const std::vector<SDL_Color>& fallback
+    ) const {
+        const auto it = values_.find(property);
+
+        if (it == values_.end()) {
+            return fallback;
+        }
+
+        const std::string value = unquote(it->second);
+        std::vector<SDL_Color> colors;
+        std::size_t position = 0;
+
+        while (position <= value.size()) {
+            const std::size_t comma = value.find(',', position);
+            const std::string part = trim(
+                std::string_view(value).substr(
+                    position,
+                    comma == std::string::npos ? std::string::npos : comma - position
+                )
+            );
+
+            SDL_Color color{};
+
+            if (part.empty() || !parseColorValue(part, color)) {
+                return fallback;
+            }
+
+            colors.push_back(color);
+
+            if (comma == std::string::npos) {
+                break;
+            }
+
+            position = comma + 1;
+        }
+
+        return colors;
+    }
+
+    void StyleValues::merge(const StyleValues& other) {
+        for (const auto& entry : other.values_) {
+            values_[entry.first] = entry.second;
+        }
     }
 
 } // emgui

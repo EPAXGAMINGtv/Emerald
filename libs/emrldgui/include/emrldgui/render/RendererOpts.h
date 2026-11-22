@@ -30,6 +30,27 @@ namespace emgui {
             void drawLine(const SDL_Point& start, const SDL_Point& end, const SDL_Color& color);
             void drawCircle(const SDL_Point& center, int radius, const SDL_Color& color);
             void fillCircle(const SDL_Point& center, int radius, const SDL_Color& color);
+            void drawRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
+            void fillRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
+            void fillGradientRect(
+                const SDL_Rect& rect,
+                const SDL_Color& top,
+                const SDL_Color& bottom
+            );
+            void fillRoundedRectGradient(
+                const SDL_Rect& rect,
+                int radius,
+                const SDL_Color& top,
+                const SDL_Color& bottom
+            );
+            void drawShadow(
+                const SDL_Rect& rect,
+                int radius,
+                const SDL_Color& color,
+                int offsetX,
+                int offsetY,
+                int spread = 0
+            );
             void drawTexture(SDL_Texture* texture, const SDL_Rect& destination);
             void drawText(const std::string& text, const SDL_Point& position, const SDL_Color& color);
             void drawText(
@@ -73,6 +94,27 @@ namespace emgui {
         void drawLine(const SDL_Point& start, const SDL_Point& end, const SDL_Color& color);
         void drawCircle(const SDL_Point& center, int radius, const SDL_Color& color);
         void fillCircle(const SDL_Point& center, int radius, const SDL_Color& color);
+        void drawRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
+        void fillRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
+        void fillGradientRect(
+            const SDL_Rect& rect,
+            const SDL_Color& top,
+            const SDL_Color& bottom
+        );
+        void fillRoundedRectGradient(
+            const SDL_Rect& rect,
+            int radius,
+            const SDL_Color& top,
+            const SDL_Color& bottom
+        );
+        void drawShadow(
+            const SDL_Rect& rect,
+            int radius,
+            const SDL_Color& color,
+            int offsetX,
+            int offsetY,
+            int spread = 0
+        );
         void drawTexture(SDL_Texture* texture, const SDL_Rect& destination);
         void drawText(const std::string& text, const SDL_Point& position, const SDL_Color& color);
         void drawText(
@@ -81,6 +123,8 @@ namespace emgui {
             const SDL_Color& color,
             const FontSpec& fontSpec
         );
+
+        SDL_Point measureText(const std::string& text, const FontSpec& fontSpec) const;
 
         //old typo kept as an alias, use drawLine instead ->
         void drawlLine(const SDL_Point& start, const SDL_Point& end, const SDL_Color& color) {

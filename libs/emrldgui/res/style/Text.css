@@ -1,7 +1,3 @@
-/*
- * Default styling for emgui::Text components.
- * Set component.setStyleClass("title") to use the rule below.
- */
 
 Text {
     color: #ffffff;

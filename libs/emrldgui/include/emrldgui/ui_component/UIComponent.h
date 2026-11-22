@@ -12,6 +12,7 @@
 
 namespace emgui {
     class StyleValues;
+    class Window;
 
     class UIComponent {
     public:
@@ -58,6 +59,22 @@ namespace emgui {
             styleChangeCallback_ = std::move(callback);
         }
 
+        //the UIComponentManager injects its window automatically -> no window
+        //argument is needed when creating a component
+        void setWindow(Window& window) {
+            window_ = &window;
+            onWindowAttached(window);
+        }
+
+        Window* getWindow() const {
+            return window_;
+        }
+
+        //components override this to register their event listeners
+        virtual void onWindowAttached(Window& window) {
+            (void)window;
+        }
+
         void setPosition(int x, int y) {
             x_ = x;
             y_ = y;
@@ -68,6 +85,8 @@ namespace emgui {
         }
 
     protected:
+        Window* window_ = nullptr;
+
         void notifyStyleChanged() {
             if (styleChangeCallback_) {
                 styleChangeCallback_(*this);

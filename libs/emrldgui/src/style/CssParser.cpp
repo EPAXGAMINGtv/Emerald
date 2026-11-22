@@ -81,6 +81,11 @@ namespace emgui {
                 return rule;
             }
 
+            if (rule.selector == "*") {
+                rule.component = "*";
+                return rule;
+            }
+
             if (rule.selector.front() == '#') {
                 rule.id = trim(std::string_view(rule.selector).substr(1));
                 return rule;
