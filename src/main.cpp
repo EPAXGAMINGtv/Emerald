@@ -22,6 +22,8 @@
 #include "emrldgui/input/Keyboard.h"
 #include "emrldgui/input/Mouse.h"
 #include "emrldgui/render/RendererOpts.h"
+#include "emrldgui/ui_component/UIComponentManager.h"
+#include "emrldgui/ui_component/components/Text.h"
 
 
 int main() {
@@ -56,23 +58,19 @@ int main() {
 
     emgui::Mouse mouse(window);
 
-    //the window owns its RendererOpts now ->
-    auto &rendererOpts = window.getRendererOpts();
+    auto& rendererOpts = window.getRendererOpts();
 
-    const SDL_Point textpos{30, 30};
-    const SDL_Color textcolor{255, 255, 255, 255};
-    const SDL_Rect rect{10, 10, 10, 10};
+    //the window already owns the manager, so we only register our existing component ->
+    emgui::Text helloWorldTextComponent("Hello, World!", 10, 10);
+    emgui::Text helloWorldTextComponent2("Hello, World22!", 50, 10);
+    window.getUIComponentManager().addComponent(&helloWorldTextComponent);
+    window.getUIComponentManager().addComponent(&helloWorldTextComponent2);
 
     while (!window.shouldClose()) {
         window.updateWindow();
 
-
         auto frame = rendererOpts.beginFrame();
-        frame.fillRect(rect, textcolor);
-        frame.drawRect({10, 30, 10, 10}, textcolor);
-        frame.drawCircle({60, 60}, 20, textcolor);
-        frame.drawLine({0, 0}, {100, 0}, textcolor);
-        frame.drawText("Hello World!", textpos, textcolor);
+        window.renderUI();
 
 
         if (keyboard.isPressed(SDLK_ESCAPE)) {

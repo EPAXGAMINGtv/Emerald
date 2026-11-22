@@ -33,6 +33,9 @@ namespace emgui {
         //the renderer belongs to the window, so RendererOpts is created here too ->
         rendererOpts_ = std::make_unique<RendererOpts>(*rendererContext_);
 
+        //the UI manager belongs to the window just like the event manager ->
+        uiComponentManager_ = std::make_unique<UIComponentManager>();
+
         //keyboard and mouse events are registered for every window by default ->
         EventManager::registerEvent(window_, EventKeyboard(window_));
         EventManager::registerEvent(window_, EventMouse(window_));
@@ -44,6 +47,7 @@ namespace emgui {
         spdlog::info("Window destructor called closing SDL2 Window!: {}",title_);
 
         //the renderer must die before its SDL_Window ->
+        uiComponentManager_.reset();
         rendererOpts_.reset();
         eventManager_.reset();
 
@@ -83,6 +87,11 @@ namespace emgui {
             SDL_PushEvent(&otherEvent);
         }
 
+        //components get their per-frame update together with the window ->
+        if (uiComponentManager_ != nullptr) {
+            uiComponentManager_->update();
+        }
+
         if (window_ == nullptr) {
             return;
         }
@@ -101,6 +110,12 @@ namespace emgui {
 
         if (SDL_UpdateWindowSurface(window_) != 0) {
             spdlog::error("Window update failed: {}", SDL_GetError());
+        }
+    }
+
+    void Window::renderUI() {
+        if (rendererOpts_ != nullptr && uiComponentManager_ != nullptr) {
+            uiComponentManager_->render(*rendererOpts_);
         }
     }
 

@@ -11,6 +11,7 @@
 #include "event/EventManager.h"
 #include "render/RenderContext.h"
 #include "render/RendererOpts.h"
+#include "ui_component/UIComponentManager.h"
 
 #include <SDL_video.h>
 
@@ -26,6 +27,7 @@ namespace emgui {
 
         //some  functions here->
         void updateWindow() ;
+        void renderUI();
         void setTitle(std::string title) ;
         void setHeight(int height);
         void setWidth(int width);
@@ -67,6 +69,15 @@ namespace emgui {
             return *rendererOpts_;
         }
 
+        //every window owns its UI manager, register with addComponent(&component) ->
+        UIComponentManager& getUIComponentManager() {
+            return *uiComponentManager_;
+        }
+
+        const UIComponentManager& getUIComponentManager() const {
+            return *uiComponentManager_;
+        }
+
         std::string getTitle()  const {
             return title_;
         }
@@ -91,5 +102,6 @@ namespace emgui {
         std::unique_ptr<EventManager> eventManager_;
         std::unique_ptr<RenderContext> rendererContext_;
         std::unique_ptr<RendererOpts> rendererOpts_;
+        std::unique_ptr<UIComponentManager> uiComponentManager_;
     };
 }
