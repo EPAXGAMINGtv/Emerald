@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -13,7 +11,7 @@ namespace emgui {
 
     class UIComponent;
 
-    //matches CSS rules against a component's type/class/id and applies specificity -> later rules win on ties
+    // Matches CSS rules against a component's type/class/id and applies specificity. Later rules win on ties
     class StyleResolver {
     public:
         static StyleValues resolve(const StyleSheet& sheet, const UIComponent& component);

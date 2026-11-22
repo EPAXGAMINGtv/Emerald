@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/Slider.h"
 
@@ -258,19 +256,8 @@ namespace emgui {
                 break;
             }
 
-            renderer.drawRoundedRect(
-                borderRect,
-                std::max(0, handleRadius_ - inset),
-                handleBorder
-            );
+            renderer.drawRoundedRect(borderRect, handleRadius_, handleBorder);
         }
-
-        focusRing_.draw(
-            renderer,
-            handle,
-            handleRadius_,
-            (hovered_ || dragging_) && enabled_
-        );
 
         if (showValue_) {
             const std::string valueText = formatValue();

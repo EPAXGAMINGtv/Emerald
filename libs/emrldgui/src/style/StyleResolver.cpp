@@ -1,10 +1,13 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/style/StyleResolver.h"
 
 #include "emrldgui/ui_component/UIComponent.h"
+
+#include <algorithm>
+#include <cctype>
+#include <map>
+#include <vector>
 
 namespace emgui {
 
@@ -45,6 +48,97 @@ namespace emgui {
             return true;
         }
 
+        std::string trim(const std::string& value) {
+            std::size_t first = 0;
+
+            while (first < value.size() &&
+                   std::isspace(static_cast<unsigned char>(value[first])) != 0) {
+                ++first;
+            }
+
+            std::size_t last = value.size();
+
+            while (last > first &&
+                   std::isspace(static_cast<unsigned char>(value[last - 1])) != 0) {
+                --last;
+            }
+
+            return value.substr(first, last - first);
+        }
+
+        // Supports var(--name) and var(--name, fallback), including nesting
+        std::string substituteVariables(
+            const std::string& value,
+            const std::map<std::string, std::string>& variables,
+            int depth = 0
+        ) {
+            if (depth > 8) {
+                return value;
+            }
+
+            std::string result = value;
+            std::size_t position = 0;
+
+            while (position < result.size()) {
+                const std::size_t start = result.find("var(", position);
+
+                if (start == std::string::npos) {
+                    break;
+                }
+
+                std::size_t end = start + 4;
+                int nesting = 1;
+
+                while (end < result.size() && nesting > 0) {
+                    if (result[end] == '(') {
+                        ++nesting;
+                    } else if (result[end] == ')') {
+                        --nesting;
+                    }
+                    ++end;
+                }
+
+                if (nesting != 0) {
+                    break;
+                }
+
+                const std::string argument = result.substr(start + 4, end - start - 5);
+
+                int argumentNesting = 0;
+                std::size_t comma = std::string::npos;
+
+                for (std::size_t index = 0; index < argument.size(); ++index) {
+                    if (argument[index] == '(') {
+                        ++argumentNesting;
+                    } else if (argument[index] == ')') {
+                        --argumentNesting;
+                    } else if (argument[index] == ',' && argumentNesting == 0) {
+                        comma = index;
+                        break;
+                    }
+                }
+
+                const std::string name = trim(
+                    comma == std::string::npos ? argument : argument.substr(0, comma)
+                );
+                std::string replacement;
+
+                const auto found = variables.find(name);
+
+                if (found != variables.end()) {
+                    replacement = found->second;
+                } else if (comma != std::string::npos) {
+                    replacement = trim(argument.substr(comma + 1));
+                }
+
+                replacement = substituteVariables(replacement, variables, depth + 1);
+                result.replace(start, end - start, replacement);
+                position = start + replacement.size();
+            }
+
+            return result;
+        }
+
     } // namespace
 
     StyleValues StyleResolver::resolve(const StyleSheet& sheet, const UIComponent& component) {
@@ -63,32 +157,56 @@ namespace emgui {
         const std::string& id
     ) {
         StyleValues values;
-        int currentSpecificity = -1;
-        std::size_t currentOrder = 0;
-        std::size_t order = 0;
+        std::map<std::string, std::string> variables;
+
+        struct Match {
+            const CssRule* rule = nullptr;
+            int ruleSpecificity = 0;
+            std::size_t order = 0;
+        };
+
+        std::vector<Match> matched;
 
         for (const CssRule& rule : sheet.getRules()) {
             if (!matches(rule, componentName, styleClass, id)) {
-                ++order;
                 continue;
             }
 
-            const int ruleSpecificity = specificity(rule);
+            matched.push_back({&rule, specificity(rule), matched.size()});
+        }
 
-            if (ruleSpecificity < currentSpecificity ||
-                (ruleSpecificity == currentSpecificity && order < currentOrder)) {
-                ++order;
-                continue;
+        std::stable_sort(
+            matched.begin(),
+            matched.end(),
+            [](const Match& left, const Match& right) {
+                if (left.ruleSpecificity != right.ruleSpecificity) {
+                    return left.ruleSpecificity < right.ruleSpecificity;
+                }
+                return left.order < right.order;
             }
+        );
 
-            currentSpecificity = ruleSpecificity;
-            currentOrder = order;
-
-            for (const CssDeclaration& declaration : rule.declarations) {
-                values.set(declaration.property, declaration.value);
+        // Custom properties from every matching rule join the same cascade
+        for (const Match& match : matched) {
+            for (const CssDeclaration& declaration : match.rule->declarations) {
+                if (declaration.property.starts_with("--")) {
+                    variables[declaration.property] = substituteVariables(
+                        declaration.value,
+                        variables
+                    );
+                }
             }
+        }
 
-            ++order;
+        for (const Match& match : matched) {
+            for (const CssDeclaration& declaration : match.rule->declarations) {
+                if (!declaration.property.starts_with("--")) {
+                    values.set(
+                        declaration.property,
+                        substituteVariables(declaration.value, variables)
+                    );
+                }
+            }
         }
 
         return values;

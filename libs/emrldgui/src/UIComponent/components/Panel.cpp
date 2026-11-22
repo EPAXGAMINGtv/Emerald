@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/Panel.h"
 
@@ -17,28 +15,29 @@ namespace emgui {
           title_(std::move(title)),
           width_(width),
           height_(height) {
+        surface_.color = {30, 30, 46, 235};
+        surface_.borderColor = {70, 74, 96, 255};
+        surface_.hasBorderColor = true;
+        surface_.borderWidth = 1;
+        surface_.radii = {12, 12, 12, 12};
+        padding_.top = 14;
+        padding_.right = 14;
+        padding_.bottom = 14;
+        padding_.left = 14;
+        geometry_.width = width_;
+        geometry_.height = height_;
     }
 
     void Panel::applyStyle(const StyleValues& values) {
-        backgroundColor_ = values.getColor("background-color", backgroundColor_);
-        borderColor_ = values.getColor("border-color", borderColor_);
+        surface_.apply(values);
+        titleStyle_.apply(values);
+        geometry_.apply(values, width_, height_);
 
-        const auto gradient = values.getColors("background-gradient");
+        width_ = geometry_.width;
+        height_ = geometry_.height;
 
-        if (gradient.size() >= 2) {
-            useGradient_ = true;
-            gradientTopColor_ = gradient[0];
-            gradientBottomColor_ = gradient[1];
-        } else {
-            useGradient_ = false;
-        }
-
-        shadow_.apply(values);
         titleColor_ = values.getColor("title-color", titleColor_);
-
-        borderWidth_ = std::max(0, values.getInt("border-width", borderWidth_));
-        borderRadius_ = std::max(0, values.getInt("border-radius", borderRadius_));
-        padding_ = std::max(0, values.getInt("padding", padding_));
+        padding_.apply(values, 14);
         titleSpacing_ = std::max(0, values.getInt("title-spacing", titleSpacing_));
 
         fontSpec_.family = values.getString("font-family", fontSpec_.family);
@@ -49,7 +48,7 @@ namespace emgui {
             "Panel style: size={}x{} radius={} title='{}'",
             width_,
             height_,
-            borderRadius_,
+            surface_.maxRadius(),
             title_
         );
     }
@@ -57,49 +56,23 @@ namespace emgui {
     void Panel::render(RendererOpts& renderer) {
         const SDL_Rect rect{x_, y_, width_, height_};
 
-        shadow_.draw(renderer, rect, borderRadius_);
-
-        if (useGradient_) {
-            renderer.fillRoundedRectGradient(
-                rect,
-                borderRadius_,
-                gradientTopColor_,
-                gradientBottomColor_
-            );
-        } else {
-            renderer.fillRoundedRect(rect, borderRadius_, backgroundColor_);
-        }
-
-        for (int inset = 0; inset < borderWidth_; ++inset) {
-            const SDL_Rect borderRect{
-                rect.x + inset,
-                rect.y + inset,
-                rect.w - 2 * inset,
-                rect.h - 2 * inset
-            };
-
-            if (borderRect.w <= 0 || borderRect.h <= 0) {
-                break;
-            }
-
-            renderer.drawRoundedRect(
-                borderRect,
-                std::max(0, borderRadius_ - inset),
-                borderColor_
-            );
-        }
+        surface_.drawShadow(renderer, rect);
+        surface_.drawBackground(renderer, rect, surface_.color);
+        surface_.drawBorder(renderer, rect, surface_.borderColor);
 
         if (title_.empty()) {
             titleOffset_ = 0;
             return;
         }
 
-        const SDL_Point titleSize = renderer.measureText(title_, fontSpec_);
+        const std::string prepared = titleStyle_.prepare(title_);
+        const SDL_Point titleSize = renderer.measureText(prepared, fontSpec_);
         titleOffset_ = titleSize.y + titleSpacing_;
 
-        renderer.drawText(
-            title_,
-            {x_ + padding_, y_ + padding_},
+        titleStyle_.draw(
+            renderer,
+            prepared,
+            {x_ + padding_.left, y_ + padding_.top},
             titleColor_,
             fontSpec_
         );

@@ -1,12 +1,9 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "../../include/emrldgui/event/EventMouse.h"
 
 namespace emgui {
 
-    //Constructor and Destructor here ->
     EventMouse::EventMouse(SDL_Window* window)
         : window_(window),
           windowID_(window != nullptr ? SDL_GetWindowID(window) : 0) {
@@ -17,7 +14,7 @@ namespace emgui {
           windowID_(window != nullptr ? SDL_GetWindowID(window) : 0),
           sdlType_(event.type) {
 
-        //the SDL union member depends on the event type ->
+        // The SDL union member depends on the event type
         if (window_ == nullptr) {
             switch (event.type) {
                 case SDL_MOUSEMOTION:
@@ -65,7 +62,6 @@ namespace emgui {
         }
     }
 
-    //some functions here ->
     EventType EventMouse::getType() const {
         return TYPE;
     }
@@ -101,7 +97,6 @@ namespace emgui {
         return wheel_;
     }
 
-    //some getters here ->
     Uint32 EventMouse::getWindowID() const {
         return windowID_;
     }

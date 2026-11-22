@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/UIComponentManager.h"
 
@@ -93,7 +91,7 @@ namespace emgui {
     }
 
     void UIComponentManager::clear() {
-        //detach callbacks before owned components are destroyed ->
+        // Detach callbacks before owned components are destroyed
         for (const ComponentEntry& entry : components_) {
             detachComponent(entry.get());
         }

@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/Button.h"
 
@@ -86,6 +84,19 @@ namespace emgui {
           text_(std::move(text)),
           width_(width),
           height_(height) {
+        surface_.color = {45, 116, 218, 255};
+        surface_.borderColor = {27, 79, 156, 255};
+        surface_.hasBorderColor = true;
+        surface_.borderWidth = 2;
+        surface_.radii = {10, 10, 10, 10};
+        padding_.top = 10;
+        padding_.right = 18;
+        padding_.bottom = 10;
+        padding_.left = 18;
+        geometry_.width = width_;
+        geometry_.height = height_;
+        computedWidth_ = width_;
+        computedHeight_ = height_;
         lastUpdateTicks_ = SDL_GetTicks();
     }
 
@@ -144,7 +155,19 @@ namespace emgui {
     }
 
     void Button::applyStyle(const StyleValues& values) {
-        backgroundColor_ = values.getColor("background-color", backgroundColor_);
+        surface_.apply(values);
+        textStyle_.apply(values);
+        geometry_.apply(values, width_, height_);
+
+        const auto stateGradient = [&values](const char* property) {
+            const auto stops = values.getColors(property);
+            return stops.size() >= 2 ? stops : std::vector<SDL_Color>{};
+        };
+
+        hoverGradient_ = stateGradient("background-hover-gradient");
+        pressedGradient_ = stateGradient("background-pressed-gradient");
+        disabledGradient_ = stateGradient("background-disabled-gradient");
+
         backgroundHoverColor_ = values.getColor(
             "background-hover-color",
             backgroundHoverColor_
@@ -158,28 +181,11 @@ namespace emgui {
             disabledBackgroundColor_
         );
 
-        const auto gradient = values.getColors("background-gradient");
-
-        if (gradient.size() >= 2) {
-            useGradient_ = true;
-            gradientTopColor_ = gradient[0];
-            gradientBottomColor_ = gradient[1];
-        } else {
-            useGradient_ = false;
-        }
-
-        borderColor_ = values.getColor("border-color", borderColor_);
         borderHoverColor_ = values.getColor("border-hover-color", borderHoverColor_);
         borderPressedColor_ = values.getColor(
             "border-pressed-color",
             borderPressedColor_
         );
-
-        borderWidth_ = std::max(0, values.getInt("border-width", borderWidth_));
-        borderRadius_ = std::max(0, values.getInt("border-radius", borderRadius_));
-
-        shadow_.apply(values);
-        focusRing_.apply(values);
 
         textColor_ = values.getColor("text-color", textColor_);
         textHoverColor_ = values.getColor("text-hover-color", textHoverColor_);
@@ -190,7 +196,7 @@ namespace emgui {
         fontSpec_.size = std::max(1, values.getInt("font-size", fontSpec_.size));
         fontSpec_.style = values.getString("font-style", fontSpec_.style);
 
-        padding_ = std::max(0, values.getInt("padding", padding_));
+        padding_.apply(values, 10);
 
         const std::string align = lower(values.getString("text-align", textAlign_));
         textAlign_ = align == "left" || align == "right" ? align : "center";
@@ -202,13 +208,17 @@ namespace emgui {
             values.getInt("release-duration-ms", releaseDurationMs_)
         );
 
+        computedWidth_ = geometry_.width;
+        computedHeight_ = geometry_.height;
+
         spdlog::debug(
-            "Button style: font={} size={} radius={} border={} align={}",
+            "Button style: font={} size={} radius={} border={} align={} autoWidth={}",
             fontSpec_.family,
             fontSpec_.size,
-            borderRadius_,
-            borderWidth_,
-            textAlign_
+            surface_.maxRadius(),
+            surface_.borderWidth,
+            textAlign_,
+            geometry_.autoWidth
         );
     }
 
@@ -242,106 +252,95 @@ namespace emgui {
         const int offset = static_cast<int>(
             std::lround(easedPress * static_cast<float>(pressOffset_))
         );
-        const SDL_Rect rect{x_, y_ + offset, width_, height_};
 
-        SDL_Color background = mixColor(
-            backgroundColor_,
-            backgroundHoverColor_,
-            easedHover
-        );
+        const std::string preparedText = textStyle_.prepare(text_);
+        const SDL_Point measured = renderer.measureText(preparedText, fontSpec_);
+        const int spacing = textStyle_.letterSpacing *
+                            std::max(0, static_cast<int>(preparedText.size()) - 1);
+        const int contentWidth = measured.x + spacing + padding_.horizontal();
+        const int contentHeight = measured.y + padding_.vertical();
+
+        SDL_Rect rect = geometry_.resolve(x_, y_, contentWidth, contentHeight);
+        computedWidth_ = rect.w;
+        computedHeight_ = rect.h;
+        rect.y += offset;
+
+        SDL_Color background = surface_.color;
+        SDL_Color border = surface_.borderColor;
+        SDL_Color foreground = textColor_;
+        std::vector<SDL_Color> stops = surface_.gradient;
+
+        const auto blendState = [&stops](
+            const std::vector<SDL_Color>& stateStops,
+            const SDL_Color& stateColor,
+            const SDL_Color& baseColor,
+            float amount
+        ) {
+            if (!stateStops.empty()) {
+                if (stops.size() != stateStops.size()) {
+                    stops.assign(stateStops.size(), baseColor);
+                }
+
+                for (std::size_t index = 0; index < stops.size(); ++index) {
+                    stops[index] = mixColor(stops[index], stateStops[index], amount);
+                }
+            } else if (!stops.empty()) {
+                for (SDL_Color& stop : stops) {
+                    stop = mixColor(stop, stateColor, amount);
+                }
+            }
+        };
+
+        blendState(hoverGradient_, backgroundHoverColor_, background, easedHover);
+        background = mixColor(background, backgroundHoverColor_, easedHover);
+        blendState(pressedGradient_, backgroundPressedColor_, background, easedPress);
         background = mixColor(background, backgroundPressedColor_, easedPress);
 
-        SDL_Color border = mixColor(borderColor_, borderHoverColor_, easedHover);
+        border = mixColor(border, borderHoverColor_, easedHover);
         border = mixColor(border, borderPressedColor_, easedPress);
-
-        SDL_Color foreground = mixColor(textColor_, textHoverColor_, easedHover);
+        foreground = mixColor(foreground, textHoverColor_, easedHover);
         foreground = mixColor(foreground, textPressedColor_, easedPress);
 
         if (!enabled_) {
             background = disabledBackgroundColor_;
-            border = borderColor_;
+            border = surface_.borderColor;
             foreground = textDisabledColor_;
-        }
 
-        shadow_.draw(renderer, rect, borderRadius_);
-
-        if (useGradient_ && enabled_) {
-            SDL_Color gradientTop = mixColor(
-                gradientTopColor_,
-                backgroundHoverColor_,
-                easedHover
-            );
-            gradientTop = mixColor(gradientTop, backgroundPressedColor_, easedPress);
-
-            SDL_Color gradientBottom = mixColor(
-                gradientBottomColor_,
-                backgroundHoverColor_,
-                easedHover
-            );
-            gradientBottom = mixColor(
-                gradientBottom,
-                backgroundPressedColor_,
-                easedPress
-            );
-
-            renderer.fillRoundedRectGradient(
-                rect,
-                borderRadius_,
-                gradientTop,
-                gradientBottom
-            );
-        } else {
-            renderer.fillRoundedRect(rect, borderRadius_, background);
-        }
-
-        for (int inset = 0; inset < borderWidth_; ++inset) {
-            const SDL_Rect borderRect{
-                rect.x + inset,
-                rect.y + inset,
-                rect.w - 2 * inset,
-                rect.h - 2 * inset
-            };
-
-            if (borderRect.w <= 0 || borderRect.h <= 0) {
-                break;
+            if (disabledGradient_.size() >= 2) {
+                stops = disabledGradient_;
+            } else if (!stops.empty()) {
+                for (SDL_Color& stop : stops) {
+                    stop = disabledBackgroundColor_;
+                }
             }
-
-            renderer.drawRoundedRect(
-                borderRect,
-                std::max(0, borderRadius_ - inset),
-                border
-            );
         }
 
-        focusRing_.draw(
-            renderer,
-            rect,
-            borderRadius_,
-            hovered_ && enabled_
-        );
-
-        const SDL_Point textSize = renderer.measureText(text_, fontSpec_);
-
-        int textX = rect.x + padding_;
+        surface_.drawShadow(renderer, rect);
+        surface_.drawBackgroundStops(renderer, rect, background, stops);
+        surface_.drawBorderColor(renderer, rect, border);
+        const int textWidth = measured.x + spacing;
+        int textX = rect.x + padding_.left;
 
         if (textAlign_ == "right") {
-            textX = rect.x + rect.w - padding_ - textSize.x;
+            textX = rect.x + rect.w - padding_.right - textWidth;
         } else if (textAlign_ == "center") {
-            textX = rect.x + (rect.w - textSize.x) / 2;
+            textX = rect.x + (rect.w - textWidth) / 2;
         }
 
-        textX = std::max(rect.x, textX);
+        textX = std::max(rect.x + padding_.left, textX);
 
         const int textY = std::max(
-            rect.y,
-            rect.y + (rect.h - textSize.y) / 2
+            rect.y + padding_.top,
+            rect.y + padding_.top +
+                std::max(0, (rect.h - padding_.vertical() - measured.y) / 2)
         );
 
-        renderer.drawText(text_, {textX, textY}, foreground, fontSpec_);
+        textStyle_.draw(renderer, preparedText, {textX, textY}, foreground, fontSpec_);
     }
 
     bool Button::containsPoint(int x, int y) const {
-        return x >= x_ && x < x_ + width_ && y >= y_ && y < y_ + height_;
+        return x >= x_ && x < x_ + computedWidth_ &&
+               y >= y_ && y < y_ + computedHeight_;
     }
 
     void Button::onMouseEvent(EventMouse& event) {
@@ -374,7 +373,7 @@ namespace emgui {
     }
 
     void Button::runActions(const std::vector<Action>& actions) {
-        //copy so an action may register another action without invalidating the loop
+        // Copy so an action may register another action without invalidating the loop
         const auto snapshot = actions;
 
         for (const Action& action : snapshot) {

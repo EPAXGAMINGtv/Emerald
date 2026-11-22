@@ -1,6 +1,4 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/render/Font.h"
 
@@ -12,7 +10,7 @@ namespace emgui {
 
     namespace {
 
-        //try a project local font first, then common system fonts ->
+        // Try a project local font first, then common system fonts
         std::string findDefaultFontPath() {
             static const char* candidates[] = {
                 "assets/fonts/LiberationSans-Regular.ttf",
@@ -32,9 +30,8 @@ namespace emgui {
 
     } // namespace
 
-    //Constructor and Destructor here ->
     Font::Font(int fontSize, std::string path) {
-        //TTF lifetime is owned by EmeraldGUI, Font only opens/closes its face ->
+        // TTF lifetime is owned by EmeraldGUI, Font only opens/closes its face
         if (TTF_WasInit() == 0) {
             spdlog::warn("TTF is not initialized; create emrldgui::EmeraldGUI before using Font");
         }
@@ -59,7 +56,6 @@ namespace emgui {
         }
     }
 
-    //some functions here ->
     SDL_Surface* Font::renderSurface(
         const std::string& text,
         const SDL_Color& color

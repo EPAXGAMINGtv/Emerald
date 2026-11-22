@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -18,7 +16,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //radio button that unchecks every other member of its named group
+    // Radio button that unchecks every other member of its named group
     class RadioButton : public UIComponent {
     public:
         struct Group;

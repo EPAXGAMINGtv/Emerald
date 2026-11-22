@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/style/StyleValues.h"
 
@@ -238,7 +236,7 @@ namespace emgui {
 
         SDL_Color result{};
 
-        if (!parseColorValue(it->second, result)) {
+        if (!parseColorValue(unquote(it->second), result)) {
             return fallback;
         }
 
@@ -260,12 +258,22 @@ namespace emgui {
         std::size_t position = 0;
 
         while (position <= value.size()) {
-            const std::size_t comma = value.find(',', position);
+            std::size_t end = position;
+            int depth = 0;
+
+            while (end < value.size()) {
+                if (value[end] == '(') {
+                    ++depth;
+                } else if (value[end] == ')' && depth > 0) {
+                    --depth;
+                } else if (value[end] == ',' && depth == 0) {
+                    break;
+                }
+                ++end;
+            }
+
             const std::string part = trim(
-                std::string_view(value).substr(
-                    position,
-                    comma == std::string::npos ? std::string::npos : comma - position
-                )
+                std::string_view(value).substr(position, end - position)
             );
 
             SDL_Color color{};
@@ -276,11 +284,11 @@ namespace emgui {
 
             colors.push_back(color);
 
-            if (comma == std::string::npos) {
+            if (end >= value.size()) {
                 break;
             }
 
-            position = comma + 1;
+            position = end + 1;
         }
 
         return colors;

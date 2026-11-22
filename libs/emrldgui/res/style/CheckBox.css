@@ -1,34 +1,33 @@
-
+/*
+ * emgui::CheckBox
+ */
 
 CheckBox {
-    box-size: 24px;
-    border-width: 2px;
-    border-radius: 5px;
-    spacing: 10px;
+    box-size: 22px;
+    border-width: 1px;
+    border-radius: 7px;
+    spacing: 12px;
 
-    box-color: #2d74da;
-    box-hover-color: #3f8cf5;
-    box-checked-color: #1f9d55;
-    box-checked-hover-color: #27b866;
-    disabled-box-color: #5a5a5a;
+    box-color: #1a2442;
+    box-hover-color: #26335c;
+    box-checked-color: #37d39a;
+    box-checked-hover-color: #63e5b5;
+    disabled-box-color: #3d4663;
 
-    border-color: #1b4f9c;
-    border-hover-color: #78beff;
-    border-checked-color: #13763e;
-    checkmark-color: #ffffff;
+    border-color: var(--border-strong);
+    border-hover-color: #cbd8ff;
+    border-checked-color: #147d5a;
+    checkmark-color: #041b13;
 
-    text-color: #ebf0ff;
+    text-color: var(--text);
     text-hover-color: #ffffff;
-    disabled-text-color: #b4b4b4;
+    disabled-text-color: #aeb6cf;
 
-    font-family: "LiberationSans";
-    font-size: 20px;
+    font-family: var(--font);
+    font-size: 18px;
     font-style: normal;
 }
 
 CheckBox.checked {
-    box-color: #1f9d55;
-    box-hover-color: #27b866;
-    border-color: #13763e;
     text-color: #d8ffe6;
 }

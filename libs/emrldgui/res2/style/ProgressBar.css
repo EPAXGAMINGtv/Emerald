@@ -1,0 +1,17 @@
+ProgressBar {
+    track-color: #e7dcc9;
+    fill-gradient: #f97316, #ea580c;
+    shimmer-color: rgba(255, 255, 255, 150);
+    text-color: var(--accent-deep);
+
+    track-height: 12px;
+    radius: var(--radius-sm);
+    padding: 2px;
+    show-value: true;
+    value-format: percent;
+    animation-speed: 8.0;
+
+    font-family: var(--font);
+    font-size: 14px;
+    font-style: bold;
+}

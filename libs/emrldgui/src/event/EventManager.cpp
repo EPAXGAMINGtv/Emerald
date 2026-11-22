@@ -1,6 +1,4 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/event/EventManager.h"
 
@@ -10,22 +8,20 @@
 
 namespace emgui {
 
-    //key used to store the manager on its own window ->
+    // Key used to store the manager on its own window
     static constexpr const char* kWindowDataKey = "emgui.EventManager";
 
-    //Constructor and Destructor here ->
     EventManager::EventManager(SDL_Window* window) {
         init(window);
     }
 
     EventManager::~EventManager() {
-        //do not leave a dangling manager pointer on a still living window ->
+        // Do not leave a dangling manager pointer on a still living window
         if (window_ != nullptr) {
             SDL_SetWindowData(window_, kWindowDataKey, nullptr);
         }
     }
 
-    //static functions here ->
     std::unique_ptr<EventManager> EventManager::create(SDL_Window* window) {
         return std::make_unique<EventManager>(window);
     }
@@ -55,9 +51,8 @@ namespace emgui {
         }
     }
 
-    //some functions here ->
     void EventManager::init(SDL_Window* window) {
-        //called by the window constructor, binds this manager to exactly one window
+        // Called by the window constructor, binds this manager to exactly one window
         window_ = window;
         windowID_ = window != nullptr ? SDL_GetWindowID(window) : 0;
 
@@ -69,7 +64,7 @@ namespace emgui {
     }
 
     void EventManager::registerEventImpl(const Event& event) {
-        //the prototype provides the factory and the SDL event types it listens to
+        // The prototype provides the factory and the SDL event types it listens to
         const EventFactory factory = event.getFactory();
 
         if (!factory) {
@@ -80,7 +75,7 @@ namespace emgui {
         for (const Uint32 sdlEventType : event.getSDLEventTypes()) {
             auto& registrations = registrations_[sdlEventType];
 
-            //register once per gui event type, so adding a listener twice is safe ->
+            // Register once per gui event type, so adding a listener twice is safe
             auto existing = std::find_if(
                 registrations.begin(),
                 registrations.end(),

@@ -1,0 +1,36 @@
+ToggleButton {
+    width: auto;
+    min-width: 160px;
+    min-height: 44px;
+
+    background-gradient: #d6d3d1, #a8a29e;
+    background-hover-gradient: #e7e5e4, #bdb2a1;
+    background-pressed-gradient: #a8a29e, #78716c;
+    border-color: #78716c;
+    border-hover-color: #57534e;
+    border-width: 2px;
+    border-radius: var(--radius);
+
+    text-color: #292524;
+    text-hover-color: #1c1917;
+    letter-spacing: 0px;
+    text-transform: none;
+    font-family: var(--font);
+    font-size: 16px;
+    font-style: bold;
+
+    padding-top: 9px;
+    padding-right: 18px;
+    padding-bottom: 10px;
+    padding-left: 18px;
+    text-align: center;
+    press-offset: 1px;
+    shadow-color: rgba(90, 60, 30, 60);
+    shadow-offset-y: 3px;
+}
+
+ToggleButton.checked {
+    background-gradient: #4ade80, #15803d;
+    border-color: #15803d;
+    text-color: #052e16;
+}

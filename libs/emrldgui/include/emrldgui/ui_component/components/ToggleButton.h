@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -12,7 +10,7 @@
 
 namespace emgui {
 
-    //button that keeps a checked state and switches its CSS class
+    // Button that keeps a checked state and switches its CSS class
     class ToggleButton : public Button {
     public:
         using CheckedAction = std::function<void(ToggleButton&)>;

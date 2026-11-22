@@ -1,20 +1,49 @@
+/*
+ * emgui::Text
+ */
 
 Text {
-    color: #ffffff;
-    font-family: "LiberationSans";
-    font-size: 24px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 22px;
     font-style: normal;
+
+    letter-spacing: 0px;
+    text-transform: none;
+}
+
+Text.hero {
+    color: #ffffff;
+    font-size: 34px;
+    font-style: bold;
+    letter-spacing: 2px;
+}
+
+Text.section {
+    color: #cbd8ff;
+    font-size: 17px;
+    font-style: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+Text.muted {
+    color: var(--text-muted);
+    font-size: 17px;
 }
 
 Text.title {
     color: #ffcc55;
     font-size: 32px;
     font-style: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 #mainTitle {
     color: rgba(120, 200, 255, 255);
-    font-family: "LiberationSans";
+    font-family: var(--font);
     font-size: 28px;
     font-style: italic;
+    letter-spacing: 1px;
 }

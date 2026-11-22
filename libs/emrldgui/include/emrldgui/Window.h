@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// file for managing windows simply central brick of the libemrldgui
-//
+// File for managing windows simply central brick of the libemrldgui
 
 #pragma once
 
@@ -21,22 +17,20 @@
 namespace emgui {
     class Window {
     public:
-        //Constructor and Destructor here ->
         Window(std::string  title,int width=1920,int height=1080,SDL_WindowFlags flags = static_cast<SDL_WindowFlags>(SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE));
         ~Window();
 
-        //a window owns SDL resources, so it is neither copyable nor movable ->
+        // A window owns SDL resources, so it is neither copyable nor movable
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
         Window(Window&&) = delete;
         Window& operator=(Window&&) = delete;
 
-        //static quit state shared by all windows ->
+        // Static quit state shared by all windows
         static bool isGlobalQuitRequested();
         static void requestGlobalQuit();
         static void resetGlobalQuit();
 
-        //some  functions here->
         void shutdown();
         void updateWindow() ;
         void renderUI();
@@ -45,7 +39,6 @@ namespace emgui {
         void setWidth(int width);
         void closeWindow();
 
-        //some getters here ->
         bool shouldClose() const {
             return shouldClose_ || isGlobalQuitRequested();
         }
@@ -54,7 +47,7 @@ namespace emgui {
             return window_;
         }
 
-        //every window owns its own event manager, use this to register new events ->
+        // Every window owns its own event manager, use this to register new events
         EventManager& getEventManager() {
             return *eventManager_;
         }
@@ -63,7 +56,7 @@ namespace emgui {
             return *eventManager_;
         }
 
-        //the window creates its own render context, use this for RendererOpts ->
+        // The window creates its own render context, use this for RendererOpts
         RenderContext& getRendererContext() {
             return *rendererContext_;
         }
@@ -72,7 +65,7 @@ namespace emgui {
             return *rendererContext_;
         }
 
-        //the window owns the renderer too, no need to create RendererOpts manually ->
+        // The window owns the renderer too, no need to create RendererOpts manually
         RendererOpts& getRendererOpts() {
             return *rendererOpts_;
         }
@@ -81,7 +74,7 @@ namespace emgui {
             return *rendererOpts_;
         }
 
-        //every window owns its UI manager, register with addComponent(&component) ->
+        // Every window owns its UI manager, register with addComponent(&component)
         UIComponentManager& getUIComponentManager() {
             return *uiComponentManager_;
         }
@@ -90,7 +83,7 @@ namespace emgui {
             return *uiComponentManager_;
         }
 
-        //shortcut to res/style/*.css loading and reload() ->
+        // Shortcut to res/style/*.css loading and reload()
         StyleManager& getStyleManager() {
             return uiComponentManager_->getStyleManager();
         }
@@ -110,7 +103,7 @@ namespace emgui {
 
     private:
 
-        //variables
+        // Variables
         bool shouldClose_ = false;
         int width_,height_;
         std::string  title_;

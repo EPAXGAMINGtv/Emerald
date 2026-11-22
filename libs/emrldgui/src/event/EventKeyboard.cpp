@@ -1,12 +1,9 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "../../include/emrldgui/event/EventKeyboard.h"
 
 namespace emgui {
 
-    //Constructor and Destructor here ->
     EventKeyboard::EventKeyboard(SDL_Window* window)
         : window_(window),
           windowID_(window != nullptr ? SDL_GetWindowID(window) : 0) {
@@ -22,7 +19,6 @@ namespace emgui {
           repeat_(event.key.repeat != 0) {
     }
 
-    //some getters here ->
     EventType EventKeyboard::getType() const {
         return TYPE;
     }

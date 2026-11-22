@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/ComboBox.h"
 
@@ -259,13 +257,6 @@ namespace emgui {
             );
         }
 
-        focusRing_.draw(
-            renderer,
-            box,
-            borderRadius_,
-            open_ || hoveredBox_
-        );
-
         const std::string selected = getSelectedText();
         const bool showPlaceholder = selected.empty();
         const std::string& displayed = showPlaceholder ? placeholder_ : selected;
@@ -336,14 +327,6 @@ namespace emgui {
             const bool isSelected = index == selectedIndex_;
             const bool isHovered = index == hoveredIndex_;
 
-            if (isSelected || isHovered) {
-                renderer.fillRoundedRect(
-                    itemRect,
-                    itemRadius_,
-                    isSelected ? itemSelectedColor_ : itemHoverColor_
-                );
-            }
-
             const SDL_Point textSize = renderer.measureText(
                 items_[static_cast<std::size_t>(index)],
                 fontSpec_
@@ -354,7 +337,8 @@ namespace emgui {
                     itemRect.x + itemPadding_,
                     itemRect.y + (itemRect.h - textSize.y) / 2
                 },
-                isSelected ? itemSelectedTextColor_ : itemTextColor_,
+                isSelected ? itemSelectedTextColor_
+                           : (isHovered ? itemHoverColor_ : itemTextColor_),
                 fontSpec_
             );
         }

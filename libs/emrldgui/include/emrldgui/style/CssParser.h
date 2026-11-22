@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -11,7 +9,7 @@
 
 namespace emgui {
 
-    //small hand-written parser for the CSS subset used by emgui components ->
+    // Small hand-written parser for the CSS subset used by emgui components
     class CssParser {
     public:
         static StyleSheet parseFile(const std::filesystem::path& path);

@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// keyboard event created from SDL_KEYDOWN / SDL_KEYUP for one window
-//
+// Keyboard event created from SDL_KEYDOWN / SDL_KEYUP for one window
 
 #pragma once
 
@@ -18,11 +14,9 @@ namespace emgui {
     public:
         static constexpr EventType TYPE = 1;
 
-        //Constructor and Destructor here ->
         explicit EventKeyboard(SDL_Window* window);
         EventKeyboard(const SDL_Event& event, SDL_Window* window);
 
-        //some getters here ->
         EventType getType() const override;
         std::vector<Uint32> getSDLEventTypes() const override;
         EventFactory getFactory() const override;
@@ -36,7 +30,7 @@ namespace emgui {
         SDL_Window* getWindow() const;
 
     private:
-        //variables
+        // Variables
         SDL_Window* window_ = nullptr;
         Uint32 windowID_ = 0;
 

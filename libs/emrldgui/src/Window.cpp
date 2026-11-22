@@ -1,6 +1,4 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/Window.h"
 #include "emrldgui/EmeraldGUI.h"
@@ -17,7 +15,7 @@
 namespace emgui {
 
     namespace {
-        //one global SDL_QUIT closes every window, not just the one polling it ->
+        // One global SDL_QUIT closes every window, not just the one polling it
         bool g_globalQuitRequested = false;
     } // namespace
 
@@ -30,24 +28,18 @@ namespace emgui {
             );
         }
 
-        //each window initializes its own event manager here ->
         eventManager_ = EventManager::create(window_);
 
-        //each window generates its own render context here ->
         rendererContext_ = std::make_unique<RenderContext>(window_);
 
-        //the renderer belongs to the window, so RendererOpts is created here too ->
         rendererOpts_ = std::make_unique<RendererOpts>(*rendererContext_);
 
-        //the UI manager belongs to the window just like the event manager ->
         uiComponentManager_ = std::make_unique<UIComponentManager>();
         uiComponentManager_->setWindow(this);
 
-        //keyboard and mouse events are registered for every window by default ->
         EventManager::registerEvent(window_, EventKeyboard(window_));
         EventManager::registerEvent(window_, EventMouse(window_));
 
-        //let EmeraldGUI shut this window down before SDL quits ->
         if (auto* gui = emrldgui::EmeraldGUI::active()) {
             gui->registerWindow(this);
         }
@@ -56,7 +48,7 @@ namespace emgui {
     }
 
     Window::~Window() {
-        spdlog::info("Window destructor called closing SDL2 Window!: {}",title_);
+        spdlog::info("Destroying window {}", title_);
 
         shutdown();
 
@@ -66,7 +58,6 @@ namespace emgui {
     }
 
     void Window::shutdown() {
-        //the renderer must die before its SDL_Window ->
         uiComponentManager_.reset();
         rendererOpts_.reset();
         eventManager_.reset();
@@ -87,7 +78,6 @@ namespace emgui {
         g_globalQuitRequested = false;
     }
 
-    //some  functions here->
     void Window::updateWindow() {
         SDL_Event event;
 
@@ -151,40 +141,40 @@ namespace emgui {
     }
 
     void Window::setTitle(std::string  title) {
-        //sets new titlé and updates the title_ variable
+        
         if (!title.empty() && window_ != nullptr) {
             title_ = title;
             SDL_SetWindowTitle(window_, title_.c_str());
-            spdlog::info("Setted title {}",title_);
+            spdlog::info("Window title set to {}", title_);
         }else {
             spdlog::error("Window title cannot be empty!");
         }
     }
 
     void Window::setHeight(int height) {
-        //sets the window height and updates the height_ variable
+        
         if (height >0  && window_ != nullptr) {
             height_ = height;
             SDL_SetWindowSize(window_, width_, height_);
-            spdlog::info("Setted height {}",height_);
+            spdlog::info("Window height set to {}", height_);
         }else {
             spdlog::error("Window height must be greater than 0");
         }
     }
 
     void Window::setWidth(int width) {
-        //same for width
+        
         if (width >0 && window_ != nullptr) {
             width_ = width;
             SDL_SetWindowSize(window_, width_, height_);
-            spdlog::info("Setted width {}",width_);
+            spdlog::info("Window width set to {}", width_);
         }else {
             spdlog::error("Window width must be greater than 0");
         }
     }
 
     void Window::closeWindow() {
-        //closes window
+        
         if (window_ != nullptr) {
             spdlog::info("Closing window {}", title_);
             SDL_DestroyWindow(window_);

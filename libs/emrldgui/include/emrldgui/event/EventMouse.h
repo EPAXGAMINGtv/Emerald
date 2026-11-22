@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// mouse event created from SDL_MOUSEMOTION / SDL_MOUSEBUTTONDOWN / SDL_MOUSEBUTTONUP / SDL_MOUSEWHEEL for one window
-//
+// Mouse event created from SDL_MOUSEMOTION / SDL_MOUSEBUTTONDOWN / SDL_MOUSEBUTTONUP / SDL_MOUSEWHEEL for one window
 
 #pragma once
 
@@ -18,11 +14,9 @@ namespace emgui {
     public:
         static constexpr EventType TYPE = 2;
 
-        //Constructor and Destructor here ->
         explicit EventMouse(SDL_Window* window);
         EventMouse(const SDL_Event& event, SDL_Window* window);
 
-        //some functions here ->
         EventType getType() const override;
         std::vector<Uint32> getSDLEventTypes() const override;
         EventFactory getFactory() const override;
@@ -32,7 +26,6 @@ namespace emgui {
         bool isReleased() const;
         bool isWheel() const;
 
-        //some getters here ->
         Uint32 getWindowID() const;
         SDL_Window* getWindow() const;
         Uint32 getSDLType() const;
@@ -47,7 +40,7 @@ namespace emgui {
         int getScrollY() const;
 
     private:
-        //variables
+        // Variables
         SDL_Window* window_ = nullptr;
         Uint32 windowID_ = 0;
         Uint32 sdlType_ = 0;

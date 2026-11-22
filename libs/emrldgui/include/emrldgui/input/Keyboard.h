@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// input helper that uses EventKeyboard from the window event manager
-//
+// Input helper that uses EventKeyboard from the window event manager
 
 #pragma once
 
@@ -18,29 +14,26 @@
 namespace emgui {
     class Keyboard {
     public:
-        //Constructor and Destructor here ->
         explicit Keyboard(Window& window);
         ~Keyboard();
 
-        //a listener captures 'this', so copies and moves would dangle ->
+        // A listener captures 'this', so copies and moves would dangle
         Keyboard(const Keyboard&) = delete;
         Keyboard& operator=(const Keyboard&) = delete;
         Keyboard(Keyboard&&) = delete;
         Keyboard& operator=(Keyboard&&) = delete;
 
-        //some functions here ->
         bool isDown(SDL_Keycode key) const;
         bool isPressed(SDL_Keycode key) const;
         bool isReleased(SDL_Keycode key) const;
 
-        //call once per frame to clear the pressed / released states ->
+        // Call once per frame to clear the pressed / released states
         void clearFrameState();
 
     private:
-        //some functions here ->
         void onKeyboardEvent(EventKeyboard& event);
 
-        //variables
+        // Variables
         Window& window_;
         EventManager::ListenerId listenerId_ = EventManager::kInvalidListener;
         std::unordered_map<SDL_Keycode, bool> down_;

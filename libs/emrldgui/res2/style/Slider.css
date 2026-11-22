@@ -1,0 +1,28 @@
+Slider {
+    background-color: rgba(246, 236, 217, 220);
+    background-radius: var(--radius);
+
+    track-color: #d8c3a5;
+    track-hover-color: #cbb494;
+    track-filled-color: var(--accent);
+    track-filled-hover-color: var(--accent-strong);
+
+    handle-color: #fffdf7;
+    handle-hover-color: #ffffff;
+    handle-border-color: var(--accent-deep);
+    disabled-color: #bdb2a1;
+
+    value-color: var(--accent-deep);
+    show-value: true;
+
+    track-height: 8px;
+    handle-size: 20px;
+    handle-border-width: 2px;
+    handle-radius: var(--radius-sm);
+    padding: 14px;
+    value-offset: 6px;
+
+    font-family: var(--font);
+    font-size: 15px;
+    font-style: bold;
+}

@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/CheckBox.h"
 
@@ -160,19 +158,8 @@ namespace emgui {
                 break;
             }
 
-            renderer.drawRoundedRect(
-                borderRect,
-                std::max(0, borderRadius_ - inset),
-                border
-            );
+            renderer.drawRoundedRect(borderRect, borderRadius_, border);
         }
-
-        focusRing_.draw(
-            renderer,
-            boxRect,
-            borderRadius_,
-            hovered_ && enabled_
-        );
 
         if (checked_) {
             const int left = x_ + boxSize_ / 4;

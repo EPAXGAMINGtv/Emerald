@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/Text.h"
 
@@ -19,7 +17,7 @@ namespace emgui {
 
     void Text::render(RendererOpts& renderer) {
         const FontSpec fontSpec{fontFamily_, fontSize_, fontStyle_};
-        renderer.drawText(text_, getPosition(), color_, fontSpec);
+        textStyle_.draw(renderer, text_, getPosition(), color_, fontSpec);
     }
 
     void Text::applyStyle(const StyleValues& values) {
@@ -33,6 +31,7 @@ namespace emgui {
         }
 
         fontStyle_ = values.getString("font-style", fontStyle_);
+        textStyle_.apply(values);
 
         spdlog::debug(
             "Text style: family='{}' size={} style='{}'",

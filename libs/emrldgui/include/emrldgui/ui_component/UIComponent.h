@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -26,7 +24,7 @@ namespace emgui {
         virtual void render(RendererOpts& renderer) = 0;
         virtual void update() {}
 
-        //used by the CSS resolver, override for concrete components like Text
+        // Used by the CSS resolver, override for concrete components like Text
         virtual std::string getComponentName() const {
             return "UIComponent";
         }
@@ -49,18 +47,18 @@ namespace emgui {
             return styleId_;
         }
 
-        //called by UIComponentManager after CSS changes
+        // Called by UIComponentManager after CSS changes
         virtual void applyStyle(const StyleValues& values) {
             (void)values;
         }
 
-        //the manager installs this so setStyleClass()/setStyleId() re-resolve CSS immediately
+        // The manager installs this so setStyleClass()/setStyleId() re-resolve CSS immediately
         void setStyleChangeCallback(StyleChangeCallback callback) {
             styleChangeCallback_ = std::move(callback);
         }
 
-        //the UIComponentManager injects its window automatically -> no window
-        //argument is needed when creating a component
+        // The UIComponentManager injects its window automatically.
+        // No window argument is needed when creating a component
         void setWindow(Window& window) {
             window_ = &window;
             onWindowAttached(window);
@@ -70,7 +68,7 @@ namespace emgui {
             return window_;
         }
 
-        //components override this to register their event listeners
+        // Components override this to register their event listeners
         virtual void onWindowAttached(Window& window) {
             (void)window;
         }

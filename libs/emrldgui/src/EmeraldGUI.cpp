@@ -1,6 +1,4 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/EmeraldGUI.h"
 
@@ -51,7 +49,7 @@ namespace emrldgui {
             activeInstance() = nullptr;
         }
 
-        //all renderers and SDL windows must be gone before SDL shuts down ->
+        // All renderers and SDL windows must be gone before SDL shuts down
         for (emgui::Window* window : windows_) {
             if (window != nullptr) {
                 window->shutdown();

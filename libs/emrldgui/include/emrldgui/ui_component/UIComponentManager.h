@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -19,7 +17,7 @@ namespace emgui {
 
     class UIComponentManager {
     private:
-        //owned components are destroyed with the manager, external ones are only referenced ->
+        // Owned components are destroyed with the manager, external ones are only referenced
         struct ComponentEntry {
             std::unique_ptr<UIComponent> owned;
             UIComponent* external = nullptr;
@@ -30,7 +28,7 @@ namespace emgui {
         };
 
     public:
-        //manager owns the component, usage: auto& text = addComponent<Text>("Hi", 10, 10) ->
+        // Manager owns the component, usage: auto& text = addComponent<Text>("Hi", 10, 10)
         template<typename T, typename... Args>
         T& addComponent(Args&&... args) {
             static_assert(
@@ -47,7 +45,7 @@ namespace emgui {
             return reference;
         }
 
-        //non-owning registration, usage: addComponent(&myStackComponent) ->
+        // Non-owning registration, usage: addComponent(&myStackComponent)
         void addComponent(UIComponent* component);
 
         void removeComponent(UIComponent* component);
@@ -55,7 +53,7 @@ namespace emgui {
         void render(RendererOpts& renderer);
         void clear();
 
-        //the owning window injects itself here so every component can use it ->
+        // The owning window injects itself here so every component can use it
         void setWindow(Window* window) {
             window_ = window;
         }
@@ -64,7 +62,7 @@ namespace emgui {
             return window_;
         }
 
-        //CSS helpers ->
+        // CSS helpers
         StyleManager& getStyleManager() {
             return styleManager_;
         }

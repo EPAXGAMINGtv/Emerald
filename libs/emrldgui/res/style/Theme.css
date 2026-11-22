@@ -1,16 +1,37 @@
 /*
- * Shared defaults applied to every component before its own stylesheet.
- * Component rules always win, so these are just sensible fallbacks.
+ * Shared design tokens for the Emerald UI kit.
  */
 
 * {
-    shadow-color: rgba(0, 0, 0, 110);
-    shadow-offset-x: 0px;
-    shadow-offset-y: 5px;
-    shadow-spread: 1px;
+    --accent: #7c9cff;
+    --accent-strong: #4f6ef7;
+    --accent-deep: #2a3fa8;
 
-    focus-ring-color: #6ea8fe;
+    --cyan: #22d3ee;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #fb7185;
+
+    --surface: #121a30;
+    --surface-raised: #1a2442;
+    --surface-sunken: #0d1428;
+
+    --text: #e8edff;
+    --text-muted: #98a4c8;
+
+    --border: #465476;
+    --border-strong: #7c9cff;
+    --shadow: rgba(0, 0, 0, 150);
+
+    --radius: 16px;
+    --radius-lg: 24px;
+    --radius-sm: 10px;
+
+    --font: "LiberationSans";
+
+
+    focus-ring-color: #4f6ef7;
     focus-ring-width: 2px;
 
-    font-family: "LiberationSans";
+    font-family: var(--font);
 }

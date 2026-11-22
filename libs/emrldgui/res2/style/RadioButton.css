@@ -1,0 +1,28 @@
+RadioButton {
+    radio-size: 22px;
+    border-width: 2px;
+    spacing: 12px;
+
+    radio-color: #fffdf7;
+    radio-hover-color: #ffedd5;
+    radio-checked-color: var(--teal);
+    radio-checked-hover-color: #14b8a6;
+    disabled-radio-color: #d6d3d1;
+
+    border-color: var(--teal);
+    border-hover-color: #115e59;
+    border-checked-color: #115e59;
+    dot-color: #ffffff;
+
+    text-color: var(--text);
+    text-hover-color: #1c1917;
+    disabled-text-color: #8a7d6d;
+
+    font-family: var(--font);
+    font-size: 18px;
+    font-style: normal;
+}
+
+RadioButton.checked {
+    text-color: var(--teal);
+}

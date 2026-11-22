@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -15,7 +13,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //animated determinate/indeterminate progress bar with optional label
+    // Animated determinate/indeterminate progress bar with optional label
     class ProgressBar : public UIComponent {
     public:
         using ValueAction = std::function<void(ProgressBar&)>;

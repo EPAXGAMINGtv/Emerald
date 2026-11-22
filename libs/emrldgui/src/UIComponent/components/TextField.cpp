@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/TextField.h"
 
@@ -88,6 +86,17 @@ namespace emgui {
           placeholder_(std::move(placeholder)),
           width_(width),
           height_(height) {
+        surface_.color = {30, 30, 46, 255};
+        surface_.borderColor = {85, 85, 105, 255};
+        surface_.hasBorderColor = true;
+        surface_.borderWidth = 2;
+        surface_.radii = {8, 8, 8, 8};
+        padding_.top = 10;
+        padding_.right = 12;
+        padding_.bottom = 10;
+        padding_.left = 12;
+        geometry_.width = width_;
+        geometry_.height = height_;
         caretBlinkStart_ = SDL_GetTicks();
     }
 
@@ -169,7 +178,21 @@ namespace emgui {
     }
 
     void TextField::applyStyle(const StyleValues& values) {
-        backgroundColor_ = values.getColor("background-color", backgroundColor_);
+        surface_.apply(values);
+        textStyle_.apply(values);
+        geometry_.apply(values, width_, height_);
+
+        width_ = geometry_.width;
+        height_ = geometry_.height;
+
+        const auto stateGradient = [&values](const char* property) {
+            const auto stops = values.getColors(property);
+            return stops.size() >= 2 ? stops : std::vector<SDL_Color>{};
+        };
+
+        focusGradient_ = stateGradient("background-focus-gradient");
+        disabledGradient_ = stateGradient("background-disabled-gradient");
+
         backgroundFocusColor_ = values.getColor(
             "background-focus-color",
             backgroundFocusColor_
@@ -179,15 +202,11 @@ namespace emgui {
             disabledBackgroundColor_
         );
 
-        borderColor_ = values.getColor("border-color", borderColor_);
         borderFocusColor_ = values.getColor("border-focus-color", borderFocusColor_);
         disabledBorderColor_ = values.getColor(
             "disabled-border-color",
             disabledBorderColor_
         );
-
-        borderWidth_ = std::max(0, values.getInt("border-width", borderWidth_));
-        borderRadius_ = std::max(0, values.getInt("border-radius", borderRadius_));
 
         textColor_ = values.getColor("text-color", textColor_);
         placeholderColor_ = values.getColor("placeholder-color", placeholderColor_);
@@ -202,14 +221,11 @@ namespace emgui {
         caretWidth_ = std::max(1, values.getInt("caret-width", caretWidth_));
         caretBlinkMs_ = std::max(1, values.getInt("caret-blink-ms", caretBlinkMs_));
 
-        shadow_.apply(values);
-        focusRing_.apply(values);
-
         fontSpec_.family = values.getString("font-family", fontSpec_.family);
         fontSpec_.size = std::max(1, values.getInt("font-size", fontSpec_.size));
         fontSpec_.style = values.getString("font-style", fontSpec_.style);
 
-        padding_ = std::max(0, values.getInt("padding", padding_));
+        padding_.apply(values, 10);
 
         const std::string align = lower(values.getString("text-align", textAlign_));
         textAlign_ = align == "center" || align == "right" ? align : "left";
@@ -224,7 +240,7 @@ namespace emgui {
             "TextField style: font={} size={} radius={} maxLength={}",
             fontSpec_.family,
             fontSpec_.size,
-            borderRadius_,
+            surface_.maxRadius(),
             maxLength_
         );
     }
@@ -241,108 +257,106 @@ namespace emgui {
     }
 
     void TextField::render(RendererOpts& renderer) {
-        SDL_Color background = backgroundColor_;
-        SDL_Color border = borderColor_;
+        SDL_Color background = surface_.color;
+        SDL_Color border = surface_.borderColor;
         SDL_Color foreground = textColor_;
+        std::vector<SDL_Color> stops = surface_.gradient;
 
         if (focused_ && enabled_) {
             background = backgroundFocusColor_;
             border = borderFocusColor_;
+
+            if (!focusGradient_.empty()) {
+                stops = focusGradient_;
+            }
         }
 
         if (!enabled_) {
             background = disabledBackgroundColor_;
             border = disabledBorderColor_;
             foreground = disabledTextColor_;
+
+            if (!disabledGradient_.empty()) {
+                stops = disabledGradient_;
+            }
         }
 
         const SDL_Rect rect{x_, y_, width_, height_};
 
-        shadow_.draw(renderer, rect, borderRadius_);
-        renderer.fillRoundedRect(rect, borderRadius_, background);
-
-        for (int inset = 0; inset < borderWidth_; ++inset) {
-            const SDL_Rect borderRect{
-                rect.x + inset,
-                rect.y + inset,
-                rect.w - 2 * inset,
-                rect.h - 2 * inset
-            };
-
-            if (borderRect.w <= 0 || borderRect.h <= 0) {
-                break;
-            }
-
-            renderer.drawRoundedRect(
-                borderRect,
-                std::max(0, borderRadius_ - inset),
-                border
-            );
-        }
-
-        focusRing_.draw(renderer, rect, borderRadius_, focused_ && enabled_);
+        surface_.drawShadow(renderer, rect);
+        surface_.drawBackgroundStops(renderer, rect, background, stops);
+        surface_.drawBorderColor(renderer, rect, border);
+        surface_.drawFocus(renderer, rect, focused_ && enabled_);
 
         const bool usePlaceholder = text_.empty();
         const std::string& displayText = usePlaceholder ? placeholder_ : text_;
+        const std::string preparedText = textStyle_.prepare(displayText);
 
         if (usePlaceholder && enabled_) {
             foreground = placeholderColor_;
         }
 
-        const SDL_Point textSize = renderer.measureText(displayText, fontSpec_);
-        const int textX = getTextStartX(textSize.x);
-        const int textY = std::max(rect.y, rect.y + (rect.h - textSize.y) / 2);
+        const int textHeight = renderer.measureText(preparedText, fontSpec_).y;
+        const int textWidth = measureTextAdvance(renderer, preparedText);
+        const int textX = getTextStartX(textWidth);
+        const int textY = std::max(
+            rect.y + padding_.top,
+            rect.y + padding_.top +
+                std::max(0, (rect.h - padding_.vertical() - textHeight) / 2)
+        );
 
-        if (!displayText.empty() && !hasSelection()) {
-            renderer.drawText(displayText, {textX, textY}, foreground, fontSpec_);
-        } else if (!displayText.empty()) {
+        if (!preparedText.empty() && !hasSelection()) {
+            drawStyledText(renderer, preparedText, textX, textY, foreground);
+        } else if (!preparedText.empty()) {
             const std::size_t selectionStart = getSelectionStart();
             const std::size_t selectionEnd = getSelectionEnd();
-            const SDL_Point beforeSize = renderer.measureText(
-                text_.substr(0, selectionStart),
-                fontSpec_
+            const std::string beforeText = textStyle_.prepare(
+                text_.substr(0, selectionStart)
             );
-            const SDL_Point selectedSize = renderer.measureText(
-                text_.substr(selectionStart, selectionEnd - selectionStart),
-                fontSpec_
+            const std::string selectedText = textStyle_.prepare(
+                text_.substr(selectionStart, selectionEnd - selectionStart)
             );
-            const int selectionX = textX + beforeSize.x;
-            const int selectionWidth = std::max(1, selectedSize.x);
+            const std::string afterText = textStyle_.prepare(
+                text_.substr(selectionEnd)
+            );
+            const int beforeWidth = measureTextAdvance(renderer, beforeText);
+            const int selectedWidth = std::max(
+                1,
+                measureTextAdvance(renderer, selectedText)
+            );
+            const int selectionX = textX + beforeWidth;
 
             renderer.fillRect(
                 {
                     selectionX,
                     textY,
-                    selectionWidth,
-                    std::max(1, textSize.y)
+                    selectedWidth,
+                    std::max(1, textHeight)
                 },
                 selectionColor_
             );
 
-            if (selectionStart > 0) {
-                renderer.drawText(
-                    text_.substr(0, selectionStart),
-                    {textX, textY},
-                    foreground,
-                    fontSpec_
+            if (!beforeText.empty()) {
+                drawStyledText(renderer, beforeText, textX, textY, foreground);
+            }
+
+            if (!selectedText.empty()) {
+                drawStyledText(
+                    renderer,
+                    selectedText,
+                    selectionX,
+                    textY,
+                    selectionTextColor_
                 );
             }
 
-            if (selectionEnd > selectionStart) {
-                renderer.drawText(
-                    text_.substr(selectionStart, selectionEnd - selectionStart),
-                    {selectionX, textY},
-                    selectionTextColor_,
-                    fontSpec_
-                );
-            }
-
-            if (selectionEnd < text_.size()) {
-                renderer.drawText(
-                    text_.substr(selectionEnd),
-                    {selectionX + selectionWidth, textY},
-                    foreground,
-                    fontSpec_
+            if (!afterText.empty()) {
+                drawStyledText(
+                    renderer,
+                    afterText,
+                    selectionX + selectedWidth,
+                    textY,
+                    foreground
                 );
             }
         }
@@ -351,7 +365,7 @@ namespace emgui {
             const int caretX = getCaretX(renderer, caret_, textX);
 
             renderer.fillRect(
-                {caretX, textY, caretWidth_, std::max(1, textSize.y)},
+                {caretX, textY, caretWidth_, std::max(1, textHeight)},
                 caretColor_
             );
         }
@@ -362,15 +376,36 @@ namespace emgui {
     }
 
     int TextField::getTextStartX(int textWidth) const {
-        int textX = x_ + padding_;
+        int textX = x_ + padding_.left;
 
         if (textAlign_ == "right") {
-            textX = x_ + width_ - padding_ - textWidth;
+            textX = x_ + width_ - padding_.right - textWidth;
         } else if (textAlign_ == "center") {
-            textX = x_ + (width_ - textWidth) / 2;
+            textX = x_ + (width_ - padding_.horizontal() - textWidth) / 2 +
+                    padding_.left;
         }
 
-        return std::max(x_ + padding_, textX);
+        return std::max(x_ + padding_.left, textX);
+    }
+
+    int TextField::measureTextAdvance(
+        const RendererOpts& renderer,
+        const std::string& text
+    ) const {
+        const int width = renderer.measureText(text, fontSpec_).x;
+        const int spacing = textStyle_.letterSpacing *
+                            std::max(0, static_cast<int>(text.size()) - 1);
+        return width + spacing;
+    }
+
+    void TextField::drawStyledText(
+        RendererOpts& renderer,
+        const std::string& text,
+        int x,
+        int y,
+        const SDL_Color& color
+    ) const {
+        textStyle_.draw(renderer, text, {x, y}, color, fontSpec_);
     }
 
     int TextField::getCaretX(
@@ -378,14 +413,13 @@ namespace emgui {
         std::size_t index,
         int textX
     ) const {
-        const SDL_Point prefix = renderer.measureText(
-            text_.substr(0, std::min(index, text_.size())),
-            fontSpec_
+        const std::string prefix = textStyle_.prepare(
+            text_.substr(0, std::min(index, text_.size()))
         );
 
         return std::min(
-            textX + prefix.x,
-            x_ + width_ - caretWidth_ - 1
+            textX + measureTextAdvance(renderer, prefix),
+            x_ + width_ - padding_.right - caretWidth_
         );
     }
 

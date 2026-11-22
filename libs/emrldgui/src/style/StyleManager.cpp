@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/style/StyleManager.h"
 
@@ -75,13 +73,20 @@ namespace emgui {
     void StyleManager::applyTo(UIComponent& component) {
         loadTheme();
 
-        StyleValues values = StyleResolver::resolve(themeSheet_, component);
+        // One combined cascade. Theme variables are visible in component sheets
+        StyleSheet combined;
 
-        if (const StyleSheet* sheet = getSheet(component.getComponentName())) {
-            values.merge(StyleResolver::resolve(*sheet, component));
+        for (const CssRule& rule : themeSheet_.getRules()) {
+            combined.addRule(rule);
         }
 
-        component.applyStyle(values);
+        if (const StyleSheet* sheet = getSheet(component.getComponentName())) {
+            for (const CssRule& rule : sheet->getRules()) {
+                combined.addRule(rule);
+            }
+        }
+
+        component.applyStyle(StyleResolver::resolve(combined, component));
     }
 
     void StyleManager::reload() {

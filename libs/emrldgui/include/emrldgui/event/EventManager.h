@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// file for managing events, every window initializes its own EventManager
-//
+// File for managing events, every window initializes its own EventManager
 
 #pragma once
 
@@ -34,15 +30,13 @@ namespace emgui {
             EventCallback callback;
         };
 
-        //Constructor and Destructor here ->
         explicit EventManager(SDL_Window* window);
         ~EventManager();
 
-        //static functions here ->
         static std::unique_ptr<EventManager> create(SDL_Window* window);
         static EventManager* getForWindow(SDL_Window* window);
 
-        //register an event for a window, returns the id of the added listener ->
+        // Register an event for a window, returns the id of the added listener
         template<typename T, typename Callback>
         static ListenerId registerEvent(SDL_Window* window, const T& event, Callback callback) {
             static_assert(
@@ -71,10 +65,9 @@ namespace emgui {
 
         static Uint32 getWindowID(const SDL_Event& event);
 
-        //some functions here ->
         void init(SDL_Window* window);
 
-        //register an event for this window, works for 3rd party events too ->
+        // Register an event for this window, works for 3rd party events too
         template<typename T>
         void registerEvent(const T& event) {
             static_assert(
@@ -118,7 +111,6 @@ namespace emgui {
         void removeListeners(EventType type);
         void processEvent(const SDL_Event& event);
 
-        //some getters here ->
         SDL_Window* getWindow() const {
             return window_;
         }
@@ -135,7 +127,7 @@ namespace emgui {
             EventType type = Event::TYPE;
         };
 
-        //variables
+        // Variables
         SDL_Window* window_ = nullptr;
         Uint32 windowID_ = 0;
         ListenerId nextListenerId_ = 1;

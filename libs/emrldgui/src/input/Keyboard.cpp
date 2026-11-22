@@ -1,14 +1,11 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/input/Keyboard.h"
 
 namespace emgui {
 
-    //Constructor and Destructor here ->
     Keyboard::Keyboard(Window& window) : window_(window) {
-        //register EventKeyboard(window) and keep only our own listener id ->
+        // Register EventKeyboard(window) and keep only our own listener id
         listenerId_ = EventManager::registerEvent(
             window_.getWindow(),
             EventKeyboard(window_.getWindow()),
@@ -19,7 +16,7 @@ namespace emgui {
     }
 
     Keyboard::~Keyboard() {
-        //remove only the callback that holds this keyboard ->
+        // Remove only the callback that holds this keyboard
         if (listenerId_ != EventManager::kInvalidListener &&
             window_.getWindow() != nullptr) {
             if (auto* manager = EventManager::getForWindow(window_.getWindow())) {
@@ -28,7 +25,6 @@ namespace emgui {
         }
     }
 
-    //some functions here ->
     bool Keyboard::isDown(SDL_Keycode key) const {
         auto it = down_.find(key);
         return it != down_.end() && it->second;
@@ -50,7 +46,7 @@ namespace emgui {
     }
 
     void Keyboard::onKeyboardEvent(EventKeyboard& event) {
-        //uses the data delivered by EventKeyboard ->
+        // Uses the data delivered by EventKeyboard
         const SDL_Keycode key = event.getKey();
 
         if (event.isPressed()) {
@@ -63,7 +59,7 @@ namespace emgui {
             pressed_[key] = false;
         }
 
-        //do not mark handled, other listeners must still receive keyboard events
+        // Do not mark handled, other listeners must still receive keyboard events
     }
 
 } // emgui

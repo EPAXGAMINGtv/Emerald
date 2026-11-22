@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -17,7 +15,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //clickable checkbox with label, hover colors and checked CSS state
+    // Clickable checkbox with label, hover colors and checked CSS state
     class CheckBox : public UIComponent {
     public:
         using CheckedAction = std::function<void(CheckBox&)>;

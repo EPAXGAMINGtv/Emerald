@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -18,7 +16,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //dropdown with a selectable popup list, hover highlight and actions
+    // Dropdown with a selectable popup list, hover highlight and actions
     class ComboBox : public UIComponent {
     public:
         using SelectionAction = std::function<void(ComboBox&)>;

@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -14,7 +12,7 @@ namespace emgui {
 
     class UIComponent;
 
-    //loads res/style/<Component>.css and applies resolved values to components
+    // Loads res/style/<Component>.css and applies resolved values to components
     class StyleManager {
     public:
         void loadComponent(const std::string& componentName);

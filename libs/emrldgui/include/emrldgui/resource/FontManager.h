@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -24,7 +22,7 @@ namespace emgui {
         }
     };
 
-    //loads TTF faces from res/font and caches them by family/size/style -> Font owns the TTF_Font
+    // Loads TTF faces from res/font and caches them by family/size/style. Font owns the TTF_Font
     class FontManager {
     public:
         Font* getFont(const FontSpec& spec);

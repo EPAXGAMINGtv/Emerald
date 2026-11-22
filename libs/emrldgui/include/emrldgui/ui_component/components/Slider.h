@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -17,7 +15,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //horizontal slider with drag handling, snapping and CSS styling
+    // Horizontal slider with drag handling, snapping and CSS styling
     class Slider : public UIComponent {
     public:
         using ValueAction = std::function<void(Slider&)>;

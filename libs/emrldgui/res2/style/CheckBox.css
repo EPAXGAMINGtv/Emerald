@@ -1,0 +1,29 @@
+CheckBox {
+    box-size: 22px;
+    border-width: 2px;
+    border-radius: var(--radius-sm);
+    spacing: 12px;
+
+    box-color: #fffdf7;
+    box-hover-color: #ffedd5;
+    box-checked-color: var(--accent);
+    box-checked-hover-color: var(--accent-strong);
+    disabled-box-color: #d6d3d1;
+
+    border-color: var(--accent);
+    border-hover-color: var(--accent-deep);
+    border-checked-color: var(--accent-deep);
+    checkmark-color: #ffffff;
+
+    text-color: var(--text);
+    text-hover-color: #1c1917;
+    disabled-text-color: #8a7d6d;
+
+    font-family: var(--font);
+    font-size: 18px;
+    font-style: normal;
+}
+
+CheckBox.checked {
+    text-color: var(--accent-deep);
+}

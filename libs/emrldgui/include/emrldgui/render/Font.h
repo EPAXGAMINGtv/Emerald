@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// ttf font used by RendererOpts::drawText
-//
+// Ttf font used by RendererOpts::drawText
 
 #pragma once
 
@@ -16,15 +12,13 @@
 namespace emgui {
     class Font {
     public:
-        //Constructor and Destructor here ->
         explicit Font(int fontSize = 24, std::string path = {});
         ~Font();
 
         Font(const Font&) = delete;
         Font& operator=(const Font&) = delete;
 
-        //some functions here ->
-        //returns an owned surface, caller must SDL_FreeSurface it ->
+        // Returns an owned surface, caller must SDL_FreeSurface it
         SDL_Surface* renderSurface(
             const std::string& text,
             const SDL_Color& color
@@ -39,13 +33,12 @@ namespace emgui {
             const SDL_Color& color
         ) const;
 
-        //some getters here ->
         bool isValid() const {
             return font_ != nullptr;
         }
 
     private:
-        //variables
+        // Variables
         TTF_Font* font_ = nullptr;
     };
 } // emgui

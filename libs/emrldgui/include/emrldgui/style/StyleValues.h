@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -12,7 +10,7 @@
 
 namespace emgui {
 
-    //resolved, typed values for one component -> missing properties use defaults
+    // Resolved, typed values for one component. Missing properties use defaults
     class StyleValues {
     public:
         void set(std::string property, std::string value) {
@@ -40,7 +38,7 @@ namespace emgui {
             const std::vector<SDL_Color>& fallback = {}
         ) const;
 
-        //theme values are applied first, component values overwrite them ->
+        // Theme values are applied first, component values overwrite them
         void merge(const StyleValues& other);
 
     private:

@@ -1,119 +1,126 @@
+/*
+ * emgui::Button
+ */
 
 Button {
-    background-color: #2d74da;
-    background-hover-color: #3f8cf5;
-    background-pressed-color: #1b4f9c;
-    disabled-background-color: #5a5a5a;
+    width: auto;
+    min-width: 104px;
+    min-height: 44px;
 
-    border-color: #1b4f9c;
-    border-hover-color: #78beff;
-    border-pressed-color: #143c78;
-    border-width: 2px;
-    border-radius: 10px;
+    background-color: var(--accent-strong);
+    background-gradient: #5c7dff, #2a3fa8;
+    background-gradient-direction: vertical;
+    background-hover-gradient: #7f99ff, #3b55c8;
+    background-pressed-gradient: #3f58d0, #1c2c78;
+    background-disabled-gradient: #3d4663, #2b3250;
+
+    background-hover-color: #5c7dff;
+    background-pressed-color: #3f58d0;
+    disabled-background-color: #3d4663;
+
+    border-color: #2a3fa8;
+    border-hover-color: #6f87d8;
+    border-pressed-color: #182766;
+    border-width: 1px;
+    border-radius: 999px;
 
     text-color: #ffffff;
     text-hover-color: #ffffff;
-    text-pressed-color: #ebf5ff;
-    text-disabled-color: #bebebe;
+    text-pressed-color: #dbe4ff;
+    text-disabled-color: #aeb6cf;
 
-    font-family: "LiberationSans";
-    font-size: 20px;
+    letter-spacing: 0px;
+    text-transform: none;
+
+    font-family: var(--font);
+    font-size: 17px;
     font-style: bold;
 
-    padding: 10px;
+    padding-top: 10px;
+    padding-right: 22px;
+    padding-bottom: 11px;
+    padding-left: 22px;
     text-align: center;
 
     press-offset: 2px;
-    press-duration-ms: 90ms;
-    release-duration-ms: 150ms;
+    press-duration-ms: 110ms;
+    release-duration-ms: 180ms;
+
+    focus-ring-width: 2px;
+    opacity: 1.0;
 }
 
 Button.primary {
-    background-color: #1f9d55;
-    background-gradient: #35c873, #13763e;
-    background-hover-color: #27b866;
-    background-pressed-color: #13763e;
-    border-color: #13763e;
-    border-hover-color: #6ee7a2;
-    border-pressed-color: #0d5730;
-    text-color: #ffffff;
+    background-gradient: #5c7dff, #2a3fa8;
+    background-hover-gradient: #7f99ff, #3b55c8;
+    border-color: #2a3fa8;
 }
 
 Button.secondary {
-    background-color: #6c757d;
-    background-hover-color: #7d8790;
-    background-pressed-color: #545b62;
-    border-color: #545b62;
-    border-hover-color: #b8c1c9;
-    border-pressed-color: #3d4349;
-    text-color: #ffffff;
+    background-gradient: #64708f, #343d5a;
+    background-hover-gradient: #7d89a8, #424c6d;
+    border-color: #343d5a;
 }
 
 Button.success {
-    background-color: #2e7d32;
-    background-gradient: #4caf50, #1b5e20;
-    background-hover-color: #388e3c;
-    background-pressed-color: #1b5e20;
-    border-color: #1b5e20;
-    border-hover-color: #81c784;
-    border-pressed-color: #0d3d10;
-    text-color: #ffffff;
+    background-gradient: #37d39a, #147d5a;
+    background-hover-gradient: #63e5b5, #1a9b70;
+    background-pressed-gradient: #20a879, #0d5c42;
+    border-color: #147d5a;
+    border-hover-color: #9df5d2;
+    text-color: #041b13;
+    text-hover-color: #041b13;
+    text-pressed-color: #041b13;
 }
 
 Button.warning {
-    background-color: #f9a825;
-    background-hover-color: #ffb300;
-    background-pressed-color: #c77f00;
-    border-color: #c77f00;
-    border-hover-color: #ffe082;
-    border-pressed-color: #8a5900;
-    text-color: #241a00;
-    text-hover-color: #241a00;
-    text-pressed-color: #241a00;
+    background-gradient: #fcd34d, #b7791f;
+    background-hover-gradient: #fde68a, #cf8f2d;
+    background-pressed-gradient: #d69e2e, #8a5a16;
+    border-color: #b7791f;
+    border-hover-color: #fef3c7;
+    text-color: #2b1d00;
+    text-hover-color: #2b1d00;
+    text-pressed-color: #2b1d00;
 }
 
 Button.ghost {
     background-color: transparent;
-    background-hover-color: rgba(110, 168, 254, 45);
-    background-pressed-color: rgba(110, 168, 254, 80);
-    border-color: #6ea8fe;
-    border-hover-color: #a9caff;
-    border-pressed-color: #4c86d6;
-    text-color: #cfe4ff;
+    background-gradient: rgba(124, 156, 255, 25), transparent;
+    background-hover-gradient: rgba(124, 156, 255, 65), rgba(124, 156, 255, 20);
+    background-pressed-gradient: rgba(124, 156, 255, 100), rgba(124, 156, 255, 40);
+    border-color: var(--border-strong);
+    border-hover-color: #cbd8ff;
+    text-color: #cbd8ff;
     text-hover-color: #ffffff;
-    text-pressed-color: #9dc2ff;
 }
 
 Button.danger {
-    background-color: #c62828;
-    background-gradient: #ef5350, #8e1414;
-    background-hover-color: #e53935;
-    background-pressed-color: #8e1414;
-    border-color: #8e1414;
-    border-hover-color: #ff8a80;
-    border-pressed-color: #660d0d;
-    font-style: italic;
+    background-gradient: #fb7185, #9f1239;
+    background-hover-gradient: #ff9aa8, #be1b4a;
+    background-pressed-gradient: #dc4b64, #760d2b;
+    border-color: #9f1239;
+    border-hover-color: #ffc2cc;
+    text-color: #ffffff;
 }
 
 #startButton {
-    background-color: #6a1b9a;
-    background-hover-color: #8e24aa;
-    background-pressed-color: #4a148c;
+    width: 240px;
+    min-height: 52px;
+    background-gradient: #8e5be8, #4a148c;
+    background-hover-gradient: #a97cf5, #651ba8;
     border-color: #4a148c;
-    border-hover-color: #ce93d8;
-    border-radius: 16px;
-    font-size: 24px;
-    text-align: center;
+    border-hover-color: #d4b3ff;
+    border-radius: 26px;
+    font-size: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 #dangerButton {
-    background-color: #c62828;
-    background-gradient: #ef5350, #8e1414;
-    background-hover-color: #e53935;
-    background-pressed-color: #8e1414;
-    border-color: #8e1414;
-    border-hover-color: #ff8a80;
-    border-pressed-color: #660d0d;
-    font-size: 22px;
-    font-style: italic;
+    background-gradient: #fb7185, #9f1239;
+    background-hover-gradient: #ff9aa8, #be1b4a;
+    border-color: #9f1239;
+    border-hover-color: #ffc2cc;
+    font-size: 17px;
 }

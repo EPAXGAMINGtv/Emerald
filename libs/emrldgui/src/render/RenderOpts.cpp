@@ -1,6 +1,4 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/render/RendererOpts.h"
 
@@ -14,7 +12,7 @@ namespace emgui {
 
     namespace {
 
-        //draw calls set their own color and restore the previous one afterwards ->
+        // Draw calls set their own color and restore the previous one afterwards
         class DrawColorGuard {
         public:
             DrawColorGuard(SDL_Renderer* renderer, const SDL_Color& color)
@@ -63,24 +61,126 @@ namespace emgui {
             };
         }
 
+        CornerRadii clampRadii(const SDL_Rect& rect, CornerRadii radii) {
+            const int maxRadius = std::min(rect.w, rect.h) / 2;
+
+            radii.topLeft = std::clamp(radii.topLeft, 0, maxRadius);
+            radii.topRight = std::clamp(radii.topRight, 0, maxRadius);
+            radii.bottomRight = std::clamp(radii.bottomRight, 0, maxRadius);
+            radii.bottomLeft = std::clamp(radii.bottomLeft, 0, maxRadius);
+
+            return radii;
+        }
+
+        // Inset of one corner arc on a pixel row, measured from the outer edge.
+        int cornerInset(
+            int row,
+            int radius,
+            int width,
+            int height,
+            bool top,
+            bool leftSide
+        ) {
+            if (radius <= 0) {
+                return 0;
+            }
+
+            const double centerX = leftSide
+                ? static_cast<double>(radius)
+                : static_cast<double>(width - radius);
+            const double centerY = top
+                ? static_cast<double>(radius)
+                : static_cast<double>(height - radius);
+            const double distanceY = std::abs(
+                (static_cast<double>(row) + 0.5) - centerY
+            );
+
+            if (distanceY >= radius) {
+                return 0;
+            }
+
+            const double halfSpan = std::sqrt(
+                static_cast<double>(radius) * static_cast<double>(radius) -
+                distanceY * distanceY
+            );
+
+            if (leftSide) {
+                const int column = static_cast<int>(
+                    std::ceil(centerX - halfSpan - 0.5)
+                );
+                return std::clamp(column, 0, radius);
+            }
+
+            const int column = static_cast<int>(
+                std::floor(centerX + halfSpan - 0.5)
+            );
+            return std::clamp(width - 1 - column, 0, radius);
+        }
+
+        // Returns how far the left and right edges move inward on one row.
+        std::pair<int, int> rowInsets(
+            const SDL_Rect& rect,
+            const CornerRadii& radii,
+            int row
+        ) {
+            int left = std::max(
+                cornerInset(row, radii.topLeft, rect.w, rect.h, true, true),
+                cornerInset(row, radii.bottomLeft, rect.w, rect.h, false, true)
+            );
+            int right = std::max(
+                cornerInset(row, radii.topRight, rect.w, rect.h, true, false),
+                cornerInset(row, radii.bottomRight, rect.w, rect.h, false, false)
+            );
+
+            if (left + right > rect.w) {
+                const int excess = left + right - rect.w;
+                left -= excess / 2;
+                right -= excess - excess / 2;
+            }
+
+            return {left, right};
+        }
+
+        SDL_Color sampleGradient(const std::vector<SDL_Color>& stops, float position) {
+            if (stops.empty()) {
+                return {0, 0, 0, 0};
+            }
+
+            if (stops.size() == 1) {
+                return stops.front();
+            }
+
+            const float scaled = std::clamp(position, 0.0f, 1.0f) *
+                                 static_cast<float>(stops.size() - 1);
+            const std::size_t index = std::min(
+                static_cast<std::size_t>(scaled),
+                stops.size() - 2
+            );
+            const float amount = scaled - static_cast<float>(index);
+            return mixColor(stops[index], stops[index + 1], amount);
+        }
+
     } // namespace
 
     RendererOpts::RendererOpts(RenderContext& context, int fontSize, std::string fontPath)
         : context_(context) {
-        //an explicit path is treated like a font family, ResourceManager resolves res/font/... ->
+        // An explicit path is treated like a font family, ResourceManager resolves res/font/...
         defaultFontSpec_.family = fontPath.empty() ? "LiberationSans" : std::move(fontPath);
         defaultFontSpec_.size = fontSize;
 
-        //-1 selects the default renderer, 0 means no special flags ->
+        // -1 selects the default renderer, 0 means no special flags
         renderer_ = SDL_CreateRenderer(context_.getWindow(), -1, 0);
 
         if (renderer_ == nullptr) {
             spdlog::error("SDL_CreateRenderer failed: {}", SDL_GetError());
+            return;
         }
+
+        SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
     }
 
     RendererOpts::~RendererOpts() {
-        //textures belong to this renderer, so they must die before it ->
+        // Textures belong to this renderer, so they must die before it
         clearTextCache();
 
         if (renderer_ != nullptr) {
@@ -148,7 +248,7 @@ namespace emgui {
 
         DrawColorGuard colorGuard(renderer_, color);
 
-        //midpoint circle algorithm ->
+        // Midpoint circle algorithm
         int x = radius;
         int y = 0;
         int error = 1 - radius;
@@ -206,35 +306,7 @@ namespace emgui {
         int radius,
         const SDL_Color& color
     ) {
-        if (renderer_ == nullptr || rect.w <= 0 || rect.h <= 0) {
-            return;
-        }
-
-        const int maxRadius = std::min(rect.w, rect.h) / 2;
-        const int clampedRadius = std::clamp(radius, 0, maxRadius);
-
-        if (clampedRadius == 0) {
-            drawRect(rect, color);
-            return;
-        }
-
-        const int right = rect.x + rect.w - 1;
-        const int bottom = rect.y + rect.h - 1;
-
-        if (right - clampedRadius >= rect.x + clampedRadius) {
-            drawLine({rect.x + clampedRadius, rect.y}, {right - clampedRadius, rect.y}, color);
-            drawLine({rect.x + clampedRadius, bottom}, {right - clampedRadius, bottom}, color);
-        }
-
-        if (bottom - clampedRadius >= rect.y + clampedRadius) {
-            drawLine({rect.x, rect.y + clampedRadius}, {rect.x, bottom - clampedRadius}, color);
-            drawLine({right, rect.y + clampedRadius}, {right, bottom - clampedRadius}, color);
-        }
-
-        drawCircle({rect.x + clampedRadius, rect.y + clampedRadius}, clampedRadius, color);
-        drawCircle({right - clampedRadius, rect.y + clampedRadius}, clampedRadius, color);
-        drawCircle({rect.x + clampedRadius, bottom - clampedRadius}, clampedRadius, color);
-        drawCircle({right - clampedRadius, bottom - clampedRadius}, clampedRadius, color);
+        drawRoundedRect(rect, CornerRadii{radius, radius, radius, radius}, color);
     }
 
     void RendererOpts::fillRoundedRect(
@@ -242,34 +314,110 @@ namespace emgui {
         int radius,
         const SDL_Color& color
     ) {
+        fillRoundedRect(rect, CornerRadii{radius, radius, radius, radius}, color);
+    }
+
+    void RendererOpts::drawRoundedRect(
+        const SDL_Rect& rect,
+        const CornerRadii& radii,
+        const SDL_Color& color
+    ) {
         if (renderer_ == nullptr || rect.w <= 0 || rect.h <= 0) {
             return;
         }
 
-        const int maxRadius = std::min(rect.w, rect.h) / 2;
-        const int clampedRadius = std::clamp(radius, 0, maxRadius);
+        const CornerRadii clamped = clampRadii(rect, radii);
 
-        if (clampedRadius == 0) {
-            fillRect(rect, color);
+        for (int row = 0; row < rect.h; ++row) {
+            const auto insets = rowInsets(rect, clamped, row);
+            const int span = rect.w - insets.first - insets.second;
+
+            if (span <= 0) {
+                continue;
+            }
+
+            const SDL_Point left{rect.x + insets.first, rect.y + row};
+            const SDL_Point right{
+                rect.x + rect.w - 1 - insets.second,
+                rect.y + row
+            };
+
+            if (row == 0 || row == rect.h - 1 || span <= 2) {
+                drawLine(left, right, color);
+            } else {
+                drawPoint(left, color);
+                drawPoint(right, color);
+            }
+        }
+    }
+
+    void RendererOpts::fillRoundedRect(
+        const SDL_Rect& rect,
+        const CornerRadii& radii,
+        const SDL_Color& color
+    ) {
+        if (renderer_ == nullptr || rect.w <= 0 || rect.h <= 0) {
             return;
         }
 
-        const int right = rect.x + rect.w - 1;
-        const int bottom = rect.y + rect.h - 1;
+        const CornerRadii clamped = clampRadii(rect, radii);
 
-        fillRect(
-            {rect.x + clampedRadius, rect.y, rect.w - 2 * clampedRadius, rect.h},
-            color
-        );
-        fillRect(
-            {rect.x, rect.y + clampedRadius, rect.w, rect.h - 2 * clampedRadius},
-            color
-        );
+        for (int row = 0; row < rect.h; ++row) {
+            const auto insets = rowInsets(rect, clamped, row);
+            const int span = rect.w - insets.first - insets.second;
 
-        fillCircle({rect.x + clampedRadius, rect.y + clampedRadius}, clampedRadius, color);
-        fillCircle({right - clampedRadius, rect.y + clampedRadius}, clampedRadius, color);
-        fillCircle({rect.x + clampedRadius, bottom - clampedRadius}, clampedRadius, color);
-        fillCircle({right - clampedRadius, bottom - clampedRadius}, clampedRadius, color);
+            if (span > 0) {
+                fillRect(
+                    {rect.x + insets.first, rect.y + row, span, 1},
+                    color
+                );
+            }
+        }
+    }
+
+    void RendererOpts::fillRoundedRectGradient(
+        const SDL_Rect& rect,
+        const CornerRadii& radii,
+        const std::vector<SDL_Color>& stops,
+        bool horizontal
+    ) {
+        if (renderer_ == nullptr || rect.w <= 0 || rect.h <= 0 || stops.empty()) {
+            return;
+        }
+
+        const CornerRadii clamped = clampRadii(rect, radii);
+        const float verticalDenominator = rect.h > 1
+            ? static_cast<float>(rect.h - 1)
+            : 1.0f;
+        const float horizontalDenominator = rect.w > 1
+            ? static_cast<float>(rect.w - 1)
+            : 1.0f;
+
+        for (int row = 0; row < rect.h; ++row) {
+            const auto insets = rowInsets(rect, clamped, row);
+            const int span = rect.w - insets.first - insets.second;
+
+            if (span <= 0) {
+                continue;
+            }
+
+            if (horizontal) {
+                for (int column = 0; column < span; ++column) {
+                    const float position = static_cast<float>(column) /
+                                           horizontalDenominator;
+                    fillRect(
+                        {rect.x + insets.first + column, rect.y + row, 1, 1},
+                        sampleGradient(stops, position)
+                    );
+                }
+            } else {
+                const float position = static_cast<float>(row) / verticalDenominator;
+                fillRect(
+                    {rect.x + insets.first, rect.y + row, span, 1},
+                    sampleGradient(stops, position)
+                );
+            }
+        }
     }
 
     void RendererOpts::fillGradientRect(
@@ -298,52 +446,12 @@ namespace emgui {
         const SDL_Color& top,
         const SDL_Color& bottom
     ) {
-        if (renderer_ == nullptr || rect.w <= 0 || rect.h <= 0) {
-            return;
-        }
-
-        const int maxRadius = std::min(rect.w, rect.h) / 2;
-        const int clampedRadius = std::clamp(radius, 0, maxRadius);
-
-        if (clampedRadius == 0) {
-            fillGradientRect(rect, top, bottom);
-            return;
-        }
-
-        const float denominator = rect.h > 1 ? static_cast<float>(rect.h - 1) : 1.0f;
-
-        for (int row = 0; row < rect.h; ++row) {
-            int edgeDistance = 0;
-
-            if (row < clampedRadius) {
-                edgeDistance = clampedRadius - row;
-            } else if (row >= rect.h - clampedRadius) {
-                edgeDistance = row - (rect.h - clampedRadius - 1);
-            }
-
-            int inset = 0;
-
-            if (edgeDistance > 0) {
-                edgeDistance = std::min(edgeDistance, clampedRadius);
-                const int squaredRadius = clampedRadius * clampedRadius;
-                const int squaredDistance = edgeDistance * edgeDistance;
-                const float horizontal =
-                    std::sqrt(static_cast<float>(std::max(0, squaredRadius - squaredDistance)));
-                inset = clampedRadius - static_cast<int>(std::lround(horizontal));
-            }
-
-            const int rowWidth = rect.w - 2 * inset;
-
-            if (rowWidth <= 0) {
-                continue;
-            }
-
-            const float t = static_cast<float>(row) / denominator;
-            fillRect(
-                {rect.x + inset, rect.y + row, rowWidth, 1},
-                mixColor(top, bottom, t)
-            );
-        }
+        fillRoundedRectGradient(
+            rect,
+            CornerRadii{radius, radius, radius, radius},
+            {top, bottom},
+            false
+        );
     }
 
     void RendererOpts::drawShadow(
@@ -359,31 +467,16 @@ namespace emgui {
             return;
         }
 
-        constexpr int layers = 4;
-
-        for (int layer = layers; layer >= 1; --layer) {
-            const int offset = (offsetX * layer) / layers;
-            const int vertical = (offsetY * layer) / layers;
-            const int grow = (spread * layer) / layers;
-            const float alphaScale = 1.0f - 0.6f *
-                (static_cast<float>(layer) / static_cast<float>(layers));
-
-            SDL_Color layerColor = color;
-            layerColor.a = static_cast<Uint8>(
-                std::lround(static_cast<float>(color.a) * alphaScale)
-            );
-
-            fillRoundedRect(
-                {
-                    rect.x + offset - grow,
-                    rect.y + vertical - grow,
-                    rect.w + 2 * grow,
-                    rect.h + 2 * grow
-                },
-                radius + grow,
-                layerColor
-            );
-        }
+        fillRoundedRect(
+            {
+                rect.x + offsetX - spread,
+                rect.y + offsetY - spread,
+                rect.w + 2 * spread,
+                rect.h + 2 * spread
+            },
+            radius + spread,
+            color
+        );
     }
 
     void RendererOpts::drawTexture(SDL_Texture* texture, const SDL_Rect& destination) {
@@ -418,7 +511,7 @@ namespace emgui {
             return;
         }
 
-        //text, color and font settings together identify one cached texture ->
+        // Text, color and font settings together identify one cached texture
         const TextCacheKey key{
             text,
             color.r, color.g, color.b, color.a,
@@ -574,6 +667,31 @@ namespace emgui {
         const SDL_Color& color
     ) {
         opts_.fillRoundedRect(rect, radius, color);
+    }
+
+    void RendererOpts::Frame::drawRoundedRect(
+        const SDL_Rect& rect,
+        const CornerRadii& radii,
+        const SDL_Color& color
+    ) {
+        opts_.drawRoundedRect(rect, radii, color);
+    }
+
+    void RendererOpts::Frame::fillRoundedRect(
+        const SDL_Rect& rect,
+        const CornerRadii& radii,
+        const SDL_Color& color
+    ) {
+        opts_.fillRoundedRect(rect, radii, color);
+    }
+
+    void RendererOpts::Frame::fillRoundedRectGradient(
+        const SDL_Rect& rect,
+        const CornerRadii& radii,
+        const std::vector<SDL_Color>& stops,
+        bool horizontal
+    ) {
+        opts_.fillRoundedRectGradient(rect, radii, stops, horizontal);
     }
 
     void RendererOpts::Frame::fillGradientRect(

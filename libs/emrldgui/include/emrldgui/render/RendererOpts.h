@@ -1,19 +1,27 @@
-//
 // Created by epax on 21.11.26.
-//
 #pragma once
 #include <SDL.h>
 #include <map>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "RenderContext.h"
 #include "emrldgui/resource/FontManager.h"
 
 namespace emgui {
+
+    // Per-corner radii, all values in pixels
+    struct CornerRadii {
+        int topLeft = 0;
+        int topRight = 0;
+        int bottomRight = 0;
+        int bottomLeft = 0;
+    };
+
     class RendererOpts {
     public:
-        //small RAII helper: clears at the beginning, presents at the end of the scope ->
+        // Small RAII helper: clears at the beginning, presents at the end of the scope
         class Frame {
         public:
             ~Frame();
@@ -23,7 +31,7 @@ namespace emgui {
             Frame(Frame&&) = delete;
             Frame& operator=(Frame&&) = delete;
 
-            //draw functions forwarded from RendererOpts ->
+            // Draw functions forwarded from RendererOpts
             void drawRect(const SDL_Rect& rect, const SDL_Color& color);
             void fillRect(const SDL_Rect& rect, const SDL_Color& color);
             void drawPoint(const SDL_Point& point, const SDL_Color& color);
@@ -32,6 +40,22 @@ namespace emgui {
             void fillCircle(const SDL_Point& center, int radius, const SDL_Color& color);
             void drawRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
             void fillRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
+            void drawRoundedRect(
+                const SDL_Rect& rect,
+                const CornerRadii& radii,
+                const SDL_Color& color
+            );
+            void fillRoundedRect(
+                const SDL_Rect& rect,
+                const CornerRadii& radii,
+                const SDL_Color& color
+            );
+            void fillRoundedRectGradient(
+                const SDL_Rect& rect,
+                const CornerRadii& radii,
+                const std::vector<SDL_Color>& stops,
+                bool horizontal
+            );
             void fillGradientRect(
                 const SDL_Rect& rect,
                 const SDL_Color& top,
@@ -67,7 +91,7 @@ namespace emgui {
             RendererOpts& opts_;
         };
 
-        //fontPath empty selects a bundled/system TTF font ->
+        // FontPath empty selects a bundled/system TTF font
         explicit RendererOpts(
             RenderContext& context,
             int fontSize = 24,
@@ -78,7 +102,7 @@ namespace emgui {
         RendererOpts(const RendererOpts&) = delete;
         RendererOpts& operator=(const RendererOpts&) = delete;
 
-        //clear color helpers ->
+        // Clear color helpers
         void setClearColor(const SDL_Color& color) {
             clearColor_ = color;
         }
@@ -87,7 +111,7 @@ namespace emgui {
             return clearColor_;
         }
 
-        //draw functions ->
+        // Draw functions
         void drawRect(const SDL_Rect& rect, const SDL_Color& color);
         void fillRect(const SDL_Rect& rect, const SDL_Color& color);
         void drawPoint(const SDL_Point& point, const SDL_Color& color);
@@ -96,6 +120,22 @@ namespace emgui {
         void fillCircle(const SDL_Point& center, int radius, const SDL_Color& color);
         void drawRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
         void fillRoundedRect(const SDL_Rect& rect, int radius, const SDL_Color& color);
+        void drawRoundedRect(
+            const SDL_Rect& rect,
+            const CornerRadii& radii,
+            const SDL_Color& color
+        );
+        void fillRoundedRect(
+            const SDL_Rect& rect,
+            const CornerRadii& radii,
+            const SDL_Color& color
+        );
+        void fillRoundedRectGradient(
+            const SDL_Rect& rect,
+            const CornerRadii& radii,
+            const std::vector<SDL_Color>& stops,
+            bool horizontal
+        );
         void fillGradientRect(
             const SDL_Rect& rect,
             const SDL_Color& top,
@@ -126,23 +166,22 @@ namespace emgui {
 
         SDL_Point measureText(const std::string& text, const FontSpec& fontSpec) const;
 
-        //old typo kept as an alias, use drawLine instead ->
+        // Old typo kept as an alias, use drawLine instead
         void drawlLine(const SDL_Point& start, const SDL_Point& end, const SDL_Color& color) {
             drawLine(start, end, color);
         }
 
-        //clear() always uses clearColor_, so draw colors cannot leak onto the whole screen ->
+        // Clear() always uses clearColor_, so draw colors cannot leak onto the whole screen
         void clear();
         void clear(const SDL_Color& color);
 
-        //put the rendered backbuffer on the window ->
+        // Put the rendered backbuffer on the window
         void present();
 
-        //frame helpers: clear at start, present when the Frame goes out of scope ->
+        // Frame helpers: clear at start, present when the Frame goes out of scope
         Frame beginFrame();
         Frame beginFrame(const SDL_Color& clearColor);
 
-        //some getters here ->
         SDL_Renderer* getRenderer() const {
             return renderer_;
         }

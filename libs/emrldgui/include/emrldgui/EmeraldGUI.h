@@ -1,6 +1,4 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #pragma once
 
@@ -21,7 +19,7 @@ namespace emrldgui {
         EmeraldGUI(EmeraldGUI&&) = delete;
         EmeraldGUI& operator=(EmeraldGUI&&) = delete;
 
-        //the newest active GUI instance owns the SDL/TTF lifetime ->
+        // The newest active GUI instance owns the SDL/TTF lifetime
         static EmeraldGUI* active();
 
         void registerWindow(emgui::Window* window);

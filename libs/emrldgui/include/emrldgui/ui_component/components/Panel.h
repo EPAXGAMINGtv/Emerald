@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -15,7 +13,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //styled rectangle that can be used as a container background
+    // Styled rectangle that can be used as a container background
     class Panel : public UIComponent {
     public:
         Panel(int x, int y, int width, int height, std::string title = {});
@@ -49,13 +47,13 @@ namespace emgui {
         }
 
         SDL_Point getContentOrigin() const {
-            return {x_ + padding_, y_ + padding_ + titleOffset_};
+            return {x_ + padding_.left, y_ + padding_.top + titleOffset_};
         }
 
         SDL_Point getContentSize() const {
             return {
-                std::max(0, width_ - 2 * padding_),
-                std::max(0, height_ - 2 * padding_ - titleOffset_)
+                std::max(0, width_ - padding_.horizontal()),
+                std::max(0, height_ - padding_.vertical() - titleOffset_)
             };
         }
 
@@ -64,20 +62,16 @@ namespace emgui {
         int width_ = 320;
         int height_ = 220;
 
-        SDL_Color backgroundColor_{30, 30, 46, 235};
-        SDL_Color gradientTopColor_{};
-        SDL_Color gradientBottomColor_{};
-        bool useGradient_ = false;
-        SDL_Color borderColor_{70, 74, 96, 255};
+        SurfaceStyle surface_;
+        GeometryStyle geometry_;
+        Padding padding_;
+
         SDL_Color titleColor_{220, 228, 255, 255};
 
-        int borderWidth_ = 1;
-        int borderRadius_ = 12;
-        int padding_ = 14;
         int titleSpacing_ = 8;
         int titleOffset_ = 0;
 
-        ShadowStyle shadow_;
+        TextStyle titleStyle_;
 
         FontSpec fontSpec_{"LiberationSans", 20, "bold"};
     };

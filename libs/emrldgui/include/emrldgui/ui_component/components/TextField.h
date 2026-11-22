@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -20,7 +18,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //single-line text input with selection, clipboard, undo/redo and CSS styling
+    // Single-line text input with selection, clipboard, undo/redo and CSS styling
     class TextField : public UIComponent {
     public:
         using Action = std::function<void(TextField&)>;
@@ -67,7 +65,7 @@ namespace emgui {
             return text_;
         }
 
-        //clipboard + selection helpers
+        // Clipboard + selection helpers
         bool copy();
         bool cut();
         bool paste();
@@ -80,7 +78,7 @@ namespace emgui {
         std::size_t getSelectionStart() const;
         std::size_t getSelectionEnd() const;
 
-        //simple text undo/redo, capped to avoid unbounded memory growth
+        // Simple text undo/redo, capped to avoid unbounded memory growth
         void undo();
         void redo();
         bool canUndo() const {
@@ -140,6 +138,17 @@ namespace emgui {
 
         bool containsPoint(int x, int y) const;
         int getTextStartX(int textWidth) const;
+        int measureTextAdvance(
+            const RendererOpts& renderer,
+            const std::string& text
+        ) const;
+        void drawStyledText(
+            RendererOpts& renderer,
+            const std::string& text,
+            int x,
+            int y,
+            const SDL_Color& color
+        ) const;
         int getCaretX(const RendererOpts& renderer, std::size_t index, int textX) const;
         std::size_t getCaretIndexFromX(const RendererOpts& renderer, int x, int textX) const;
 
@@ -177,15 +186,17 @@ namespace emgui {
         Uint32 caretBlinkStart_ = 0;
         static TextField* focusedField_;
 
-        SDL_Color backgroundColor_{30, 30, 46, 255};
+        SurfaceStyle surface_;
+        GeometryStyle geometry_;
+        Padding padding_;
+
+        std::vector<SDL_Color> focusGradient_;
+        std::vector<SDL_Color> disabledGradient_;
         SDL_Color backgroundFocusColor_{37, 37, 64, 255};
         SDL_Color disabledBackgroundColor_{55, 55, 55, 255};
 
-        SDL_Color borderColor_{85, 85, 105, 255};
         SDL_Color borderFocusColor_{110, 168, 254, 255};
         SDL_Color disabledBorderColor_{90, 90, 90, 255};
-        int borderWidth_ = 2;
-        int borderRadius_ = 8;
 
         SDL_Color textColor_{240, 244, 255, 255};
         SDL_Color placeholderColor_{135, 140, 160, 255};
@@ -196,11 +207,9 @@ namespace emgui {
         int caretWidth_ = 2;
         int caretBlinkMs_ = 500;
 
-        ShadowStyle shadow_;
-        FocusRingStyle focusRing_;
+        TextStyle textStyle_;
 
         FontSpec fontSpec_{"LiberationSans", 20, "normal"};
-        int padding_ = 10;
         std::string textAlign_ = "left";
         std::size_t maxLength_ = 0;
 

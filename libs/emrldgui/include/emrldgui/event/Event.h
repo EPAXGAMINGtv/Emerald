@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// base class for every gui event, holds the type and the factory used by the EventManager
-//
+// Base class for every gui event, holds the type and the factory used by the EventManager
 
 #pragma once
 
@@ -21,7 +17,7 @@ namespace emgui {
 
     class Event;
 
-    //factory that creates a gui event out of a raw SDL event ->
+    // Factory that creates a gui event out of a raw SDL event
     using EventFactory = std::function<
         std::unique_ptr<Event>(const SDL_Event&)
     >;
@@ -32,7 +28,6 @@ namespace emgui {
 
         virtual ~Event() = default;
 
-        //some functions here ->
         virtual EventType getType() const = 0;
         virtual std::vector<Uint32> getSDLEventTypes() const = 0;
         virtual EventFactory getFactory() const = 0;

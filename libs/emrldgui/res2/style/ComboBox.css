@@ -1,0 +1,39 @@
+ComboBox {
+    background-color: var(--surface-raised);
+    background-hover-color: #ffedd5;
+    disabled-background-color: #e7e5e4;
+
+    border-color: var(--border);
+    border-hover-color: var(--accent);
+    border-width: 2px;
+    border-radius: var(--radius);
+
+    text-color: var(--text);
+    disabled-text-color: #8a7d6d;
+    placeholder-color: var(--text-muted);
+
+    popup-background-color: rgba(255, 253, 247, 250);
+    popup-border-color: rgba(234, 88, 12, 120);
+    item-hover-color: #ffedd5;
+    item-selected-color: #fed7aa;
+    item-text-color: var(--text);
+    item-selected-text-color: var(--accent-deep);
+    arrow-color: var(--accent-deep);
+
+    padding: 9px;
+    arrow-size: 8px;
+    item-height: 36px;
+    item-padding: 8px;
+    item-radius: var(--radius-sm);
+    max-visible-items: 6;
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+    shadow-color: rgba(90, 60, 30, 80);
+    shadow-offset-y: 5px;
+    shadow-spread: 2px;
+
+    font-family: var(--font);
+    font-size: 18px;
+    font-style: normal;
+}

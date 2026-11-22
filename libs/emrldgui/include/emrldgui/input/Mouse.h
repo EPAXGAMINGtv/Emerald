@@ -1,10 +1,6 @@
-//
 // Created by epax on 21.11.26.
-//
 
-//
-// input helper that uses EventMouse from the window event manager
-//
+// Input helper that uses EventMouse from the window event manager
 
 #pragma once
 
@@ -18,17 +14,15 @@
 namespace emgui {
     class Mouse {
     public:
-        //Constructor and Destructor here ->
         explicit Mouse(Window& window);
         ~Mouse();
 
-        //a listener captures 'this', so copies and moves would dangle ->
+        // A listener captures 'this', so copies and moves would dangle
         Mouse(const Mouse&) = delete;
         Mouse& operator=(const Mouse&) = delete;
         Mouse(Mouse&&) = delete;
         Mouse& operator=(Mouse&&) = delete;
 
-        //some functions here ->
         bool isButtonDown(Uint8 button) const;
         bool isButtonPressed(Uint8 button) const;
         bool isButtonReleased(Uint8 button) const;
@@ -40,14 +34,13 @@ namespace emgui {
         int getScrollX() const;
         int getScrollY() const;
 
-        //call once per frame to clear the pressed / released / scroll states ->
+        // Call once per frame to clear the pressed / released / scroll states
         void clearFrameState();
 
     private:
-        //some functions here ->
         void onMouseEvent(EventMouse& event);
 
-        //variables
+        // Variables
         Window& window_;
         EventManager::ListenerId listenerId_ = EventManager::kInvalidListener;
 

@@ -1,14 +1,11 @@
-//
 // Created by epax on 21.11.26.
-//
 
 #include "emrldgui/input/Mouse.h"
 
 namespace emgui {
 
-    //Constructor and Destructor here ->
     Mouse::Mouse(Window& window) : window_(window) {
-        //register EventMouse(window) and keep only our own listener id ->
+        // Register EventMouse(window) and keep only our own listener id
         listenerId_ = EventManager::registerEvent(
             window_.getWindow(),
             EventMouse(window_.getWindow()),
@@ -19,7 +16,7 @@ namespace emgui {
     }
 
     Mouse::~Mouse() {
-        //remove only the callback that holds this mouse ->
+        // Remove only the callback that holds this mouse
         if (listenerId_ != EventManager::kInvalidListener &&
             window_.getWindow() != nullptr) {
             if (auto* manager = EventManager::getForWindow(window_.getWindow())) {
@@ -28,7 +25,6 @@ namespace emgui {
         }
     }
 
-    //some functions here ->
     bool Mouse::isButtonDown(Uint8 button) const {
         auto it = down_.find(button);
         return it != down_.end() && it->second;
@@ -78,7 +74,7 @@ namespace emgui {
     }
 
     void Mouse::onMouseEvent(EventMouse& event) {
-        //uses the data delivered by EventMouse ->
+        // Uses the data delivered by EventMouse
         x_ = event.getX();
         y_ = event.getY();
 

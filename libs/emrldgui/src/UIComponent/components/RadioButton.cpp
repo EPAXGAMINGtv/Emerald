@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #include "emrldgui/ui_component/components/RadioButton.h"
 
@@ -232,16 +230,9 @@ namespace emgui {
 
         renderer.fillCircle(center, radius, radio);
 
-        for (int inset = 0; inset < borderWidth_; ++inset) {
-            renderer.drawCircle(center, std::max(1, radius - inset), border);
+        if (borderWidth_ > 0) {
+            renderer.drawCircle(center, radius, border);
         }
-
-        focusRing_.draw(
-            renderer,
-            {x_, y_, radioSize_, radioSize_},
-            radius,
-            hovered_ && enabled_
-        );
 
         if (checked_) {
             renderer.fillCircle(center, std::max(2, radius / 2), dotColor_);

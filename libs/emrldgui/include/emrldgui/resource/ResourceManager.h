@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -10,8 +8,8 @@
 
 namespace emgui {
 
-    //finds res/ independent of the current working directory -> resolution order:
-    //setRoot(), EMERALD_RES env, res/ next to the binary, compiled source path, ./res
+    // Finds res/ independent of the current working directory. Resolution order:
+    // SetRoot(), EMERALD_RES env, res/ next to the binary, compiled source path, ./res
     class ResourceManager {
     public:
         static void setRoot(std::filesystem::path root);

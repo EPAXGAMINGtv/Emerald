@@ -1,42 +1,47 @@
-
+/*
+ * emgui::ToggleButton
+ */
 
 ToggleButton {
-    background-color: #495057;
-    background-hover-color: #5c636a;
-    background-pressed-color: #3b4045;
-    disabled-background-color: #5a5a5a;
+    width: auto;
+    min-width: 160px;
+    min-height: 44px;
 
-    border-color: #343a40;
-    border-hover-color: #adb5bd;
-    border-pressed-color: #212529;
-    border-width: 2px;
-    border-radius: 10px;
+    background-color: #343d5a;
+    background-gradient: #495675, #2b3450;
+    background-hover-gradient: #5c6a8c, #364162;
+    background-pressed-gradient: #394363, #232b44;
+    border-color: #2b3450;
+    border-hover-color: #a9bbff;
+    border-width: 1px;
+    border-radius: 999px;
 
-    text-color: #f8f9fa;
+    text-color: var(--text);
     text-hover-color: #ffffff;
-    text-pressed-color: #dee2e6;
-    text-disabled-color: #bebebe;
+    text-disabled-color: #aeb6cf;
 
-    font-family: "LiberationSans";
-    font-size: 20px;
+    letter-spacing: 0px;
+    text-transform: none;
+    font-family: var(--font);
+    font-size: 16px;
     font-style: bold;
 
-    padding: 10px;
+    padding-top: 10px;
+    padding-right: 20px;
+    padding-bottom: 11px;
+    padding-left: 20px;
     text-align: center;
 
     press-offset: 2px;
-    press-duration-ms: 90ms;
-    release-duration-ms: 150ms;
+    press-duration-ms: 110ms;
+    release-duration-ms: 180ms;
 }
 
 ToggleButton.checked {
-    background-color: #1f9d55;
-    background-hover-color: #27b866;
-    background-pressed-color: #13763e;
-    border-color: #13763e;
-    border-hover-color: #6ee7a2;
-    border-pressed-color: #0d5730;
-    text-color: #ffffff;
-    text-hover-color: #ffffff;
-    text-pressed-color: #ebf5ff;
+    background-gradient: #37d39a, #147d5a;
+    background-hover-gradient: #63e5b5, #1a9b70;
+    border-color: #147d5a;
+    border-hover-color: #9df5d2;
+    text-color: #041b13;
+    text-hover-color: #041b13;
 }

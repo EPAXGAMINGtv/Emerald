@@ -1,22 +1,42 @@
-
+/*
+ * emgui::Panel
+ */
 
 Panel {
-    background-color: rgba(30, 30, 46, 235);
-    border-color: #464a60;
+    background-color: #121a30;
+    background-gradient: #1a2442, #0d1428;
+    background-gradient-direction: vertical;
+
+    border-color: var(--border);
     border-width: 1px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
 
-    padding: 14px;
-    title-spacing: 8px;
+    padding-top: 18px;
+    padding-right: 20px;
+    padding-bottom: 18px;
+    padding-left: 20px;
 
-    title-color: #dce4ff;
-    font-family: "LiberationSans";
-    font-size: 20px;
+    title-spacing: 12px;
+    title-color: var(--text);
+
+    letter-spacing: 2px;
+    text-transform: uppercase;
+
+    font-family: var(--font);
+    font-size: 18px;
     font-style: bold;
+
+    opacity: 1.0;
 }
 
 Panel.accent {
-    background-gradient: rgba(37, 37, 64, 245), rgba(20, 20, 36, 245);
-    border-color: #6ea8fe;
-    title-color: #9dc2ff;
+    background-gradient: #202c52, #0f1830;
+    border-color: #4f6ef7;
+    title-color: #cbd8ff;
+}
+
+Panel.hero {
+    background-gradient: #202c52, #0f1830;
+    padding-top: 12px;
+    padding-bottom: 12px;
 }

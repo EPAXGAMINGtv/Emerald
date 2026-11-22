@@ -1,46 +1,65 @@
-
+/*
+ * emgui::TextField
+ */
 
 TextField {
-    background-color: #1e1e2e;
-    background-focus-color: #252540;
-    disabled-background-color: #373737;
+    background-color: var(--surface-sunken);
+    background-gradient: #141d38, #0e162c;
+    background-gradient-direction: vertical;
+    background-focus-gradient: #1d2a50, #131d3a;
+    background-disabled-gradient: #2b3249, #232941;
 
-    border-color: #555569;
-    border-focus-color: #6ea8fe;
-    disabled-border-color: #5a5a5a;
-    border-width: 2px;
-    border-radius: 8px;
+    background-focus-color: #1d2a50;
+    disabled-background-color: #2b3249;
 
-    text-color: #f0f4ff;
-    placeholder-color: #878ca0;
-    disabled-text-color: #b4b4b4;
+    border-color: var(--border);
+    border-focus-color: var(--accent);
+    disabled-border-color: #3d4663;
+    border-width: 1px;
+    border-radius: var(--radius);
 
-    caret-color: #6ea8fe;
+    text-color: var(--text);
+    placeholder-color: var(--text-muted);
+    disabled-text-color: #8e98b8;
+
+    caret-color: var(--cyan);
     caret-width: 2px;
     caret-blink-ms: 500ms;
 
-    selection-color: rgba(70, 120, 210, 190);
+    selection-color: rgba(79, 110, 247, 150);
     selection-text-color: #ffffff;
 
-    font-family: "LiberationSans";
-    font-size: 20px;
+    letter-spacing: 0px;
+    text-transform: none;
+
+    font-family: var(--font);
+    font-size: 18px;
     font-style: normal;
 
-    padding: 10px;
+    padding-top: 10px;
+    padding-right: 16px;
+    padding-bottom: 11px;
+    padding-left: 16px;
     text-align: left;
+
+    focus-ring-color: var(--cyan);
+    focus-ring-width: 2px;
+    opacity: 1.0;
 
     max-length: 0;
 }
 
 TextField.error {
-    border-color: #e06c75;
-    border-focus-color: #ff7b84;
-    caret-color: #ff7b84;
-    text-color: #ffe3e5;
+    border-color: var(--danger);
+    border-focus-color: #ff9aa8;
+    caret-color: var(--danger);
+    text-color: #ffe4e9;
+    background-gradient: #382033, #241523;
 }
 
 TextField.success {
-    border-color: #56b56b;
-    border-focus-color: #7bd88f;
-    caret-color: #7bd88f;
+    border-color: var(--success);
+    border-focus-color: #6ee7b7;
+    caret-color: var(--success);
+    background-gradient: #15362e, #0f2823;
 }

@@ -1,6 +1,4 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
@@ -17,7 +15,7 @@ namespace emgui {
 
     class StyleValues;
 
-    //clickable component with hover/press animation, actions and CSS styling
+    // Clickable component with hover/press animation, actions and CSS styling
     class Button : public UIComponent {
     public:
         using Action = std::function<void(Button&)>;
@@ -41,7 +39,7 @@ namespace emgui {
         );
         ~Button() override;
 
-        //the mouse listener captures this, so copies and moves would dangle
+        // The mouse listener captures this, so copies and moves would dangle
         Button(const Button&) = delete;
         Button& operator=(const Button&) = delete;
         Button(Button&&) = delete;
@@ -56,7 +54,7 @@ namespace emgui {
         void applyStyle(const StyleValues& values) override;
         void onWindowAttached(Window& window) override;
 
-        //multiple actions can be registered for every button state
+        // Multiple actions can be registered for every button state
         void onClick(Action action);
         void onPressed(Action action);
         void onReleased(Action action);
@@ -108,17 +106,25 @@ namespace emgui {
             return pressed_;
         }
 
-        //useful for tests/debugging of the CSS-driven style
+        // Useful for tests/debugging of the CSS-driven style
         float getPressProgress() const {
             return pressProgress_;
         }
 
         const SDL_Color& getBackgroundColor() const {
-            return backgroundColor_;
+            return surface_.color;
         }
 
         const SDL_Color& getTextColor() const {
             return textColor_;
+        }
+
+        int getRenderedWidth() const {
+            return computedWidth_;
+        }
+
+        int getRenderedHeight() const {
+            return computedHeight_;
         }
 
         const std::string& getFontFamily() const {
@@ -145,31 +151,31 @@ namespace emgui {
         bool hovered_ = false;
         bool pressed_ = false;
 
-        SDL_Color backgroundColor_{45, 116, 218, 255};
-        SDL_Color gradientTopColor_{};
-        SDL_Color gradientBottomColor_{};
-        bool useGradient_ = false;
+        SurfaceStyle surface_;
+        GeometryStyle geometry_;
+        Padding padding_;
+
+        std::vector<SDL_Color> hoverGradient_;
+        std::vector<SDL_Color> pressedGradient_;
+        std::vector<SDL_Color> disabledGradient_;
         SDL_Color backgroundHoverColor_{63, 140, 245, 255};
         SDL_Color backgroundPressedColor_{27, 79, 156, 255};
         SDL_Color disabledBackgroundColor_{90, 90, 90, 255};
 
-        SDL_Color borderColor_{27, 79, 156, 255};
         SDL_Color borderHoverColor_{120, 190, 255, 255};
         SDL_Color borderPressedColor_{20, 60, 120, 255};
-        int borderWidth_ = 2;
-        int borderRadius_ = 10;
 
         SDL_Color textColor_{255, 255, 255, 255};
         SDL_Color textHoverColor_{255, 255, 255, 255};
         SDL_Color textPressedColor_{235, 245, 255, 255};
         SDL_Color textDisabledColor_{190, 190, 190, 255};
 
-        ShadowStyle shadow_;
-        FocusRingStyle focusRing_;
+        TextStyle textStyle_;
 
         FontSpec fontSpec_{"LiberationSans", 20, "bold"};
-        int padding_ = 10;
         std::string textAlign_ = "center";
+        int computedWidth_ = 180;
+        int computedHeight_ = 52;
 
         int pressOffset_ = 2;
         int pressDurationMs_ = 90;

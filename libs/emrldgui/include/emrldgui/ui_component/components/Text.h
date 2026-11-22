@@ -1,12 +1,11 @@
-//
 // Created by epax on 22.11.26.
-//
 
 #pragma once
 
 #include <string>
 
 #include "emrldgui/ui_component/UIComponent.h"
+#include "emrldgui/ui_component/UiStyle.h"
 
 namespace emgui {
     class StyleValues;
@@ -49,5 +48,6 @@ namespace emgui {
         std::string fontFamily_ = "LiberationSans";
         int fontSize_ = 24;
         std::string fontStyle_ = "normal";
+        TextStyle textStyle_;
     };
 } // emgui
