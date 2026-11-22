@@ -10,7 +10,7 @@ namespace emgui {
     public:
         virtual ~UIComponent() = default;
 
-        virtual void render(RendererOpts& renderer,int x,int y)= 0;
+        virtual void render(RendererOpts& renderer)= 0;
         virtual void update(){}
 
         void setPosition(int x, int y) {
