@@ -1,0 +1,37 @@
+/*
+ * Styling for emgui::RadioButton.
+ * Give all members of one group the same CSS class/id to share this look.
+ * The .checked state is applied automatically.
+ */
+
+RadioButton {
+    radio-size: 24px;
+    border-width: 2px;
+    spacing: 10px;
+
+    radio-color: #2d74da;
+    radio-hover-color: #3f8cf5;
+    radio-checked-color: #1f9d55;
+    radio-checked-hover-color: #27b866;
+    disabled-radio-color: #5a5a5a;
+
+    border-color: #1b4f9c;
+    border-hover-color: #78beff;
+    border-checked-color: #13763e;
+    dot-color: #ffffff;
+
+    text-color: #ebf0ff;
+    text-hover-color: #ffffff;
+    disabled-text-color: #b4b4b4;
+
+    font-family: "LiberationSans";
+    font-size: 20px;
+    font-style: normal;
+}
+
+RadioButton.checked {
+    radio-color: #1f9d55;
+    radio-hover-color: #27b866;
+    border-color: #13763e;
+    text-color: #d8ffe6;
+}

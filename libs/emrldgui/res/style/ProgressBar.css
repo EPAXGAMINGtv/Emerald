@@ -1,0 +1,21 @@
+/*
+ * Styling for emgui::ProgressBar.
+ */
+
+ProgressBar {
+    track-color: #262a3c;
+    fill-gradient: #2d74da, #6ea8fe;
+    shimmer-color: rgba(255, 255, 255, 70);
+    text-color: #ebf2ff;
+
+    track-height: 14px;
+    radius: 8px;
+    padding: 2px;
+    show-value: true;
+    value-format: percent;
+    animation-speed: 8.0;
+
+    font-family: "LiberationSans";
+    font-size: 14px;
+    font-style: bold;
+}

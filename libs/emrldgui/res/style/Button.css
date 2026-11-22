@@ -1,0 +1,119 @@
+
+Button {
+    background-color: #2d74da;
+    background-hover-color: #3f8cf5;
+    background-pressed-color: #1b4f9c;
+    disabled-background-color: #5a5a5a;
+
+    border-color: #1b4f9c;
+    border-hover-color: #78beff;
+    border-pressed-color: #143c78;
+    border-width: 2px;
+    border-radius: 10px;
+
+    text-color: #ffffff;
+    text-hover-color: #ffffff;
+    text-pressed-color: #ebf5ff;
+    text-disabled-color: #bebebe;
+
+    font-family: "LiberationSans";
+    font-size: 20px;
+    font-style: bold;
+
+    padding: 10px;
+    text-align: center;
+
+    press-offset: 2px;
+    press-duration-ms: 90ms;
+    release-duration-ms: 150ms;
+}
+
+Button.primary {
+    background-color: #1f9d55;
+    background-gradient: #35c873, #13763e;
+    background-hover-color: #27b866;
+    background-pressed-color: #13763e;
+    border-color: #13763e;
+    border-hover-color: #6ee7a2;
+    border-pressed-color: #0d5730;
+    text-color: #ffffff;
+}
+
+Button.secondary {
+    background-color: #6c757d;
+    background-hover-color: #7d8790;
+    background-pressed-color: #545b62;
+    border-color: #545b62;
+    border-hover-color: #b8c1c9;
+    border-pressed-color: #3d4349;
+    text-color: #ffffff;
+}
+
+Button.success {
+    background-color: #2e7d32;
+    background-gradient: #4caf50, #1b5e20;
+    background-hover-color: #388e3c;
+    background-pressed-color: #1b5e20;
+    border-color: #1b5e20;
+    border-hover-color: #81c784;
+    border-pressed-color: #0d3d10;
+    text-color: #ffffff;
+}
+
+Button.warning {
+    background-color: #f9a825;
+    background-hover-color: #ffb300;
+    background-pressed-color: #c77f00;
+    border-color: #c77f00;
+    border-hover-color: #ffe082;
+    border-pressed-color: #8a5900;
+    text-color: #241a00;
+    text-hover-color: #241a00;
+    text-pressed-color: #241a00;
+}
+
+Button.ghost {
+    background-color: transparent;
+    background-hover-color: rgba(110, 168, 254, 45);
+    background-pressed-color: rgba(110, 168, 254, 80);
+    border-color: #6ea8fe;
+    border-hover-color: #a9caff;
+    border-pressed-color: #4c86d6;
+    text-color: #cfe4ff;
+    text-hover-color: #ffffff;
+    text-pressed-color: #9dc2ff;
+}
+
+Button.danger {
+    background-color: #c62828;
+    background-gradient: #ef5350, #8e1414;
+    background-hover-color: #e53935;
+    background-pressed-color: #8e1414;
+    border-color: #8e1414;
+    border-hover-color: #ff8a80;
+    border-pressed-color: #660d0d;
+    font-style: italic;
+}
+
+#startButton {
+    background-color: #6a1b9a;
+    background-hover-color: #8e24aa;
+    background-pressed-color: #4a148c;
+    border-color: #4a148c;
+    border-hover-color: #ce93d8;
+    border-radius: 16px;
+    font-size: 24px;
+    text-align: center;
+}
+
+#dangerButton {
+    background-color: #c62828;
+    background-gradient: #ef5350, #8e1414;
+    background-hover-color: #e53935;
+    background-pressed-color: #8e1414;
+    border-color: #8e1414;
+    border-hover-color: #ff8a80;
+    border-pressed-color: #660d0d;
+    font-size: 22px;
+    font-style: italic;
+}

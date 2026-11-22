@@ -1,0 +1,46 @@
+
+
+TextField {
+    background-color: #1e1e2e;
+    background-focus-color: #252540;
+    disabled-background-color: #373737;
+
+    border-color: #555569;
+    border-focus-color: #6ea8fe;
+    disabled-border-color: #5a5a5a;
+    border-width: 2px;
+    border-radius: 8px;
+
+    text-color: #f0f4ff;
+    placeholder-color: #878ca0;
+    disabled-text-color: #b4b4b4;
+
+    caret-color: #6ea8fe;
+    caret-width: 2px;
+    caret-blink-ms: 500ms;
+
+    selection-color: rgba(70, 120, 210, 190);
+    selection-text-color: #ffffff;
+
+    font-family: "LiberationSans";
+    font-size: 20px;
+    font-style: normal;
+
+    padding: 10px;
+    text-align: left;
+
+    max-length: 0;
+}
+
+TextField.error {
+    border-color: #e06c75;
+    border-focus-color: #ff7b84;
+    caret-color: #ff7b84;
+    text-color: #ffe3e5;
+}
+
+TextField.success {
+    border-color: #56b56b;
+    border-focus-color: #7bd88f;
+    caret-color: #7bd88f;
+}

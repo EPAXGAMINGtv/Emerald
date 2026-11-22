@@ -1,0 +1,37 @@
+/*
+ * Styling for emgui::ComboBox.
+ */
+
+ComboBox {
+    background-color: #1e1e2e;
+    background-hover-color: #252540;
+    disabled-background-color: #373737;
+
+    border-color: #555569;
+    border-hover-color: #6ea8fe;
+    border-width: 2px;
+    border-radius: 8px;
+
+    text-color: #f0f4ff;
+    disabled-text-color: #b4b4b4;
+    placeholder-color: #878ca0;
+
+    popup-background-color: rgba(24, 24, 38, 250);
+    popup-border-color: #6ea8fe;
+    item-hover-color: #2d74da;
+    item-selected-color: #1f9d55;
+    item-text-color: #ebf0ff;
+    item-selected-text-color: #ffffff;
+    arrow-color: #b4bee4;
+
+    padding: 10px;
+    arrow-size: 8px;
+    item-height: 36px;
+    item-padding: 8px;
+    item-radius: 6px;
+    max-visible-items: 6;
+
+    font-family: "LiberationSans";
+    font-size: 20px;
+    font-style: normal;
+}

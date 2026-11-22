@@ -1,0 +1,42 @@
+
+
+ToggleButton {
+    background-color: #495057;
+    background-hover-color: #5c636a;
+    background-pressed-color: #3b4045;
+    disabled-background-color: #5a5a5a;
+
+    border-color: #343a40;
+    border-hover-color: #adb5bd;
+    border-pressed-color: #212529;
+    border-width: 2px;
+    border-radius: 10px;
+
+    text-color: #f8f9fa;
+    text-hover-color: #ffffff;
+    text-pressed-color: #dee2e6;
+    text-disabled-color: #bebebe;
+
+    font-family: "LiberationSans";
+    font-size: 20px;
+    font-style: bold;
+
+    padding: 10px;
+    text-align: center;
+
+    press-offset: 2px;
+    press-duration-ms: 90ms;
+    release-duration-ms: 150ms;
+}
+
+ToggleButton.checked {
+    background-color: #1f9d55;
+    background-hover-color: #27b866;
+    background-pressed-color: #13763e;
+    border-color: #13763e;
+    border-hover-color: #6ee7a2;
+    border-pressed-color: #0d5730;
+    text-color: #ffffff;
+    text-hover-color: #ffffff;
+    text-pressed-color: #ebf5ff;
+}

@@ -1,0 +1,30 @@
+
+
+Slider {
+    background-color: rgba(20, 20, 32, 180);
+    background-radius: 10px;
+
+    track-color: #464a5c;
+    track-hover-color: #5a6076;
+    track-filled-color: #2d74da;
+    track-filled-hover-color: #3f8cf5;
+
+    handle-color: #f0f4ff;
+    handle-hover-color: #ffffff;
+    handle-border-color: #1b4f9c;
+    disabled-color: #6e6e6e;
+
+    value-color: #e1e8ff;
+    show-value: true;
+
+    track-height: 8px;
+    handle-size: 22px;
+    handle-border-width: 2px;
+    handle-radius: 8px;
+    padding: 14px;
+    value-offset: 6px;
+
+    font-family: "LiberationSans";
+    font-size: 16px;
+    font-style: bold;
+}

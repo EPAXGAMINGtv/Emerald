@@ -1,0 +1,16 @@
+/*
+ * Shared defaults applied to every component before its own stylesheet.
+ * Component rules always win, so these are just sensible fallbacks.
+ */
+
+* {
+    shadow-color: rgba(0, 0, 0, 110);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 5px;
+    shadow-spread: 1px;
+
+    focus-ring-color: #6ea8fe;
+    focus-ring-width: 2px;
+
+    font-family: "LiberationSans";
+}
