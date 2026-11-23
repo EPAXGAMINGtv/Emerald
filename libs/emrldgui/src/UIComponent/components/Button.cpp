@@ -222,6 +222,29 @@ namespace emgui {
         );
     }
 
+    SDL_Point Button::getLayoutSize() const {
+        if (computedWidth_ > 0 && computedHeight_ > 0) {
+            return {computedWidth_, computedHeight_};
+        }
+        return {width_, height_};
+    }
+
+    void Button::setLayoutRect(const SDL_Rect& rect) {
+        x_ = rect.x;
+        y_ = rect.y;
+        width_ = rect.w;
+        height_ = rect.h;
+        computedWidth_ = rect.w;
+        computedHeight_ = rect.h;
+        geometry_.lockToLayout(rect.w, rect.h);
+    }
+
+    void Button::syncCssState() {
+        setHovered(hovered_ && enabled_);
+        setActive(pressed_ && enabled_);
+        setDisabled(!enabled_);
+    }
+
     void Button::update() {
         const Uint32 now = SDL_GetTicks();
         const Uint32 deltaMs = lastUpdateTicks_ == 0
@@ -348,7 +371,13 @@ namespace emgui {
             return;
         }
 
+        const bool wasHovered = hovered_;
+        const bool wasPressed = pressed_;
         hovered_ = containsPoint(event.getX(), event.getY());
+
+        if (hovered_ != wasHovered) {
+            syncCssState();
+        }
 
         if (event.getButton() != SDL_BUTTON_LEFT) {
             return;
@@ -357,6 +386,7 @@ namespace emgui {
         if (event.isPressed()) {
             if (hovered_) {
                 pressed_ = true;
+                syncCssState();
                 runActions(pressActions_);
             }
             return;
@@ -364,6 +394,7 @@ namespace emgui {
 
         if (event.isReleased() && pressed_) {
             pressed_ = false;
+            syncCssState();
             runActions(releaseActions_);
 
             if (hovered_) {

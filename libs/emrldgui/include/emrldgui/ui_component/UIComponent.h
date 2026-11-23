@@ -7,6 +7,7 @@
 #include <functional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace emgui {
     class StyleValues;
@@ -23,6 +24,12 @@ namespace emgui {
 
         virtual void render(RendererOpts& renderer) = 0;
         virtual void update() {}
+
+        // Layout parents call this before update/render to arrange their children
+        virtual void layout() {}
+
+        // Common CSS properties every component understands (flex, visibility, states)
+        void applyCommonStyle(const StyleValues& values);
 
         // Used by the CSS resolver, override for concrete components like Text
         virtual std::string getComponentName() const {
@@ -82,6 +89,65 @@ namespace emgui {
             return SDL_Point{x_, y_};
         }
 
+        void setVisible(bool visible) {
+            visible_ = visible;
+        }
+
+        bool isVisible() const {
+            return visible_;
+        }
+
+        // Containers override this so hiding a page also hides its descendants
+        virtual void setSubtreeVisible(bool visible) {
+            setVisible(visible);
+        }
+
+        // Flex hints used by emgui::Layout containers
+        void setFlex(float grow) {
+            flex_ = grow > 0.0f ? grow : 0.0f;
+        }
+
+        float getFlex() const {
+            return flex_;
+        }
+
+        void setAlignSelf(std::string align) {
+            alignSelf_ = std::move(align);
+        }
+
+        const std::string& getAlignSelf() const {
+            return alignSelf_;
+        }
+
+        // Pseudo-class state used by the CSS resolver (:hover, :active, ...)
+        void setHovered(bool value) {
+            setState(state_.hovered, value);
+        }
+        void setActive(bool value) {
+            setState(state_.active, value);
+        }
+        void setFocused(bool value) {
+            setState(state_.focused, value);
+        }
+        void setSelected(bool value) {
+            setState(state_.selected, value);
+        }
+        void setDisabled(bool value) {
+            setState(state_.disabled, value);
+        }
+
+        bool hasState(const std::string& state) const;
+
+        // Components that participate in layouts report their natural size here
+        virtual SDL_Point getLayoutSize() const {
+            return {0, 0};
+        }
+
+        virtual void setLayoutRect(const SDL_Rect& rect) {
+            x_ = rect.x;
+            y_ = rect.y;
+        }
+
     protected:
         Window* window_ = nullptr;
 
@@ -91,12 +157,32 @@ namespace emgui {
             }
         }
 
+        void setState(bool& flag, bool value) {
+            if (flag == value) {
+                return;
+            }
+            flag = value;
+            notifyStyleChanged();
+        }
+
         int x_ = 0;
         int y_ = 0;
+
+        struct StateFlags {
+            bool hovered = false;
+            bool active = false;
+            bool focused = false;
+            bool selected = false;
+            bool disabled = false;
+        };
 
     private:
         std::string styleClass_;
         std::string styleId_;
         StyleChangeCallback styleChangeCallback_;
+        std::string alignSelf_;
+        StateFlags state_;
+        bool visible_ = true;
+        float flex_ = 0.0f;
     };
 } // emgui

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <string>
 
 #include "emrldgui/ui_component/UIComponent.h"
@@ -20,6 +21,17 @@ namespace emgui {
 
         void render(RendererOpts& renderer) override;
         void applyStyle(const StyleValues& values) override;
+
+        // Approximate natural size so Text can live inside Layout containers
+        SDL_Point getLayoutSize() const override {
+            const int width = std::max(
+                1,
+                static_cast<int>(text_.size()) * std::max(1, fontSize_) * 3 / 5 +
+                    std::max(0, textStyle_.letterSpacing) *
+                        std::max(0, static_cast<int>(text_.size()) - 1)
+            );
+            return {width, std::max(1, fontSize_ + 8)};
+        }
 
         void setText(const std::string& text);
         std::string getText() const;

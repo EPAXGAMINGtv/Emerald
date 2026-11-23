@@ -53,6 +53,14 @@ namespace emgui {
         );
     }
 
+    void Panel::setLayoutRect(const SDL_Rect& rect) {
+        x_ = rect.x;
+        y_ = rect.y;
+        width_ = rect.w;
+        height_ = rect.h;
+        geometry_.lockToLayout(rect.w, rect.h);
+    }
+
     void Panel::render(RendererOpts& renderer) {
         const SDL_Rect rect{x_, y_, width_, height_};
 

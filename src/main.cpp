@@ -19,6 +19,7 @@
 #include "emrldgui/ui_component/UIComponentManager.h"
 #include "emrldgui/ui_component/components/Button.h"
 #include "emrldgui/ui_component/components/CheckBox.h"
+#include "emrldgui/ui_component/components/Layout.h"
 #include "emrldgui/ui_component/components/ComboBox.h"
 #include "emrldgui/ui_component/components/Panel.h"
 #include "emrldgui/ui_component/components/ProgressBar.h"
@@ -26,6 +27,7 @@
 #include "emrldgui/ui_component/components/Slider.h"
 #include "emrldgui/ui_component/components/Text.h"
 #include "emrldgui/ui_component/components/TextField.h"
+#include "emrldgui/ui_component/components/Tabs.h"
 #include "emrldgui/ui_component/components/ToggleButton.h"
 
 namespace {
@@ -71,10 +73,23 @@ int main() {
     {
         emrldgui::EmeraldGUI emeraldGUI;
 
+        // Use the biggest display as the window size instead of hard-coded 1920x1080
+        SDL_DisplayMode displayMode{};
+        int displayWidth = 1600;
+        int displayHeight = 900;
+
+        if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0 &&
+            displayMode.w > 0 && displayMode.h > 0) {
+            displayWidth = displayMode.w;
+            displayHeight = displayMode.h;
+        }
+
+        spdlog::info("Window size follows display: {}x{}", displayWidth, displayHeight);
+
         emgui::Window window(
             "Emerald Playground",
-            1920,
-            1080,
+            displayWidth,
+            displayHeight,
             static_cast<SDL_WindowFlags>(
                 SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN
             )
@@ -84,6 +99,18 @@ int main() {
         emgui::Mouse mouse(window);
 
         auto& rendererOpts = window.getRendererOpts();
+
+        // The UI is authored in a fixed 1920x1080 design space. SDL scales the
+        // render output and mouse events to the real window size automatically.
+        constexpr int designWidth = 1920;
+        constexpr int designHeight = 1080;
+
+        if (SDL_RenderSetLogicalSize(
+                rendererOpts.getRenderer(), designWidth, designHeight
+            ) != 0) {
+            spdlog::warn("Logical size scaling unavailable: {}", SDL_GetError());
+        }
+
         rendererOpts.setClearColor(
             useAlternateTheme ? SDL_Color{246, 238, 222, 255}
                               : SDL_Color{8, 12, 26, 255}
@@ -290,6 +317,73 @@ int main() {
             "Learn more", 1252, 468, 180, 48
         );
         cardButton.setButtonType(emgui::Button::ButtonType::Primary);
+
+        auto& layoutLabel = ui.addComponent<emgui::Text>(
+            "Layouts & Tabs", 596, 642
+        );
+        layoutLabel.setStyleClass("section");
+
+        auto& tabs = ui.addComponent<emgui::Tabs>(
+            596, 678, 600, 196
+        );
+        tabs.setStyleClass("accent");
+
+        auto& overviewPage = ui.addComponent<emgui::Layout>(
+            596, 716, 600, 152
+        );
+        overviewPage.setStyleClass("page");
+        overviewPage.setDirection(emgui::Layout::Direction::Column);
+        overviewPage.setGap(10);
+
+        auto& overviewText = ui.addComponent<emgui::Text>(
+            "CSS flex: column + gap", 0, 0
+        );
+        overviewText.setStyleClass("muted");
+
+        auto& overviewButton = ui.addComponent<emgui::Button>(
+            "Flex button", 0, 0, 150, 44
+        );
+        overviewPage.addChild(&overviewText);
+        overviewPage.addChild(&overviewButton);
+
+        auto& detailsPage = ui.addComponent<emgui::Layout>(
+            596, 716, 600, 152
+        );
+        detailsPage.setStyleClass("page");
+        detailsPage.setDirection(emgui::Layout::Direction::Column);
+        detailsPage.setGap(10);
+
+        auto& detailsText = ui.addComponent<emgui::Text>(
+            "The other page is hidden by Tabs", 0, 0
+        );
+        detailsText.setStyleClass("muted");
+
+        auto& detailsButton = ui.addComponent<emgui::Button>(
+            "Page two", 0, 0, 150, 44
+        );
+        detailsPage.addChild(&detailsText);
+        detailsPage.addChild(&detailsButton);
+
+        tabs.addPage("Overview", &overviewPage);
+        tabs.addPage("Details", &detailsPage);
+        tabs.onSelectionChanged([](emgui::Tabs&, int index) {
+            spdlog::info("Tab changed to {}", index);
+        });
+
+        auto& buttonRow = ui.addComponent<emgui::Layout>(
+            1220, 640, 620, 56
+        );
+        buttonRow.setStyleClass("card-row");
+
+        auto& rowPrimary = ui.addComponent<emgui::Button>(
+            "Flex A", 0, 0, 120, 44
+        );
+        auto& rowGhost = ui.addComponent<emgui::Button>(
+            "Flex B", 0, 0, 120, 44
+        );
+        rowGhost.setButtonType(emgui::Button::ButtonType::Ghost);
+        buttonRow.addChild(&rowPrimary);
+        buttonRow.addChild(&rowGhost);
 
         auto& statusText = ui.addComponent<emgui::Text>(
             "Interact with any control to see it react.", 48, 948

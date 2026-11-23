@@ -96,6 +96,17 @@ namespace emgui {
         int maxWidth = 0;
         int maxHeight = 0;
 
+        // Once a Layout assigns a rect, it stays authoritative over CSS width/height
+        bool layoutControlled = false;
+
+        void lockToLayout(int layoutWidth, int layoutHeight) {
+            layoutControlled = true;
+            autoWidth = false;
+            autoHeight = false;
+            width = layoutWidth;
+            height = layoutHeight;
+        }
+
         void apply(const StyleValues& values, int currentWidth, int currentHeight) {
             const std::string widthValue = values.getString("width");
             const std::string heightValue = values.getString("height");
@@ -118,6 +129,13 @@ namespace emgui {
             }
             if (maxHeight > 0) {
                 height = std::min(height, maxHeight);
+            }
+
+            if (layoutControlled) {
+                autoWidth = false;
+                autoHeight = false;
+                width = currentWidth;
+                height = currentHeight;
             }
         }
 

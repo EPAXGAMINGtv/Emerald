@@ -1,0 +1,65 @@
+/*
+ * emgui::Tabs
+ *
+ * :hover / :active / :focus / :selected pseudo-classes are resolved by the
+ * CSS engine. Per-tab colors use the tab-* properties below.
+ */
+
+Tabs {
+    background-color: #121a30;
+    background-gradient: #1a2442, #0d1428;
+    background-gradient-direction: vertical;
+
+    border-color: #465476;
+    border-width: 1px;
+    border-radius: 16px;
+
+    padding-top: 14px;
+    padding-right: 14px;
+    padding-bottom: 14px;
+    padding-left: 14px;
+
+    tab-bar-color: rgba(8, 12, 26, 120);
+    tab-background: #1a2442;
+    tab-hover-background: #2a3a68;
+    tab-active-background: #4f6ef7;
+    tab-border-color: #465476;
+    tab-text-color: #98a4c8;
+    tab-active-text-color: #ffffff;
+    indicator-color: #7c9cff;
+
+    tab-height: 42px;
+    tab-gap: 8px;
+    tab-padding: 18px;
+    tab-radius: 10px;
+    indicator-height: 3px;
+
+    font-family: "LiberationSans";
+    font-size: 16px;
+    font-style: bold;
+    text-transform: none;
+    letter-spacing: 0px;
+
+    shadow-color: rgba(0, 0, 0, 150);
+    shadow-offset-y: 6px;
+    shadow-spread: 2px;
+    opacity: 1.0;
+}
+
+Tabs:hover {
+    border-color: #7c9cff;
+}
+
+Tabs:focus {
+    focus-ring-color: #4f6ef7;
+    focus-ring-width: 2px;
+}
+
+Tabs:active {
+    tab-active-background: #2a3fa8;
+}
+
+Tabs.accent {
+    tab-active-background: #7c9cff;
+    indicator-color: #22d3ee;
+}

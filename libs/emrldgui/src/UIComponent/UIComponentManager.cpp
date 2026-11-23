@@ -75,9 +75,18 @@ namespace emgui {
     }
 
     void UIComponentManager::update() {
+        // Layout containers arrange their children before any widget updates
         for (const ComponentEntry& entry : components_) {
             if (UIComponent* component = entry.get()) {
-                component->update();
+                component->layout();
+            }
+        }
+
+        for (const ComponentEntry& entry : components_) {
+            if (UIComponent* component = entry.get()) {
+                if (component->isVisible()) {
+                    component->update();
+                }
             }
         }
     }
@@ -85,7 +94,9 @@ namespace emgui {
     void UIComponentManager::render(RendererOpts& renderer) {
         for (const ComponentEntry& entry : components_) {
             if (UIComponent* component = entry.get()) {
-                component->render(renderer);
+                if (component->isVisible()) {
+                    component->render(renderer);
+                }
             }
         }
     }

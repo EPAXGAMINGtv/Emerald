@@ -25,6 +25,12 @@ namespace emgui {
         void render(RendererOpts& renderer) override;
         void applyStyle(const StyleValues& values) override;
 
+        SDL_Point getLayoutSize() const override {
+            return {width_, height_};
+        }
+
+        void setLayoutRect(const SDL_Rect& rect) override;
+
         void setTitle(std::string title) {
             title_ = std::move(title);
         }

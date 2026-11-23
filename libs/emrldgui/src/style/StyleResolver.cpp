@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <functional>
 #include <map>
 #include <vector>
 
@@ -25,16 +26,26 @@ namespace emgui {
             if (!rule.id.empty()) {
                 result += 100;
             }
+            if (!rule.pseudoClass.empty()) {
+                result += 10;
+            }
 
             return result;
         }
+
+        using StateCheck = std::function<bool(const std::string&)>;
 
         bool matches(
             const CssRule& rule,
             const std::string& componentName,
             const std::string& styleClass,
-            const std::string& id
+            const std::string& id,
+            const StateCheck& hasState
         ) {
+            if (!rule.pseudoClass.empty() &&
+                (!hasState || !hasState(rule.pseudoClass))) {
+                return false;
+            }
             if (!rule.component.empty() && rule.component != "*" &&
                 rule.component != componentName) {
                 return false;
@@ -139,14 +150,79 @@ namespace emgui {
             return result;
         }
 
+        StyleValues resolveSheet(
+            const StyleSheet& sheet,
+            const std::string& componentName,
+            const std::string& styleClass,
+            const std::string& id,
+            const StateCheck& hasState
+        ) {
+            StyleValues values;
+            std::map<std::string, std::string> variables;
+
+            struct Match {
+                const CssRule* rule = nullptr;
+                int ruleSpecificity = 0;
+                std::size_t order = 0;
+            };
+
+            std::vector<Match> matched;
+
+            for (const CssRule& rule : sheet.getRules()) {
+                if (!matches(rule, componentName, styleClass, id, hasState)) {
+                    continue;
+                }
+
+                matched.push_back({&rule, specificity(rule), matched.size()});
+            }
+
+            std::stable_sort(
+                matched.begin(),
+                matched.end(),
+                [](const Match& left, const Match& right) {
+                    if (left.ruleSpecificity != right.ruleSpecificity) {
+                        return left.ruleSpecificity < right.ruleSpecificity;
+                    }
+                    return left.order < right.order;
+                }
+            );
+
+            for (const Match& match : matched) {
+                for (const CssDeclaration& declaration : match.rule->declarations) {
+                    if (declaration.property.starts_with("--")) {
+                        variables[declaration.property] = substituteVariables(
+                            declaration.value,
+                            variables
+                        );
+                    }
+                }
+            }
+
+            for (const Match& match : matched) {
+                for (const CssDeclaration& declaration : match.rule->declarations) {
+                    if (!declaration.property.starts_with("--")) {
+                        values.set(
+                            declaration.property,
+                            substituteVariables(declaration.value, variables)
+                        );
+                    }
+                }
+            }
+
+            return values;
+        }
+
     } // namespace
 
     StyleValues StyleResolver::resolve(const StyleSheet& sheet, const UIComponent& component) {
-        return resolve(
+        return resolveSheet(
             sheet,
             component.getComponentName(),
             component.getStyleClass(),
-            component.getStyleId()
+            component.getStyleId(),
+            [&component](const std::string& state) {
+                return component.hasState(state);
+            }
         );
     }
 
@@ -156,60 +232,7 @@ namespace emgui {
         const std::string& styleClass,
         const std::string& id
     ) {
-        StyleValues values;
-        std::map<std::string, std::string> variables;
-
-        struct Match {
-            const CssRule* rule = nullptr;
-            int ruleSpecificity = 0;
-            std::size_t order = 0;
-        };
-
-        std::vector<Match> matched;
-
-        for (const CssRule& rule : sheet.getRules()) {
-            if (!matches(rule, componentName, styleClass, id)) {
-                continue;
-            }
-
-            matched.push_back({&rule, specificity(rule), matched.size()});
-        }
-
-        std::stable_sort(
-            matched.begin(),
-            matched.end(),
-            [](const Match& left, const Match& right) {
-                if (left.ruleSpecificity != right.ruleSpecificity) {
-                    return left.ruleSpecificity < right.ruleSpecificity;
-                }
-                return left.order < right.order;
-            }
-        );
-
-        // Custom properties from every matching rule join the same cascade
-        for (const Match& match : matched) {
-            for (const CssDeclaration& declaration : match.rule->declarations) {
-                if (declaration.property.starts_with("--")) {
-                    variables[declaration.property] = substituteVariables(
-                        declaration.value,
-                        variables
-                    );
-                }
-            }
-        }
-
-        for (const Match& match : matched) {
-            for (const CssDeclaration& declaration : match.rule->declarations) {
-                if (!declaration.property.starts_with("--")) {
-                    values.set(
-                        declaration.property,
-                        substituteVariables(declaration.value, variables)
-                    );
-                }
-            }
-        }
-
-        return values;
+        return resolveSheet(sheet, componentName, styleClass, id, {});
     }
 
 } // emgui

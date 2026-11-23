@@ -18,6 +18,7 @@ namespace emgui {
         std::string component;
         std::string styleClass;
         std::string id;
+        std::string pseudoClass;
         std::vector<CssDeclaration> declarations;
     };
 

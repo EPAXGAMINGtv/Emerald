@@ -54,6 +54,9 @@ namespace emgui {
         void applyStyle(const StyleValues& values) override;
         void onWindowAttached(Window& window) override;
 
+        SDL_Point getLayoutSize() const override;
+        void setLayoutRect(const SDL_Rect& rect) override;
+
         // Multiple actions can be registered for every button state
         void onClick(Action action);
         void onPressed(Action action);
@@ -92,6 +95,7 @@ namespace emgui {
                 pressed_ = false;
                 hovered_ = false;
             }
+            syncCssState();
         }
 
         bool isEnabled() const {
@@ -139,6 +143,7 @@ namespace emgui {
         void onMouseEvent(EventMouse& event);
         bool containsPoint(int x, int y) const;
         void runActions(const std::vector<Action>& actions);
+        void syncCssState();
 
         EventManager::ListenerId listenerId_ = EventManager::kInvalidListener;
 

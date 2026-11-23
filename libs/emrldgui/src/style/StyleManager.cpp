@@ -86,7 +86,9 @@ namespace emgui {
             }
         }
 
-        component.applyStyle(StyleResolver::resolve(combined, component));
+        const StyleValues values = StyleResolver::resolve(combined, component);
+        component.applyStyle(values);
+        component.applyCommonStyle(values);
     }
 
     void StyleManager::reload() {

@@ -79,6 +79,20 @@ namespace emgui {
                 return rule;
             }
 
+            // Pseudo-classes: Button:hover, #startButton:focus, Panel.selected
+            const std::size_t colon = rule.selector.find(':');
+            if (colon != std::string_view::npos) {
+                rule.pseudoClass = lower(
+                    trim(std::string_view(rule.selector).substr(colon + 1))
+                );
+                rule.selector = trim(
+                    std::string_view(rule.selector).substr(0, colon)
+                );
+                if (rule.selector.empty()) {
+                    return rule;
+                }
+            }
+
             if (rule.selector == "*") {
                 rule.component = "*";
                 return rule;
