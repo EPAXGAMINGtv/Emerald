@@ -85,6 +85,14 @@ namespace emgui {
                 return 0;
             }
 
+            // A corner only owns the rows on its own side of the rectangle.
+            // The circle equation alone also matches rows past the corner
+            // center, so the arc bends back in after reaching the straight
+            // edge and leaves a notch/crack in the border.
+            if (top ? row >= radius : row < height - radius) {
+                return 0;
+            }
+
             const double centerX = leftSide
                 ? static_cast<double>(radius)
                 : static_cast<double>(width - radius);

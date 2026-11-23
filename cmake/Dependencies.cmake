@@ -44,49 +44,33 @@ else()
     endif()
 endif()
 
-find_package(SDL2 QUIET)
+# The system SDL2 is built without a Wayland video backend here: SDL_CreateWindow()
+# succeeds with the offscreen driver, but niri never gets a mapped surface.
+# Build SDL2 with Wayland support so windows actually show up on Wayland.
+message(STATUS "Building SDL2 with Wayland video backend via FetchContent")
+set(SDL_TEST OFF CACHE BOOL "" FORCE)
+set(SDL_SHARED ON CACHE BOOL "" FORCE)
+set(SDL_STATIC OFF CACHE BOOL "" FORCE)
+set(SDL_PIPEWIRE OFF CACHE BOOL "" FORCE)
+set(SDL_PIPEWIRE_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_X11 OFF CACHE BOOL "" FORCE)
+set(SDL_WAYLAND ON CACHE BOOL "" FORCE)
+set(SDL_WAYLAND_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_WAYLAND_LIBDECOR OFF CACHE BOOL "" FORCE)
+set(SDL_WAYLAND_QT_TOUCH OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    SDL2
+    URL https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.30.11.tar.gz
+    URL_HASH SHA256=cc6136dd964854e8846c679703322f3e2a341d27a06a53f8b3f642c26f1b0cfd
+)
+FetchContent_MakeAvailable(SDL2)
 
 if(TARGET SDL2::SDL2)
     target_link_libraries(project_dependencies INTERFACE SDL2::SDL2)
-elseif(TARGET SDL2::SDL2-static)
-    target_link_libraries(project_dependencies INTERFACE SDL2::SDL2-static)
-elseif(SDL2_FOUND)
-    if(SDL2_INCLUDE_DIRS)
-        target_include_directories(project_dependencies INTERFACE ${SDL2_INCLUDE_DIRS})
-    endif()
-    if(SDL2_LIBRARIES)
-        target_link_libraries(project_dependencies INTERFACE ${SDL2_LIBRARIES})
-    endif()
-else()
-    find_package(PkgConfig QUIET)
-    if(PkgConfig_FOUND)
-        pkg_check_modules(SDL2 IMPORTED_TARGET QUIET sdl2)
-        if(TARGET PkgConfig::SDL2)
-            target_link_libraries(project_dependencies INTERFACE PkgConfig::SDL2)
-        endif()
-    endif()
-
-    if(NOT TARGET PkgConfig::SDL2)
-        message(STATUS "SDL2 not found on system; fetching SDL2 via FetchContent")
-        set(SDL_TEST OFF CACHE BOOL "" FORCE)
-        set(SDL_SHARED ON CACHE BOOL "" FORCE)
-        set(SDL_STATIC OFF CACHE BOOL "" FORCE)
-        set(SDL_PIPEWIRE OFF CACHE BOOL "" FORCE)
-        set(SDL_PIPEWIRE_SHARED OFF CACHE BOOL "" FORCE)
-        FetchContent_Declare(
-            SDL2
-            GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-            GIT_TAG release-2.30.11
-        )
-        FetchContent_MakeAvailable(SDL2)
-        if(TARGET SDL2::SDL2)
-            target_link_libraries(project_dependencies INTERFACE SDL2::SDL2)
-        elseif(TARGET SDL2)
-            target_link_libraries(project_dependencies INTERFACE SDL2)
-        elseif(TARGET SDL2-static)
-            target_link_libraries(project_dependencies INTERFACE SDL2-static)
-        endif()
-    endif()
+elseif(TARGET SDL2)
+    target_link_libraries(project_dependencies INTERFACE SDL2)
+elseif(TARGET SDL2-static)
+    target_link_libraries(project_dependencies INTERFACE SDL2-static)
 endif()
 
 find_package(SDL2_ttf QUIET)

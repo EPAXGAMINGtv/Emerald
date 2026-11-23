@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <stdexcept>
 #include <string>
 
@@ -22,6 +23,15 @@ namespace emrldgui {
     } // namespace
 
     EmeraldGUI::EmeraldGUI() {
+        // Make SDL use its Wayland backend on compositors like niri. Without
+        // this, a stale DISPLAY can make SDL try X11 first and never map a
+        // window on the Wayland session.
+        const char* sessionType = std::getenv("XDG_SESSION_TYPE");
+        if (std::getenv("WAYLAND_DISPLAY") != nullptr ||
+            (sessionType != nullptr && std::string(sessionType) == "wayland")) {
+            SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
+        }
+
         if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
             const std::string error = SDL_GetError();
             spdlog::error("SDL_InitSubSystem(SDL_INIT_VIDEO) failed: {}", error);
