@@ -36,6 +36,9 @@ public:
         stream::OutputCallback onOutput = {}
     ) const;
 
+    void SetEnsureDefaultReposOnStartup(bool enabled);
+    bool EnsureDefaultReposOnStartup() const noexcept;
+
     void SetTerminalExecutor(terminal::InteractiveExecutor executor);
     void SetTerminalOptions(terminal::TerminalOptions options);
     const terminal::TerminalOptions& TerminalConfiguration() const noexcept;
@@ -51,12 +54,13 @@ public:
     std::vector<std::string> DefaultRepositories() const;
 
     // Repository group
+    Result EnsureDefaultReposConfigured() const;
     Result AddFlatpakRepo(
         const std::string& name,
         const std::string& url,
         bool ifNotExists = true
-    );
-    Result AddDefaultRepos();
+    ) const;
+    Result AddDefaultRepos() const;
     bool IsDefaultRepoConfigured(const std::string& name) const;
     Result RemoveFlatpakRepo(const std::string& name);
     std::vector<Repository> ListFlatpakRepos(
@@ -191,6 +195,7 @@ private:
     std::unordered_map<std::string, std::vector<std::string>>
         categoryOverrides_;
     stream::OutputCallback outputCallback_;
+    bool ensureDefaultRepos_ = true;
 };
 
 } // namespace fpk

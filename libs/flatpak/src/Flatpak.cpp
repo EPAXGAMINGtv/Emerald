@@ -65,6 +65,14 @@ Result Flatpak::RunFlatpakCommandWithOutput(
     );
 }
 
+void Flatpak::SetEnsureDefaultReposOnStartup(bool enabled) {
+    ensureDefaultRepos_ = enabled;
+}
+
+bool Flatpak::EnsureDefaultReposOnStartup() const noexcept {
+    return ensureDefaultRepos_;
+}
+
 void Flatpak::SetTerminalExecutor(terminal::InteractiveExecutor executor) {
     terminal_.SetExecutor(std::move(executor));
 }
@@ -116,6 +124,9 @@ Result Flatpak::EnsureAvailable() const {
     const std::string version = Version();
     if (version.empty()) {
         return MakeResult(false, "flatpak is not available");
+    }
+    if (ensureDefaultRepos_) {
+        return EnsureDefaultReposConfigured();
     }
     return MakeResult(true, version);
 }

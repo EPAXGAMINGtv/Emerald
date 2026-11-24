@@ -60,6 +60,7 @@ if(EMERALD_BUILD_TESTS)
         tests/test_flatpak_groups.cpp
         tests/test_flatpak_streaming.cpp
         tests/test_flatpak_terminal.cpp
+        tests/test_flatpak_default_repos.cpp
     )
     target_link_libraries(test PRIVATE cfg emrldgui flatpak project_warnings)
 

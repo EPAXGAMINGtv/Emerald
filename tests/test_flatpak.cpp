@@ -54,6 +54,11 @@ TEST(flatpak_core_with_mock_executor) {
                 result.Ok = true;
                 result.ExitCode = 0;
                 result.Output = "Flatpak 1.18.4\n";
+            } else if (argv.size() > 1U && argv[1] == "remote-list") {
+                result.Ok = true;
+                result.ExitCode = 0;
+                result.Output =
+                    "flathub\thttps://dl.flathub.org/repo/\t1\tsystem\n";
             } else {
                 result.Error = "unexpected command";
             }
@@ -65,7 +70,7 @@ TEST(flatpak_core_with_mock_executor) {
     CHECK(flatpak.IsAvailable());
     CHECK(flatpak.Version() == "1.18.4");
     CHECK(flatpak.EnsureAvailable().Ok);
-    CHECK(flatpak.EnsureAvailable().Output == "1.18.4");
+    CHECK(flatpak.EnsureAvailable().Output == "default repositories ready");
 
     const std::vector<std::string> defaults = flatpak.DefaultRepositories();
     CHECK(defaults.size() == 1U);

@@ -50,9 +50,39 @@ std::string DefaultRepoUrl(const std::string& name) {
 
 } // namespace
 
+Result Flatpak::EnsureDefaultReposConfigured() const {
+    Result result;
+    result.Ok = true;
+
+    for (const std::string& name : DefaultRepositories()) {
+        if (!IsDefaultRepoConfigured(name) || FlatpakRepoExists(name)) {
+            continue;
+        }
+
+        const std::string url = DefaultRepoUrl(name);
+        if (url.empty()) {
+            result.Ok = false;
+            result.Error = "no default url for repository " + name;
+            return result;
+        }
+
+        const Result step = AddFlatpakRepo(name, url);
+        if (!step.Ok) {
+            result.Ok = false;
+            result.Error = "failed to add " + name + ": " + step.Error;
+            result.Command = step.Command;
+            result.ExitCode = step.ExitCode;
+            return result;
+        }
+    }
+
+    result.Output = "default repositories ready";
+    return result;
+}
+
 Result Flatpak::AddFlatpakRepo(
     const std::string& name, const std::string& url, bool ifNotExists
-) {
+) const {
     std::vector<std::string> arguments = {"remote-add"};
     if (ifNotExists) {
         arguments.push_back("--if-not-exists");
@@ -62,7 +92,7 @@ Result Flatpak::AddFlatpakRepo(
     return command_.Run(std::move(arguments));
 }
 
-Result Flatpak::AddDefaultRepos() {
+Result Flatpak::AddDefaultRepos() const {
     Result result;
     result.Ok = true;
 
