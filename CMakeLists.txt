@@ -45,6 +45,7 @@ if(EMERALD_BUILD_TESTS)
         tests/test_config_exhaustive.cpp
         tests/test_config_manager.cpp
         tests/test_gui_core.cpp
+        tests/test_gui_advanced.cpp
     )
     target_link_libraries(test PRIVATE cfg emrldgui project_warnings)
 
