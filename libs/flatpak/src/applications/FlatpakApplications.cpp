@@ -1,6 +1,6 @@
 #include "flatpak/Flatpak.h"
 
-#include "FlatpakParse.h"
+#include "parsing/FlatpakParse.h"
 
 #include <algorithm>
 #include <optional>

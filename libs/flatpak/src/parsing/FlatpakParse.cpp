@@ -1,4 +1,4 @@
-#include "FlatpakParse.h"
+#include "parsing/FlatpakParse.h"
 
 namespace fpk::detail {
 
