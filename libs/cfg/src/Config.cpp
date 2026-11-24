@@ -114,22 +114,68 @@ bool Config::writeToFile(
             std::filesystem::create_directories(path.parent_path());
         }
 
-        std::ofstream out(path, std::ios::out | std::ios::trunc);
-        if (!out.is_open()) {
-            spdlog::error("Failed to open config for writing: {}", path.string());
-            return false;
-        }
+        const std::filesystem::path temp = path.string() + ".tmp";
+        auto remove_temp = [&temp]() {
+            std::error_code ignored;
+            std::filesystem::remove(temp, ignored);
+        };
 
         const YAML::Node output = build_output_node(mode);
         YAML::Emitter emitter;
         emitter << output;
         if (!emitter.good()) {
-            spdlog::error("Failed to serialize config '{}': {}", path.string(), emitter.GetLastError());
+            spdlog::error(
+                "Failed to serialize config '{}': {}",
+                path.string(), emitter.GetLastError()
+            );
             return false;
         }
 
-        out << emitter.c_str();
-        out << '\n';
+        std::ofstream out(temp, std::ios::out | std::ios::trunc);
+        if (!out.is_open()) {
+            spdlog::error("Failed to open config for writing: {}", temp.string());
+            return false;
+        }
+        out << emitter.c_str() << '\n';
+        out.flush();
+        if (!out) {
+            spdlog::error("Failed to write config: {}", temp.string());
+            out.close();
+            remove_temp();
+            return false;
+        }
+        out.close();
+        if (!out) {
+            spdlog::error("Failed to close config: {}", temp.string());
+            remove_temp();
+            return false;
+        }
+
+        std::error_code rename_error;
+        std::filesystem::rename(temp, path, rename_error);
+        if (rename_error) {
+            // Windows cannot rename over an existing file. Move the old file
+            // aside first, then restore it if the replacement fails.
+            const std::filesystem::path backup = path.string() + ".bak";
+            std::filesystem::rename(path, backup, rename_error);
+            if (!rename_error) {
+                std::filesystem::rename(temp, path, rename_error);
+                if (rename_error) {
+                    std::filesystem::rename(backup, path, rename_error);
+                } else {
+                    std::filesystem::remove(backup, rename_error);
+                }
+            }
+        }
+        if (rename_error) {
+            spdlog::error(
+                "Failed to replace config '{}': {}",
+                path.string(), rename_error.message()
+            );
+            remove_temp();
+            return false;
+        }
+
         spdlog::debug("Saved config to {}", path.string());
         return true;
     } catch (const std::exception& e) {
