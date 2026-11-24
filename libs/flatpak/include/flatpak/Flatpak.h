@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -26,6 +27,28 @@ public:
     Result EnsureAvailable() const;
 
     std::vector<std::string> DefaultRepositories() const;
+
+    // Repository group
+    Result AddFlatpakRepo(
+        const std::string& name,
+        const std::string& url,
+        bool ifNotExists = true
+    );
+    Result AddDefaultRepos();
+    bool IsDefaultRepoConfigured(const std::string& name) const;
+    Result RemoveFlatpakRepo(const std::string& name);
+    std::vector<Repository> ListFlatpakRepos(
+        bool includeDisabled = true
+    ) const;
+    bool FlatpakRepoExists(const std::string& name) const;
+    std::optional<Repository> GetFlatpakRepo(const std::string& name) const;
+    std::string GetFlatpakRepoUrl(const std::string& name) const;
+    Result EnableFlatpakRepo(const std::string& name);
+    Result DisableFlatpakRepo(const std::string& name);
+    Result UpdateFlatpakRepo(const std::string& name);
+    Result UpdateAllFlatpakRepos();
+    Result SetFlatpakRepoPriority(const std::string& name, int priority);
+    std::vector<std::string> ListFlatpakRefs(const std::string& remote) const;
 
 private:
     FlatpakCommand command_;

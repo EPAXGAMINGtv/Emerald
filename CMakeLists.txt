@@ -53,6 +53,7 @@ if(EMERALD_BUILD_TESTS)
         tests/test_config_diff.cpp
         tests/test_config_migration.cpp
         tests/test_flatpak.cpp
+        tests/test_flatpak_repositories.cpp
     )
     target_link_libraries(test PRIVATE cfg emrldgui flatpak project_warnings)
 
