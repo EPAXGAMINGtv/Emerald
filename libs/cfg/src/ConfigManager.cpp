@@ -18,6 +18,13 @@ void ConfigManager::set_base_dir(std::filesystem::path base_dir) {
             entry.config.set_path(resolve(entry.file_name));
         }
     }
+    for (auto& [name, watch] : watches_) {
+        const Entry* entry = find_entry(name);
+        if (entry) {
+            watch.path = resolve(entry->file_name);
+            watch.has_file = false;
+        }
+    }
 }
 
 const std::filesystem::path& ConfigManager::base_dir() const noexcept {
@@ -53,6 +60,7 @@ bool ConfigManager::remove(std::string_view name) {
         return false;
     }
     entries_.erase(std::string(name));
+    watches_.erase(std::string(name));
     return true;
 }
 
@@ -166,6 +174,81 @@ bool ConfigManager::save_all(SaveMode mode) const {
         ok = save(name, mode) && ok;
     }
     return ok;
+}
+
+bool ConfigManager::watch(
+    std::string_view name,
+    std::chrono::seconds interval,
+    WatchCallback callback
+) {
+    const Entry* entry = find_entry(name);
+    if (!entry || interval <= std::chrono::seconds::zero()) {
+        return false;
+    }
+
+    Watch watch;
+    watch.path = resolve(entry->file_name);
+    watch.interval = interval;
+    watch.next_check = std::chrono::steady_clock::now() + interval;
+    watch.callback = std::move(callback);
+
+    std::error_code stat_error;
+    if (std::filesystem::exists(watch.path, stat_error) && !stat_error) {
+        watch.last_write = std::filesystem::last_write_time(watch.path, stat_error);
+        watch.has_file = !stat_error;
+    }
+
+    watches_.insert_or_assign(std::string(name), std::move(watch));
+    return true;
+}
+
+bool ConfigManager::unwatch(std::string_view name) {
+    return watches_.erase(std::string(name)) != 0;
+}
+
+bool ConfigManager::poll() {
+    const auto now = std::chrono::steady_clock::now();
+    bool any_changed = false;
+
+    for (auto& [name, watch] : watches_) {
+        if (now < watch.next_check) {
+            continue;
+        }
+        watch.next_check = now + watch.interval;
+
+        std::error_code stat_error;
+        const bool file_exists = std::filesystem::exists(watch.path, stat_error);
+        if (stat_error) {
+            continue;
+        }
+
+        std::filesystem::file_time_type stamp{};
+        if (file_exists) {
+            stamp = std::filesystem::last_write_time(watch.path, stat_error);
+            if (stat_error) {
+                continue;
+            }
+        }
+
+        const bool changed = file_exists != watch.has_file
+            || (file_exists && stamp != watch.last_write);
+        watch.has_file = file_exists;
+        watch.last_write = stamp;
+        if (!changed || !file_exists) {
+            continue;
+        }
+
+        Entry* entry = find_entry(name);
+        if (!entry || !entry->config.load(watch.path)) {
+            continue;
+        }
+        any_changed = true;
+        if (watch.callback) {
+            watch.callback(name, entry->config);
+        }
+    }
+
+    return any_changed;
 }
 
 ConfigManager::Entry* ConfigManager::find_entry(std::string_view name) noexcept {

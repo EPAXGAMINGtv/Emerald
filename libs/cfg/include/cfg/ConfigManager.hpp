@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -11,6 +12,9 @@
 #include "cfg/Config.hpp"
 
 namespace cfg {
+
+using WatchCallback =
+    std::function<void(std::string_view name, const Config& config)>;
 
 // Owns a set of named config files. The manager has no knowledge of any
 // application domain: names, file names and defaults are provided by callers.
@@ -48,10 +52,28 @@ public:
     bool save_all() const;
     bool save_all(SaveMode mode) const;
 
+    // Lightweight hot reload: poll() checks mtimes and reloads changed files.
+    bool watch(
+        std::string_view name,
+        std::chrono::seconds interval,
+        WatchCallback callback = {}
+    );
+    bool unwatch(std::string_view name);
+    bool poll();
+
 private:
     struct Entry {
         std::filesystem::path file_name;
         Config config;
+    };
+
+    struct Watch {
+        std::filesystem::path path;
+        std::chrono::seconds interval{};
+        std::chrono::steady_clock::time_point next_check{};
+        std::filesystem::file_time_type last_write{};
+        bool has_file = false;
+        WatchCallback callback;
     };
 
     Entry* find_entry(std::string_view name) noexcept;
@@ -60,6 +82,7 @@ private:
 
     std::filesystem::path base_dir_;
     std::map<std::string, Entry, std::less<>> entries_;
+    std::map<std::string, Watch, std::less<>> watches_;
 };
 
 } // namespace cfg
