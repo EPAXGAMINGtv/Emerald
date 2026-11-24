@@ -194,6 +194,22 @@ namespace emgui {
             return renderer_;
         }
 
+        // Rect batching: consecutive fillRect() calls of the same color are
+        // combined into one SDL_RenderFillRects() call. Any other draw call or
+        // clip change flushes the pending rects first, so draw order is kept.
+        void beginBatch();
+        void flushBatch();
+        void endBatch();
+        bool isBatching() const {
+            return batchingEnabled_;
+        }
+        std::size_t getBatchFlushCount() const {
+            return batchFlushCount_;
+        }
+        std::size_t getBatchedRectCount() const {
+            return batchedRectCount_;
+        }
+
         bool isFontValid() const;
 
     private:
@@ -217,6 +233,14 @@ namespace emgui {
         FontSpec defaultFontSpec_;
         SDL_Color clearColor_{0, 0, 0, 255};
         std::vector<SDL_Rect> clipStack_;
+
+        bool batchingEnabled_ = false;
+        bool hasBatch_ = false;
+        SDL_Color batchColor_{0, 0, 0, 255};
+        std::vector<SDL_Rect> batchRects_;
+        std::size_t batchFlushCount_ = 0;
+        std::size_t batchedRectCount_ = 0;
+
         std::map<TextCacheKey, CachedText> textCache_;
     };
 } // emgui

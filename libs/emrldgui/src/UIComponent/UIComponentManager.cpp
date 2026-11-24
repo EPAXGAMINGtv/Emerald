@@ -2,6 +2,7 @@
 
 #include "emrldgui/ui_component/UIComponentManager.h"
 #include "emrldgui/Window.h"
+#include "emrldgui/animation/Animation.h"
 
 #include <algorithm>
 
@@ -222,6 +223,8 @@ namespace emgui {
     }
 
     void UIComponentManager::update() {
+        Animation::tick(SDL_GetTicks());
+
         // Layout containers arrange their children before any widget updates
         for (const ComponentEntry& entry : components_) {
             if (UIComponent* component = entry.get()) {

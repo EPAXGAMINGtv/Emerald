@@ -1,0 +1,33 @@
+/*
+ * emgui::DockPanel - edge docking container backed by nested splitters
+ *
+ * fraction (dock() argument): size of an edge pane relative to its axis.
+ * edge-highlight-*: drop feedback while a dragged widget hovers an edge.
+ * gap / padding / min-pane-size: spacing and smallest usable pane.
+ */
+
+DockPanel {
+    background-color: var(--surface-sunken);
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: var(--radius);
+
+    padding: 4px;
+    gap: 4px;
+    min-pane-size: 24px;
+
+    edge-highlight-color: var(--accent-soft);
+    edge-highlight-width: 4px;
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+}
+
+DockPanel:focus {
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+}
+
+DockPanel:hover {
+    border-color: var(--border-strong);
+}

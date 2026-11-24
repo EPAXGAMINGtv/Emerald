@@ -1,0 +1,51 @@
+/*
+ * emgui::TreeView - hierarchical, virtualized tree
+ *
+ * Inherits ScrollArea::applyStyle, so the scrollbar properties are declared
+ * here as well as the row/glyph styling used by the content renderer.
+ */
+
+TreeView {
+    background-color: var(--surface);
+    border-color: var(--border);
+    border-width: 1px;
+    radius: var(--radius);
+    border-radius: var(--radius);
+    padding: 4px;
+
+    row-height: 30px;
+    indent: 18px;
+
+    text-color: var(--text);
+    text-selected-color: #ffffff;
+    row-hover-color: var(--accent-soft);
+    row-selected-color: var(--accent);
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+
+    triangle-color: var(--text-muted);
+    triangle-size: 10px;
+    icon-color: var(--accent-deep);
+    icon-size: 6px;
+    icon-gap: 8px;
+
+    /* ScrollArea and internal ScrollBar geometry/colors */
+    track-color: var(--surface-sunken);
+    thumb-color: var(--border-strong);
+    thumb-hover-color: var(--text-muted);
+    thumb-pressed-color: var(--accent);
+    thickness: 12px;
+    wheel-step: 48px;
+    gap: 2px;
+    scrollbar-thickness: 10px;
+
+    font-family: var(--font);
+    font-size: 15px;
+    font-style: normal;
+
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 2px;
+    shadow-spread: 0px;
+}

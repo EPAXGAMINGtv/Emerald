@@ -1,0 +1,57 @@
+/*
+ * emgui::Table - virtualized data grid with a sticky sortable header
+ *
+ * Inherits ScrollArea::applyStyle, so the scrollbar properties are declared
+ * here alongside the row, grid and header styling.
+ */
+
+Table {
+    background-color: var(--surface);
+    border-color: var(--border);
+    border-width: 1px;
+    radius: var(--radius);
+    border-radius: var(--radius);
+    padding: 4px;
+
+    header-background-color: var(--surface-sunken);
+    header-text-color: var(--text);
+    header-height: 34px;
+    header-border-color: var(--border);
+    header-border-width: 1px;
+
+    grid-color: var(--border);
+    grid-width: 1px;
+
+    row-color: var(--surface);
+    row-alternate-color: var(--surface-sunken);
+    row-hover-color: var(--accent-soft);
+    row-selected-color: var(--accent);
+    text-color: var(--text);
+    text-selected-color: #ffffff;
+    cell-padding: 8px;
+
+    sort-arrow-color: var(--text-muted);
+    sort-arrow-size: 5px;
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+
+    /* ScrollArea and internal ScrollBar geometry/colors */
+    track-color: var(--surface-sunken);
+    thumb-color: var(--border-strong);
+    thumb-hover-color: var(--text-muted);
+    thumb-pressed-color: var(--accent);
+    thickness: 12px;
+    wheel-step: 48px;
+    gap: 2px;
+    scrollbar-thickness: 10px;
+
+    font-family: var(--font);
+    font-size: 14px;
+    font-style: normal;
+
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 2px;
+    shadow-spread: 0px;
+}

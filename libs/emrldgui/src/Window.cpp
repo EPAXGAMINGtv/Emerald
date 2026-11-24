@@ -2,6 +2,7 @@
 
 #include "emrldgui/Window.h"
 #include "emrldgui/EmeraldGUI.h"
+#include "emrldgui/dragdrop/DragDropManager.h"
 #include "emrldgui/event/EventKeyboard.h"
 #include "emrldgui/event/EventMouse.h"
 
@@ -40,6 +41,7 @@ namespace emgui {
 
         EventManager::registerEvent(window_, EventKeyboard(window_));
         EventManager::registerEvent(window_, EventMouse(window_));
+        DragDropManager::instance().attachWindow(window_);
 
         if (auto* gui = emrldgui::EmeraldGUI::active()) {
             gui->registerWindow(this);
@@ -63,6 +65,8 @@ namespace emgui {
         // unregister listeners. unique_ptr::reset() clears the pointer before
         // deleting the object, so tear the components down first while the
         // manager is still reachable.
+        DragDropManager::instance().detachWindow(window_);
+
         if (uiComponentManager_) {
             uiComponentManager_->clear();
         }
@@ -159,7 +163,12 @@ namespace emgui {
             }
 
             backdrop_.draw(*rendererOpts_, {0, 0, logicalWidth, logicalHeight});
+
+            // Widgets issue many same-colored rects in a row; combine them.
+            rendererOpts_->beginBatch();
             uiComponentManager_->render(*rendererOpts_);
+            rendererOpts_->endBatch();
+            DragDropManager::instance().renderDragPreview(*rendererOpts_);
         }
     }
 

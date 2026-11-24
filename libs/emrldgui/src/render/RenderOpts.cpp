@@ -43,6 +43,11 @@ namespace emgui {
             SDL_Color previous_{};
         };
 
+        bool sameColor(const SDL_Color& left, const SDL_Color& right) {
+            return left.r == right.r && left.g == right.g &&
+                   left.b == right.b && left.a == right.a;
+        }
+
         SDL_Color mixColor(const SDL_Color& from, const SDL_Color& to, float amount) {
             const float t = std::clamp(amount, 0.0f, 1.0f);
 
@@ -205,17 +210,62 @@ namespace emgui {
         textCache_.clear();
     }
 
+    void RendererOpts::beginBatch() {
+        flushBatch();
+        batchingEnabled_ = true;
+    }
+
+    void RendererOpts::flushBatch() {
+        if (!hasBatch_ || batchRects_.empty() || renderer_ == nullptr) {
+            batchRects_.clear();
+            hasBatch_ = false;
+            return;
+        }
+
+        DrawColorGuard colorGuard(renderer_, batchColor_);
+
+        if (SDL_RenderFillRects(
+                renderer_,
+                batchRects_.data(),
+                static_cast<int>(batchRects_.size())
+            ) != 0) {
+            spdlog::error("SDL_RenderFillRects failed: {}", SDL_GetError());
+        }
+
+        ++batchFlushCount_;
+        batchRects_.clear();
+        hasBatch_ = false;
+    }
+
+    void RendererOpts::endBatch() {
+        flushBatch();
+        batchingEnabled_ = false;
+    }
+
     void RendererOpts::drawRect(const SDL_Rect& rect, const SDL_Color& color) {
         if (renderer_ == nullptr) {
             return;
         }
 
+        flushBatch();
         DrawColorGuard colorGuard(renderer_, color);
         SDL_RenderDrawRect(renderer_, &rect);
     }
 
     void RendererOpts::fillRect(const SDL_Rect& rect, const SDL_Color& color) {
         if (renderer_ == nullptr) {
+            return;
+        }
+
+        if (batchingEnabled_) {
+            if (hasBatch_ && !sameColor(batchColor_, color)) {
+                flushBatch();
+            }
+
+            batchColor_ = color;
+            hasBatch_ = true;
+            batchRects_.push_back(rect);
+            ++batchedRectCount_;
             return;
         }
 
@@ -228,6 +278,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         DrawColorGuard colorGuard(renderer_, color);
         SDL_RenderDrawPoint(renderer_, point.x, point.y);
     }
@@ -241,6 +292,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         DrawColorGuard colorGuard(renderer_, color);
         SDL_RenderDrawLine(renderer_, start.x, start.y, end.x, end.y);
     }
@@ -254,6 +306,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         DrawColorGuard colorGuard(renderer_, color);
 
         // Midpoint circle algorithm
@@ -290,6 +343,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         DrawColorGuard colorGuard(renderer_, color);
 
         const double radiusSquared = static_cast<double>(radius) * static_cast<double>(radius);
@@ -492,6 +546,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         SDL_RenderCopy(renderer_, texture, nullptr, &destination);
     }
 
@@ -500,6 +555,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         SDL_Rect clipped = rect;
 
         if (!clipStack_.empty()) {
@@ -519,6 +575,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         clipStack_.pop_back();
 
         if (clipStack_.empty()) {
@@ -546,6 +603,7 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
         Font* font = fontManager_.getFont(fontSpec);
 
         if (font == nullptr || !font->isValid()) {
@@ -631,6 +689,8 @@ namespace emgui {
             return;
         }
 
+        flushBatch();
+
         // A frame always starts with an unrestricted draw area.
         clipStack_.clear();
         SDL_RenderSetClipRect(renderer_, nullptr);
@@ -644,6 +704,7 @@ namespace emgui {
 
     void RendererOpts::present() {
         if (renderer_ != nullptr) {
+            flushBatch();
             SDL_RenderPresent(renderer_);
         }
     }

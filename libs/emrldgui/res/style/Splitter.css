@@ -1,0 +1,53 @@
+/*
+ * emgui::Splitter - two panes separated by a draggable divider
+ *
+ * handle-* / grip-* style the divider and its three grip dots.
+ * cursor-hint: auto | none | sizewe | sizens | ew-resize | ns-resize
+ *              (auto follows the splitter orientation)
+ */
+
+Splitter {
+    background-color: transparent;
+    border-color: transparent;
+    border-width: 0px;
+    border-radius: var(--radius-sm);
+
+    padding: 0px;
+
+    handle-color: var(--border-strong);
+    handle-hover-color: var(--accent-soft);
+    handle-active-color: var(--accent);
+    handle-width: 8px;
+
+    grip-color: #ffffff;
+    grip-size: 4px;
+    grip-gap: 6px;
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+
+    cursor-hint: auto;
+}
+
+Splitter:hover {
+    handle-color: var(--accent-soft);
+    grip-color: var(--accent-deep);
+}
+
+Splitter:active {
+    handle-color: var(--accent);
+    grip-color: #ffffff;
+}
+
+Splitter:focus {
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+}
+
+/* Non-draggable splitters used inside DockPanel */
+Splitter.fixed {
+    handle-color: transparent;
+    handle-hover-color: transparent;
+    handle-active-color: transparent;
+    grip-color: transparent;
+}
