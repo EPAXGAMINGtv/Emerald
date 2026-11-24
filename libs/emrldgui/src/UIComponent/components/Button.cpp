@@ -372,7 +372,6 @@ namespace emgui {
         }
 
         const bool wasHovered = hovered_;
-        const bool wasPressed = pressed_;
         hovered_ = containsPoint(event.getX(), event.getY());
 
         if (hovered_ != wasHovered) {

@@ -1,6 +1,7 @@
 // Created by epax on 22.11.26.
 
 #include "emrldgui/ui_component/UIComponentManager.h"
+#include "emrldgui/Window.h"
 
 #include <algorithm>
 
@@ -53,6 +54,10 @@ namespace emgui {
                 styleManager_.applyTo(*component);
             }
         }
+
+        if (window_ != nullptr) {
+            window_->refreshBackdrop();
+        }
     }
 
     void UIComponentManager::removeComponent(UIComponent* component) {
@@ -92,10 +97,19 @@ namespace emgui {
     }
 
     void UIComponentManager::render(RendererOpts& renderer) {
+        // Normal widgets first, then popups on top of all of them.
         for (const ComponentEntry& entry : components_) {
             if (UIComponent* component = entry.get()) {
                 if (component->isVisible()) {
                     component->render(renderer);
+                }
+            }
+        }
+
+        for (const ComponentEntry& entry : components_) {
+            if (UIComponent* component = entry.get()) {
+                if (component->isVisible()) {
+                    component->renderOverlay(renderer);
                 }
             }
         }

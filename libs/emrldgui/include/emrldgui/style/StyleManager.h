@@ -3,6 +3,7 @@
 #pragma once
 
 #include "StyleSheet.h"
+#include "StyleValues.h"
 
 #include <filesystem>
 #include <map>
@@ -17,6 +18,10 @@ namespace emgui {
     public:
         void loadComponent(const std::string& componentName);
         const StyleSheet* getSheet(const std::string& componentName) const;
+
+        // Resolve a non-widget component (e.g. "Window") from the same cascade
+        StyleValues resolveNamed(const std::string& componentName);
+
         void applyTo(UIComponent& component);
         void reload();
 

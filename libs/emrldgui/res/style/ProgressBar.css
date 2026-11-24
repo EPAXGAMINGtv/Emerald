@@ -3,19 +3,19 @@
  */
 
 ProgressBar {
-    track-color: #1a2442;
-    fill-gradient: #5c7dff, var(--cyan);
-    shimmer-color: rgba(255, 255, 255, 70);
-    text-color: var(--text);
+    track-color: #e5e5e5;
+    fill-gradient: #478feb, var(--accent);
+    shimmer-color: rgba(255, 255, 255, 170);
+    text-color: var(--text-muted);
 
-    track-height: 12px;
-    radius: 999px;
+    track-height: 10px;
+    radius: var(--radius-sm);
     padding: 2px;
     show-value: true;
     value-format: percent;
     animation-speed: 8.0;
 
     font-family: var(--font);
-    font-size: 14px;
+    font-size: 13px;
     font-style: bold;
 }

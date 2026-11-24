@@ -22,37 +22,37 @@ Layout {
     background-color: transparent;
     border-color: transparent;
     border-width: 0px;
-    border-radius: 10px;
+    border-radius: var(--radius);
 
     opacity: 1.0;
 }
 
 Layout.page {
-    background-color: #121a30;
-    background-gradient: #1a2442, #0d1428;
+    background-color: var(--surface);
+    background-gradient: #ffffff, #faf9f8;
     background-gradient-direction: vertical;
 
-    border-color: #465476;
+    border-color: var(--border);
     border-width: 1px;
-    border-radius: 10px;
+    border-radius: var(--radius);
 
-    padding-top: 20px;
-    padding-right: 20px;
-    padding-bottom: 20px;
-    padding-left: 20px;
+    padding-top: 18px;
+    padding-right: 18px;
+    padding-bottom: 18px;
+    padding-left: 18px;
 
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     align-items: stretch;
 }
 
 Layout.card-row {
-    gap: 14px;
+    gap: 12px;
     align-items: center;
     justify-content: space-between;
 }
 
 Layout.column {
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
 }

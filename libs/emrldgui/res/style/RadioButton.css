@@ -3,30 +3,30 @@
  */
 
 RadioButton {
-    radio-size: 22px;
-    border-width: 1px;
+    radio-size: 20px;
+    border-width: 2px;
     spacing: 12px;
 
-    radio-color: #1a2442;
-    radio-hover-color: #26335c;
-    radio-checked-color: #5c7dff;
-    radio-checked-hover-color: #7f99ff;
-    disabled-radio-color: #3d4663;
+    radio-color: #ffffff;
+    radio-hover-color: #f6f5f4;
+    radio-checked-color: var(--accent);
+    radio-checked-hover-color: #478feb;
+    disabled-radio-color: #eeeeed;
 
-    border-color: var(--border-strong);
-    border-hover-color: #cbd8ff;
-    border-checked-color: #7c9cff;
+    border-color: var(--text-muted);
+    border-hover-color: var(--accent);
+    border-checked-color: var(--accent-deep);
     dot-color: #ffffff;
 
     text-color: var(--text);
-    text-hover-color: #ffffff;
-    disabled-text-color: #aeb6cf;
+    text-hover-color: var(--text);
+    disabled-text-color: var(--text-muted);
 
     font-family: var(--font);
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
 }
 
 RadioButton.checked {
-    text-color: #dbe4ff;
+    text-color: var(--accent-deep);
 }

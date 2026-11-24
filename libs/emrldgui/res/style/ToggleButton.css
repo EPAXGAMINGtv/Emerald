@@ -7,41 +7,41 @@ ToggleButton {
     min-width: 160px;
     min-height: 44px;
 
-    background-color: #343d5a;
-    background-gradient: #495675, #2b3450;
-    background-hover-gradient: #5c6a8c, #364162;
-    background-pressed-gradient: #394363, #232b44;
-    border-color: #2b3450;
-    border-hover-color: #a9bbff;
+    background-color: #f6f5f4;
+    background-gradient: #f6f5f4, #e9e8e7;
+    background-hover-gradient: #ffffff, #f0efee;
+    background-pressed-gradient: #e5e4e3, #d9d8d7;
+    border-color: var(--border-strong);
+    border-hover-color: var(--accent);
     border-width: 1px;
-    border-radius: 999px;
+    border-radius: var(--radius);
 
     text-color: var(--text);
-    text-hover-color: #ffffff;
-    text-disabled-color: #aeb6cf;
+    text-hover-color: var(--text);
+    text-disabled-color: var(--text-muted);
 
+    text-shadow-color: transparent;
     letter-spacing: 0px;
     text-transform: none;
     font-family: var(--font);
-    font-size: 16px;
+    font-size: 15px;
     font-style: bold;
 
-    padding-top: 10px;
-    padding-right: 20px;
-    padding-bottom: 11px;
-    padding-left: 20px;
+    padding-top: 9px;
+    padding-right: 18px;
+    padding-bottom: 10px;
+    padding-left: 18px;
     text-align: center;
 
-    press-offset: 2px;
-    press-duration-ms: 110ms;
-    release-duration-ms: 180ms;
+    press-offset: 1px;
+    shadow-color: rgba(0, 0, 0, 30);
+    shadow-offset-y: 2px;
 }
 
 ToggleButton.checked {
-    background-gradient: #37d39a, #147d5a;
-    background-hover-gradient: #63e5b5, #1a9b70;
-    border-color: #147d5a;
-    border-hover-color: #9df5d2;
-    text-color: #041b13;
-    text-hover-color: #041b13;
+    background-gradient: var(--accent), var(--accent-strong);
+    background-hover-gradient: #478feb, #2878d1;
+    border-color: var(--accent-deep);
+    text-color: #ffffff;
+    text-hover-color: #ffffff;
 }

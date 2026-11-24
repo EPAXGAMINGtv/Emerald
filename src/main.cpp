@@ -15,7 +15,6 @@
 #include "emrldgui/input/Keyboard.h"
 #include "emrldgui/input/Mouse.h"
 #include "emrldgui/render/RendererOpts.h"
-#include "emrldgui/resource/ResourceManager.h"
 #include "emrldgui/ui_component/UIComponentManager.h"
 #include "emrldgui/ui_component/components/Button.h"
 #include "emrldgui/ui_component/components/CheckBox.h"
@@ -30,11 +29,6 @@
 #include "emrldgui/ui_component/components/Tabs.h"
 #include "emrldgui/ui_component/components/ToggleButton.h"
 
-namespace {
-    // Temporary theme switch: set to true to test the alternate res2/ theme.
-    constexpr bool useAlternateTheme = false;
-}
-
 int main() {
     auto logger = spdlog::stdout_color_mt("emerald");
     spdlog::set_default_logger(logger);
@@ -42,12 +36,6 @@ int main() {
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] %v");
 
     spdlog::info("Emerald starting");
-
-#ifdef EMERLDGUI_RES2_DIR
-    if (useAlternateTheme) {
-        emgui::ResourceManager::setRoot(EMERLDGUI_RES2_DIR);
-    }
-#endif
 
     cfg::Config config("emerald.yaml");
     config.set_string("app.name", "Emerald");
@@ -110,11 +98,6 @@ int main() {
             ) != 0) {
             spdlog::warn("Logical size scaling unavailable: {}", SDL_GetError());
         }
-
-        rendererOpts.setClearColor(
-            useAlternateTheme ? SDL_Color{246, 238, 222, 255}
-                              : SDL_Color{8, 12, 26, 255}
-        );
 
         auto& ui = window.getUIComponentManager();
 
@@ -425,6 +408,7 @@ int main() {
             window.updateWindow();
 
             auto frame = rendererOpts.beginFrame();
+
             window.renderUI();
 
             if (keyboard.isPressed(SDLK_ESCAPE)) {

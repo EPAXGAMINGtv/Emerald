@@ -23,6 +23,12 @@ namespace emgui {
         virtual ~UIComponent() = default;
 
         virtual void render(RendererOpts& renderer) = 0;
+
+        // Second pass for popups/tooltips that must draw above every widget.
+        virtual void renderOverlay(RendererOpts& renderer) {
+            (void)renderer;
+        }
+
         virtual void update() {}
 
         // Layout parents call this before update/render to arrange their children

@@ -36,6 +36,7 @@ namespace emgui {
 
         uiComponentManager_ = std::make_unique<UIComponentManager>();
         uiComponentManager_->setWindow(this);
+        refreshBackdrop();
 
         EventManager::registerEvent(window_, EventKeyboard(window_));
         EventManager::registerEvent(window_, EventMouse(window_));
@@ -136,7 +137,29 @@ namespace emgui {
 
     void Window::renderUI() {
         if (rendererOpts_ != nullptr && uiComponentManager_ != nullptr) {
+            int logicalWidth = 0;
+            int logicalHeight = 0;
+            SDL_RenderGetLogicalSize(
+                rendererOpts_->getRenderer(),
+                &logicalWidth,
+                &logicalHeight
+            );
+
+            if (logicalWidth <= 0 || logicalHeight <= 0) {
+                logicalWidth = rendererContext_->getWindowWidth();
+                logicalHeight = rendererContext_->getWindowHeight();
+            }
+
+            backdrop_.draw(*rendererOpts_, {0, 0, logicalWidth, logicalHeight});
             uiComponentManager_->render(*rendererOpts_);
+        }
+    }
+
+    void Window::refreshBackdrop() {
+        if (uiComponentManager_ != nullptr) {
+            backdrop_.apply(
+                uiComponentManager_->getStyleManager().resolveNamed("Window")
+            );
         }
     }
 

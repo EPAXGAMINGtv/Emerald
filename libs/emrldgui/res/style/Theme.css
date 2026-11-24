@@ -1,37 +1,47 @@
 /*
- * Shared design tokens for the Emerald UI kit.
+ * "GNOME Light" - clean light theme inspired by GNOME Software / Adwaita.
+ *
+ * Neutral paper background, white cards, blue suggested-action accent,
+ * gentle borders and almost no text decoration.
  */
 
 * {
-    --accent: #7c9cff;
-    --accent-strong: #4f6ef7;
-    --accent-deep: #2a3fa8;
+    --accent: #3584e4;
+    --accent-strong: #1a6fc4;
+    --accent-deep: #1b5faa;
+    --accent-soft: #d8e9fb;
+    --teal: #26a269;
 
-    --cyan: #22d3ee;
-    --success: #34d399;
-    --warning: #fbbf24;
-    --danger: #fb7185;
+    --success: #26a269;
+    --warning: #e5a50a;
+    --danger: #e01b24;
 
-    --surface: #121a30;
-    --surface-raised: #1a2442;
-    --surface-sunken: #0d1428;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-sunken: #f6f5f4;
 
-    --text: #e8edff;
-    --text-muted: #98a4c8;
+    --text: #242424;
+    --text-muted: #626972;
 
-    --border: #465476;
-    --border-strong: #7c9cff;
-    --shadow: rgba(0, 0, 0, 150);
+    --border: #dfdfdf;
+    --border-strong: #c0c0c0;
+    --shadow: rgba(0, 0, 0, 45);
 
-    --radius: 16px;
-    --radius-lg: 24px;
-    --radius-sm: 10px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --radius-sm: 6px;
 
     --font: "LiberationSans";
 
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 3px;
+    shadow-spread: 1px;
 
-    focus-ring-color: #4f6ef7;
+    focus-ring-color: var(--accent);
     focus-ring-width: 2px;
+
+    text-shadow-color: transparent;
 
     font-family: var(--font);
 }

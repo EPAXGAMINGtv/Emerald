@@ -208,6 +208,80 @@ namespace emgui {
         }
     };
 
+    // CSS driven window backdrop: a gradient fill plus optional soft glows.
+    // Configured by res/style/Window.css, never by application code.
+    struct BackdropStyle {
+        SDL_Color color{0, 0, 0, 0};
+        std::vector<SDL_Color> gradient;
+        bool horizontalGradient = false;
+
+        struct Glow {
+            SDL_Color color{0, 0, 0, 0};
+            int x = 0;
+            int y = 0;
+            int radius = 0;
+        };
+
+        std::vector<Glow> glows;
+
+        void apply(const StyleValues& values) {
+            color = values.getColor("background-color", color);
+            gradient = values.getColors("background-gradient");
+            horizontalGradient = lowerCase(
+                values.getString("background-gradient-direction", "vertical")
+            ) == "horizontal";
+
+            glows.clear();
+
+            for (int index = 1; index <= 3; ++index) {
+                const std::string prefix = "glow-" + std::to_string(index) + "-";
+
+                Glow glow;
+                glow.color = values.getColor(prefix + "color", glow.color);
+                glow.x = values.getInt(prefix + "x", 0);
+                glow.y = values.getInt(prefix + "y", 0);
+                glow.radius = std::max(0, values.getInt(prefix + "radius", 0));
+
+                if (glow.color.a > 0 && glow.radius > 0) {
+                    glows.push_back(glow);
+                }
+            }
+        }
+
+        void draw(RendererOpts& renderer, const SDL_Rect& rect) const {
+            if (rect.w <= 0 || rect.h <= 0) {
+                return;
+            }
+
+            if (!gradient.empty()) {
+                renderer.fillRoundedRectGradient(
+                    rect,
+                    CornerRadii{},
+                    gradient,
+                    horizontalGradient
+                );
+            } else if (color.a > 0) {
+                renderer.fillRect(rect, color);
+            }
+
+            for (const Glow& glow : glows) {
+                // Layered translucent circles approximate a radial glow.
+                for (int layer = 1; layer <= 6; ++layer) {
+                    SDL_Color layerColor = glow.color;
+                    layerColor.a = static_cast<Uint8>(
+                        static_cast<int>(glow.color.a) * layer / 6
+                    );
+
+                    renderer.fillCircle(
+                        {glow.x, glow.y},
+                        glow.radius * (7 - layer) / 6,
+                        layerColor
+                    );
+                }
+            }
+        }
+    };
+
     // Common rectangle styling shared by buttons, fields, panels and popups
     struct SurfaceStyle {
         SDL_Color color{0, 0, 0, 0};

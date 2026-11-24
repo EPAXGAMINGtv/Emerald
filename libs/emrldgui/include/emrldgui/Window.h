@@ -8,6 +8,7 @@
 #include "render/RenderContext.h"
 #include "render/RendererOpts.h"
 #include "ui_component/UIComponentManager.h"
+#include "ui_component/UiStyle.h"
 
 #include <SDL_video.h>
 
@@ -34,6 +35,10 @@ namespace emgui {
         void shutdown();
         void updateWindow() ;
         void renderUI();
+
+        // Re-read res/style/Window.css after a CSS reload
+        void refreshBackdrop();
+
         void setTitle(std::string title) ;
         void setHeight(int height);
         void setWidth(int width);
@@ -113,5 +118,6 @@ namespace emgui {
         std::unique_ptr<RenderContext> rendererContext_;
         std::unique_ptr<RendererOpts> rendererOpts_;
         std::unique_ptr<UIComponentManager> uiComponentManager_;
+        BackdropStyle backdrop_;
     };
 }

@@ -89,6 +89,10 @@ namespace emgui {
             popupBorderColor_
         );
         itemHoverColor_ = values.getColor("item-hover-color", itemHoverColor_);
+        itemHoverTextColor_ = values.getColor(
+            "item-hover-text-color",
+            itemHoverTextColor_
+        );
         itemSelectedColor_ = values.getColor(
             "item-selected-color",
             itemSelectedColor_
@@ -301,6 +305,9 @@ namespace emgui {
             );
         }
 
+    }
+
+    void ComboBox::renderOverlay(RendererOpts& renderer) {
         if (!open_ || items_.empty()) {
             return;
         }
@@ -327,18 +334,32 @@ namespace emgui {
             const bool isSelected = index == selectedIndex_;
             const bool isHovered = index == hoveredIndex_;
 
-            const SDL_Point textSize = renderer.measureText(
-                items_[static_cast<std::size_t>(index)],
-                fontSpec_
-            );
+            // item-hover-color / item-selected-color are backgrounds; text keeps
+            // its own CSS color so it stays readable in every theme.
+            if (isSelected || isHovered) {
+                renderer.fillRoundedRect(
+                    itemRect,
+                    itemRadius_,
+                    isSelected ? itemSelectedColor_ : itemHoverColor_
+                );
+            }
+
+            SDL_Color itemText = itemTextColor_;
+            if (isSelected) {
+                itemText = itemSelectedTextColor_;
+            } else if (isHovered) {
+                itemText = itemHoverTextColor_;
+            }
+
+            const std::string& label = items_[static_cast<std::size_t>(index)];
+            const SDL_Point textSize = renderer.measureText(label, fontSpec_);
             renderer.drawText(
-                items_[static_cast<std::size_t>(index)],
+                label,
                 {
                     itemRect.x + itemPadding_,
                     itemRect.y + (itemRect.h - textSize.y) / 2
                 },
-                isSelected ? itemSelectedTextColor_
-                           : (isHovered ? itemHoverColor_ : itemTextColor_),
+                itemText,
                 fontSpec_
             );
         }

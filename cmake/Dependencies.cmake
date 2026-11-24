@@ -46,14 +46,15 @@ endif()
 
 # The system SDL2 is built without a Wayland video backend here: SDL_CreateWindow()
 # succeeds with the offscreen driver, but niri never gets a mapped surface.
-# Build SDL2 with Wayland support so windows actually show up on Wayland.
-message(STATUS "Building SDL2 with Wayland video backend via FetchContent")
+# Build SDL2 with both Wayland and X11 video backends via FetchContent so windows
+# show up on Wayland (e.g. niri) as well as on X11 desktops.
+message(STATUS "Building SDL2 with Wayland and X11 video backends via FetchContent")
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 set(SDL_SHARED ON CACHE BOOL "" FORCE)
 set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_PIPEWIRE OFF CACHE BOOL "" FORCE)
 set(SDL_PIPEWIRE_SHARED OFF CACHE BOOL "" FORCE)
-set(SDL_X11 OFF CACHE BOOL "" FORCE)
+set(SDL_X11 ON CACHE BOOL "" FORCE)
 set(SDL_WAYLAND ON CACHE BOOL "" FORCE)
 set(SDL_WAYLAND_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_WAYLAND_LIBDECOR OFF CACHE BOOL "" FORCE)

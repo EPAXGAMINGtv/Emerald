@@ -1,10 +1,10 @@
 /*
- * emgui::Panel
+ * emgui::Panel - white GNOME Software style cards
  */
 
 Panel {
-    background-color: #121a30;
-    background-gradient: #1a2442, #0d1428;
+    background-color: var(--surface);
+    background-gradient: #ffffff, #f6f5f4;
     background-gradient-direction: vertical;
 
     border-color: var(--border);
@@ -16,27 +16,31 @@ Panel {
     padding-bottom: 18px;
     padding-left: 20px;
 
-    title-spacing: 12px;
+    title-spacing: 10px;
     title-color: var(--text);
 
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    text-shadow-color: transparent;
+    letter-spacing: 0px;
+    text-transform: none;
 
     font-family: var(--font);
-    font-size: 18px;
+    font-size: 16px;
     font-style: bold;
 
+    shadow-color: var(--shadow);
+    shadow-offset-y: 3px;
+    shadow-spread: 1px;
     opacity: 1.0;
 }
 
 Panel.accent {
-    background-gradient: #202c52, #0f1830;
-    border-color: #4f6ef7;
-    title-color: #cbd8ff;
+    background-gradient: #f8fbff, #eef4fc;
+    border-color: var(--accent-soft);
+    title-color: var(--accent-deep);
 }
 
 Panel.hero {
-    background-gradient: #202c52, #0f1830;
+    background-gradient: #ffffff, #f6f5f4;
     padding-top: 12px;
     padding-bottom: 12px;
 }

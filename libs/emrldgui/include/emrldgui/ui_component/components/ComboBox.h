@@ -41,6 +41,7 @@ namespace emgui {
         }
 
         void render(RendererOpts& renderer) override;
+        void renderOverlay(RendererOpts& renderer) override;
         void applyStyle(const StyleValues& values) override;
         void onWindowAttached(Window& window) override;
 
@@ -108,6 +109,7 @@ namespace emgui {
         SDL_Color popupBackgroundColor_{24, 24, 38, 250};
         SDL_Color popupBorderColor_{110, 168, 254, 255};
         SDL_Color itemHoverColor_{45, 116, 218, 255};
+        SDL_Color itemHoverTextColor_{255, 255, 255, 255};
         SDL_Color itemSelectedColor_{31, 157, 85, 255};
         SDL_Color itemTextColor_{235, 240, 255, 255};
         SDL_Color itemSelectedTextColor_{255, 255, 255, 255};

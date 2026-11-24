@@ -3,47 +3,51 @@
  */
 
 TextField {
-    background-color: var(--surface-sunken);
-    background-gradient: #141d38, #0e162c;
+    background-color: var(--surface);
+    background-gradient: #ffffff, #faf9f8;
     background-gradient-direction: vertical;
-    background-focus-gradient: #1d2a50, #131d3a;
-    background-disabled-gradient: #2b3249, #232941;
+    background-focus-gradient: #ffffff, #f4f9ff;
+    background-disabled-gradient: #f6f5f4, #eeeeed;
 
-    background-focus-color: #1d2a50;
-    disabled-background-color: #2b3249;
+    background-focus-color: #ffffff;
+    disabled-background-color: #f6f5f4;
 
-    border-color: var(--border);
+    border-color: var(--border-strong);
     border-focus-color: var(--accent);
-    disabled-border-color: #3d4663;
+    disabled-border-color: var(--border);
     border-width: 1px;
     border-radius: var(--radius);
 
     text-color: var(--text);
     placeholder-color: var(--text-muted);
-    disabled-text-color: #8e98b8;
+    disabled-text-color: var(--text-muted);
 
-    caret-color: var(--cyan);
+    caret-color: var(--accent);
     caret-width: 2px;
     caret-blink-ms: 500ms;
 
-    selection-color: rgba(79, 110, 247, 150);
+    selection-color: rgba(53, 132, 228, 90);
     selection-text-color: #ffffff;
 
+    text-shadow-color: transparent;
     letter-spacing: 0px;
     text-transform: none;
 
     font-family: var(--font);
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
 
-    padding-top: 10px;
-    padding-right: 16px;
-    padding-bottom: 11px;
-    padding-left: 16px;
+    padding-top: 9px;
+    padding-right: 14px;
+    padding-bottom: 10px;
+    padding-left: 14px;
     text-align: left;
 
-    focus-ring-color: var(--cyan);
+    focus-ring-color: var(--accent);
     focus-ring-width: 2px;
+    shadow-color: rgba(0, 0, 0, 25);
+    shadow-offset-y: 2px;
+    shadow-spread: 0px;
     opacity: 1.0;
 
     max-length: 0;
@@ -51,15 +55,15 @@ TextField {
 
 TextField.error {
     border-color: var(--danger);
-    border-focus-color: #ff9aa8;
+    border-focus-color: #ec5b62;
     caret-color: var(--danger);
-    text-color: #ffe4e9;
-    background-gradient: #382033, #241523;
+    text-color: #a1121a;
+    background-gradient: #fff6f6, #ffecee;
 }
 
 TextField.success {
     border-color: var(--success);
-    border-focus-color: #6ee7b7;
+    border-focus-color: #33b271;
     caret-color: var(--success);
-    background-gradient: #15362e, #0f2823;
+    background-gradient: #f4fbf7, #eaf7f0;
 }

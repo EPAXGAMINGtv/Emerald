@@ -1,0 +1,12 @@
+/*
+ * emgui::Window - CSS driven application backdrop.
+ *
+ * background-gradient / background-gradient-direction define the page fill.
+ * glow-1..3 are optional soft radial light sources (color + x/y/radius in px).
+ */
+
+Window {
+    background-color: #f6f5f4;
+    background-gradient: #ffffff, #f6f5f4;
+    background-gradient-direction: vertical;
+}

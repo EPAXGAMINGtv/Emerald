@@ -3,31 +3,31 @@
  */
 
 CheckBox {
-    box-size: 22px;
-    border-width: 1px;
-    border-radius: 7px;
+    box-size: 20px;
+    border-width: 2px;
+    border-radius: var(--radius-sm);
     spacing: 12px;
 
-    box-color: #1a2442;
-    box-hover-color: #26335c;
-    box-checked-color: #37d39a;
-    box-checked-hover-color: #63e5b5;
-    disabled-box-color: #3d4663;
+    box-color: #ffffff;
+    box-hover-color: #f6f5f4;
+    box-checked-color: var(--accent);
+    box-checked-hover-color: #478feb;
+    disabled-box-color: #eeeeed;
 
-    border-color: var(--border-strong);
-    border-hover-color: #cbd8ff;
-    border-checked-color: #147d5a;
-    checkmark-color: #041b13;
+    border-color: var(--text-muted);
+    border-hover-color: var(--accent);
+    border-checked-color: var(--accent-deep);
+    checkmark-color: #ffffff;
 
     text-color: var(--text);
-    text-hover-color: #ffffff;
-    disabled-text-color: #aeb6cf;
+    text-hover-color: var(--text);
+    disabled-text-color: var(--text-muted);
 
     font-family: var(--font);
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
 }
 
 CheckBox.checked {
-    text-color: #d8ffe6;
+    text-color: var(--accent-deep);
 }

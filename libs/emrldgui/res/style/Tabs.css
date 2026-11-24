@@ -1,65 +1,62 @@
 /*
- * emgui::Tabs
- *
- * :hover / :active / :focus / :selected pseudo-classes are resolved by the
- * CSS engine. Per-tab colors use the tab-* properties below.
+ * emgui::Tabs - GNOME notebook style tab bar
  */
 
 Tabs {
-    background-color: #121a30;
-    background-gradient: #1a2442, #0d1428;
+    background-color: var(--surface);
+    background-gradient: #ffffff, #faf9f8;
     background-gradient-direction: vertical;
 
-    border-color: #465476;
+    border-color: var(--border);
     border-width: 1px;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
 
-    padding-top: 14px;
-    padding-right: 14px;
-    padding-bottom: 14px;
-    padding-left: 14px;
+    padding-top: 12px;
+    padding-right: 12px;
+    padding-bottom: 12px;
+    padding-left: 12px;
 
-    tab-bar-color: rgba(8, 12, 26, 120);
-    tab-background: #1a2442;
-    tab-hover-background: #2a3a68;
-    tab-active-background: #4f6ef7;
-    tab-border-color: #465476;
-    tab-text-color: #98a4c8;
-    tab-active-text-color: #ffffff;
-    indicator-color: #7c9cff;
+    tab-bar-color: #f6f5f4;
+    tab-background: transparent;
+    tab-hover-background: var(--accent-soft);
+    tab-active-background: #ffffff;
+    tab-border-color: transparent;
+    tab-text-color: var(--text-muted);
+    tab-active-text-color: var(--text);
+    indicator-color: var(--accent);
 
-    tab-height: 42px;
-    tab-gap: 8px;
-    tab-padding: 18px;
-    tab-radius: 10px;
+    tab-height: 38px;
+    tab-gap: 6px;
+    tab-padding: 16px;
+    tab-radius: var(--radius-sm);
     indicator-height: 3px;
 
-    font-family: "LiberationSans";
-    font-size: 16px;
+    font-family: var(--font);
+    font-size: 15px;
     font-style: bold;
     text-transform: none;
     letter-spacing: 0px;
 
-    shadow-color: rgba(0, 0, 0, 150);
-    shadow-offset-y: 6px;
-    shadow-spread: 2px;
+    shadow-color: rgba(0, 0, 0, 35);
+    shadow-offset-y: 3px;
+    shadow-spread: 1px;
     opacity: 1.0;
 }
 
 Tabs:hover {
-    border-color: #7c9cff;
+    border-color: var(--accent-soft);
 }
 
 Tabs:focus {
-    focus-ring-color: #4f6ef7;
+    focus-ring-color: var(--accent);
     focus-ring-width: 2px;
 }
 
 Tabs:active {
-    tab-active-background: #2a3fa8;
+    tab-active-background: #f6f5f4;
 }
 
 Tabs.accent {
-    tab-active-background: #7c9cff;
-    indicator-color: #22d3ee;
+    tab-active-background: #ffffff;
+    indicator-color: var(--accent-strong);
 }

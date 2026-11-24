@@ -70,6 +70,24 @@ namespace emgui {
         return it == sheets_.end() ? nullptr : &it->second;
     }
 
+    StyleValues StyleManager::resolveNamed(const std::string& componentName) {
+        loadComponent(componentName);
+
+        StyleSheet combined;
+
+        for (const CssRule& rule : themeSheet_.getRules()) {
+            combined.addRule(rule);
+        }
+
+        if (const StyleSheet* sheet = getSheet(componentName)) {
+            for (const CssRule& rule : sheet->getRules()) {
+                combined.addRule(rule);
+            }
+        }
+
+        return StyleResolver::resolve(combined, componentName, "", "");
+    }
+
     void StyleManager::applyTo(UIComponent& component) {
         loadTheme();
 

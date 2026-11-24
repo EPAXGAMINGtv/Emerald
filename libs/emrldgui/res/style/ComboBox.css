@@ -3,38 +3,42 @@
  */
 
 ComboBox {
-    background-color: var(--surface-sunken);
-    background-hover-color: #1d2a50;
-    disabled-background-color: #2b3249;
+    background-color: var(--surface);
+    background-hover-color: #f6f5f4;
+    disabled-background-color: #f6f5f4;
 
-    border-color: var(--border);
+    border-color: var(--border-strong);
     border-hover-color: var(--accent);
     border-width: 1px;
     border-radius: var(--radius);
 
     text-color: var(--text);
-    disabled-text-color: #aeb6cf;
+    disabled-text-color: var(--text-muted);
     placeholder-color: var(--text-muted);
 
-    popup-background-color: #121a30;
+    popup-background-color: #ffffff;
     popup-border-color: var(--accent);
-    item-hover-color: #2a3fa8;
-    item-selected-color: #147d5a;
+    item-hover-color: var(--accent-soft);
+    item-hover-text-color: var(--text);
+    item-selected-color: var(--accent);
     item-text-color: var(--text);
     item-selected-text-color: #ffffff;
-    arrow-color: #cbd8ff;
+    arrow-color: var(--text-muted);
 
-    padding: 10px;
+    padding: 9px;
     arrow-size: 8px;
-    item-height: 36px;
+    item-height: 34px;
     item-padding: 8px;
-    item-radius: 10px;
+    item-radius: var(--radius-sm);
     max-visible-items: 6;
 
-    focus-ring-color: var(--cyan);
+    focus-ring-color: var(--accent);
     focus-ring-width: 2px;
+    shadow-color: rgba(0, 0, 0, 55);
+    shadow-offset-y: 5px;
+    shadow-spread: 1px;
 
     font-family: var(--font);
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
 }

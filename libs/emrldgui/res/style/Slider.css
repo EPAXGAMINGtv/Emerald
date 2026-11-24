@@ -3,30 +3,30 @@
  */
 
 Slider {
-    background-color: #0d1428;
-    background-radius: 14px;
+    background-color: #f6f5f4;
+    background-radius: var(--radius);
 
-    track-color: #2b3450;
-    track-hover-color: #364162;
-    track-filled-color: #5c7dff;
-    track-filled-hover-color: #7f99ff;
+    track-color: #dfdfdf;
+    track-hover-color: #d0d0d0;
+    track-filled-color: var(--accent);
+    track-filled-hover-color: #478feb;
 
-    handle-color: #e8edff;
+    handle-color: #ffffff;
     handle-hover-color: #ffffff;
-    handle-border-color: #2a3fa8;
-    disabled-color: #3d4663;
+    handle-border-color: var(--border-strong);
+    disabled-color: #e5e5e5;
 
-    value-color: #cbd8ff;
+    value-color: var(--accent-deep);
     show-value: true;
 
     track-height: 8px;
-    handle-size: 22px;
+    handle-size: 20px;
     handle-border-width: 2px;
     handle-radius: 999px;
     padding: 14px;
     value-offset: 6px;
 
     font-family: var(--font);
-    font-size: 15px;
+    font-size: 14px;
     font-style: bold;
 }
