@@ -50,6 +50,7 @@ if(EMERALD_BUILD_TESTS)
         tests/test_config_schema.cpp
         tests/test_config_stack.cpp
         tests/test_config_environment.cpp
+        tests/test_config_diff.cpp
     )
     target_link_libraries(test PRIVATE cfg emrldgui project_warnings)
 
