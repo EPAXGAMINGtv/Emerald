@@ -34,3 +34,11 @@ target_link_libraries(Emerald
 )
 
 target_include_directories(Emerald PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+option(EMERALD_BUILD_TESTS "Build headless smoke tests" ON)
+if(EMERALD_BUILD_TESTS)
+    enable_testing()
+    add_executable(cfg_smoke tests/cfg_smoke.cpp)
+    target_link_libraries(cfg_smoke PRIVATE cfg project_warnings)
+    add_test(NAME cfg_smoke COMMAND cfg_smoke)
+endif()
