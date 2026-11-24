@@ -35,10 +35,21 @@ target_link_libraries(Emerald
 
 target_include_directories(Emerald PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-option(EMERALD_BUILD_TESTS "Build headless smoke tests" ON)
+option(EMERALD_BUILD_TESTS "Build the terminal test binary" ON)
 if(EMERALD_BUILD_TESTS)
-    enable_testing()
-    add_executable(cfg_smoke tests/cfg_smoke.cpp)
-    target_link_libraries(cfg_smoke PRIVATE cfg project_warnings)
-    add_test(NAME cfg_smoke COMMAND cfg_smoke)
+    # Target is intentionally named "test" (no enable_testing(), which would
+    # reserve that name for CTest). Run it with: cmake --build build --target check
+    add_executable(test
+        tests/test_main.cpp
+        tests/test_config.cpp
+        tests/test_config_manager.cpp
+    )
+    target_link_libraries(test PRIVATE cfg emrldgui project_warnings)
+
+    add_custom_target(check
+        COMMAND $<TARGET_FILE:test>
+        DEPENDS test
+        COMMENT "Running Emerald terminal tests"
+        VERBATIM
+    )
 endif()
