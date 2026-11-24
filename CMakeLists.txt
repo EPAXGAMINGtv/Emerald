@@ -42,6 +42,7 @@ if(EMERALD_BUILD_TESTS)
     add_executable(test
         tests/test_main.cpp
         tests/test_config.cpp
+        tests/test_config_exhaustive.cpp
         tests/test_config_manager.cpp
     )
     target_link_libraries(test PRIVATE cfg emrldgui project_warnings)
