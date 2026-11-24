@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -9,6 +10,12 @@
 #include <yaml-cpp/yaml.h>
 
 namespace cfg {
+
+// Controls what ends up on disk when save()/dump() is called.
+enum class SaveMode {
+    Effective, // defaults + user values, fully readable
+    Overrides  // only keys explicitly set or loaded from file
+};
 
 // Simple YAML-backed config manager.
 // - load/save from file
@@ -31,14 +38,21 @@ public:
 
     // Saves current config to path(). Creates parent directories when needed.
     bool save() const;
+    // Saves with an explicit mode without changing the configured mode.
+    bool save(SaveMode mode) const;
     // Saves current config to the given path and updates path().
     bool save(const std::filesystem::path& path);
+    bool save(const std::filesystem::path& path, SaveMode mode);
+
+    void set_save_mode(SaveMode mode) noexcept;
+    SaveMode save_mode() const noexcept;
 
     // Parses YAML text into the current config (does not change path()).
     bool load_from_string(std::string_view yaml_text);
 
     // Serializes current config as YAML text.
     std::string dump() const;
+    std::string dump(SaveMode mode) const;
 
     // Resets to an empty mapping.
     void clear();
@@ -81,8 +95,9 @@ public:
 
     template <typename T>
     void set(std::string_view key, const T& value) {
-        YAML::Node node = ensure(key);
+        YAML::Node node = ensure_node(root_, key);
         node = value;
+        override_keys_.insert(normalize_key(key));
     }
 
     void set_string(std::string_view key, std::string_view value);
@@ -95,15 +110,27 @@ public:
 
 private:
     static std::vector<std::string> split_key(std::string_view key);
+    static std::string normalize_key(std::string_view key);
+    static YAML::Node ensure_node(YAML::Node& root, std::string_view key);
+    static void collect_leaf_keys(
+        const YAML::Node& node,
+        std::string prefix,
+        std::vector<std::string>& out
+    );
+    static void set_at(
+        YAML::Node& root, std::string_view key, const YAML::Node& value
+    );
 
     YAML::Node lookup(std::string_view key) const;
-    YAML::Node ensure(std::string_view key);
+    YAML::Node build_output_node(SaveMode mode) const;
 
     //const save() and save(path) share this write-only implementation ->
-    bool writeToFile(const std::filesystem::path& path) const;
+    bool writeToFile(const std::filesystem::path& path, SaveMode mode) const;
 
     std::filesystem::path path_;
     YAML::Node root_ = YAML::Node(YAML::NodeType::Map);
+    std::set<std::string> override_keys_;
+    SaveMode save_mode_ = SaveMode::Effective;
 };
 
 } // namespace cfg
