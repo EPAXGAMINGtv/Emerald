@@ -1,5 +1,7 @@
 #include "TestFramework.hpp"
 
+#include "emrldgui/EmeraldGUI.h"
+
 #include <SDL.h>
 
 #include <exception>
@@ -8,6 +10,9 @@
 int main() {
     (void)SDL_setenv("SDL_VIDEODRIVER", "dummy", 1);
     SDL_SetMainReady();
+
+    // One GUI instance owns SDL/TTF for every window created by the tests.
+    emrldgui::EmeraldGUI gui;
 
     test::Counters& values = test::counters();
 
