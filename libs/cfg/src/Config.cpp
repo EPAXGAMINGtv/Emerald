@@ -9,9 +9,23 @@
 
 namespace cfg {
 
+namespace {
+
+std::string node_to_string(const YAML::Node& node) {
+    YAML::Emitter emitter;
+    emitter << node;
+    return emitter.good() ? emitter.c_str() : std::string{};
+}
+
+} // namespace
+
 Config::Config(std::filesystem::path path) : path_(std::move(path)) {}
 
 bool Config::load() {
+    return load(path_);
+}
+
+bool Config::reload() {
     return load(path_);
 }
 
@@ -27,6 +41,7 @@ bool Config::load(const std::filesystem::path& path) {
             return false;
         }
 
+        const auto before = snapshot_values();
         YAML::Node parsed = YAML::LoadFile(path.string());
         if (!parsed || !parsed.IsMap()) {
             // Normalize non-map roots to a map so set/get_by_key stay predictable.
@@ -44,6 +59,28 @@ bool Config::load(const std::filesystem::path& path) {
         override_keys_.insert(loaded_keys.begin(), loaded_keys.end());
         apply_defaults_to(root_);
         path_ = path;
+
+        const auto after = snapshot_values();
+        std::set<std::string> all_keys;
+        for (const auto& [key, value] : before) {
+            (void)value;
+            all_keys.insert(key);
+        }
+        for (const auto& [key, value] : after) {
+            (void)value;
+            all_keys.insert(key);
+        }
+        for (const auto& key : all_keys) {
+            const auto old_it = before.find(key);
+            const auto new_it = after.find(key);
+            const std::string old_value =
+                old_it == before.end() ? std::string{} : old_it->second;
+            const std::string new_value =
+                new_it == after.end() ? std::string{} : new_it->second;
+            if (old_value != new_value) {
+                notify_changed(key);
+            }
+        }
 
         spdlog::debug("Loaded config from {}", path.string());
         return true;
@@ -227,6 +264,7 @@ void Config::clear() {
     defaults_.clear();
     override_keys_.clear();
     validators_.clear();
+    change_callbacks_.clear();
 }
 
 std::vector<Issue> Config::validate() const {
@@ -242,6 +280,43 @@ std::vector<Issue> Config::validate() const {
         }
     }
     return issues;
+}
+
+void Config::on_change_any(std::string_view key, ChangeCallback callback) {
+    const std::string normalized = normalize_key(key);
+    if (normalized.empty()) {
+        return;
+    }
+    change_callbacks_.push_back({normalized, std::move(callback)});
+}
+
+void Config::notify_changed(std::string_view key) {
+    if (notifying_) {
+        return;
+    }
+
+    struct Guard {
+        bool& flag;
+        explicit Guard(bool& target) : flag(target) { flag = true; }
+        ~Guard() { flag = false; }
+    } guard(notifying_);
+
+    const std::string normalized = normalize_key(key);
+    for (const auto& entry : change_callbacks_) {
+        if (entry.key == normalized) {
+            entry.callback(entry.key, lookup(entry.key));
+        }
+    }
+}
+
+std::map<std::string, std::string, std::less<>> Config::snapshot_values() const {
+    std::map<std::string, std::string, std::less<>> snapshot;
+    std::vector<std::string> keys;
+    collect_leaf_keys(root_, std::string{}, keys);
+    for (const auto& key : keys) {
+        snapshot.emplace(key, node_to_string(lookup_in(root_, key)));
+    }
+    return snapshot;
 }
 
 bool Config::contains(std::string_view key) const {
@@ -267,11 +342,11 @@ bool Config::reset(std::string_view key) {
     }
 
     const auto default_it = defaults_.find(normalized);
-    if (default_it == defaults_.end()) {
-        return false;
+    if (default_it != defaults_.end()) {
+        set_at(root_, key, default_it->second);
     }
-    set_at(root_, key, default_it->second);
-    return true;
+    notify_changed(key);
+    return default_it != defaults_.end();
 }
 
 bool Config::remove(std::string_view key) {
@@ -295,6 +370,7 @@ bool Config::remove(std::string_view key) {
             ++it;
         }
     }
+    notify_changed(key);
     return true;
 }
 

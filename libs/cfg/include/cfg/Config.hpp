@@ -24,6 +24,9 @@ enum class SaveMode {
 template <typename T>
 using Validator = std::function<bool(const T&)>;
 
+using ChangeCallback =
+    std::function<void(std::string_view key, const YAML::Node& value)>;
+
 struct Issue {
     std::string key;
     std::string message;
@@ -51,6 +54,8 @@ public:
     // Loads YAML from path(). Returns false on IO/parse error and keeps the
     // current in-memory config untouched. Use load_or_create() to create a file.
     bool load();
+    // Re-reads path(), reporting changed keys through registered callbacks.
+    bool reload();
     // Loads YAML from the given path and updates path().
     bool load(const std::filesystem::path& path);
 
@@ -128,6 +133,7 @@ public:
         YAML::Node node = ensure_node(root_, key);
         node = value;
         override_keys_.insert(normalize_key(key));
+        notify_changed(key);
     }
 
     // Registers an in-memory default. It is used whenever the key is missing
@@ -165,6 +171,25 @@ public:
     // Returns all registered keys whose effective value violates validation.
     std::vector<Issue> validate() const;
 
+    // Fires when the given key changes via set(), reset(), remove() or reload().
+    void on_change_any(std::string_view key, ChangeCallback callback);
+
+    template <typename T>
+    void on_change(std::string_view key, std::function<void(T)> callback) {
+        on_change_any(
+            key,
+            [callback = std::move(callback)](
+                std::string_view, const YAML::Node& value
+            ) {
+                try {
+                    callback(value.as<T>());
+                } catch (const YAML::Exception&) {
+                    // Ignore incompatible values; validation reports those.
+                }
+            }
+        );
+    }
+
     void set_string(std::string_view key, std::string_view value);
     void set_string_list(
         std::string_view key, const std::vector<std::string>& values
@@ -180,6 +205,11 @@ private:
     struct RegisteredValidator {
         std::string key;
         std::function<std::string(const YAML::Node&)> check;
+    };
+
+    struct RegisteredChange {
+        std::string key;
+        ChangeCallback callback;
     };
 
     static std::vector<std::string> split_key(std::string_view key);
@@ -202,6 +232,8 @@ private:
     YAML::Node build_output_node(SaveMode mode) const;
     void set_default_node(std::string_view key, const YAML::Node& value);
     void apply_defaults_to(YAML::Node& target) const;
+    void notify_changed(std::string_view key);
+    std::map<std::string, std::string, std::less<>> snapshot_values() const;
 
     //const save() and save(path) share this write-only implementation ->
     bool writeToFile(const std::filesystem::path& path, SaveMode mode) const;
@@ -211,7 +243,9 @@ private:
     std::map<std::string, YAML::Node, std::less<>> defaults_;
     std::set<std::string> override_keys_;
     std::vector<RegisteredValidator> validators_;
+    std::vector<RegisteredChange> change_callbacks_;
     SaveMode save_mode_ = SaveMode::Effective;
+    bool notifying_ = false;
 };
 
 } // namespace cfg
