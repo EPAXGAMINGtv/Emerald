@@ -9,6 +9,7 @@
 
 #include "flatpak/FlatpakCommand.h"
 #include "flatpak/FlatpakTypes.h"
+#include "flatpak/streaming/OutputCallback.h"
 
 namespace fpk {
 
@@ -24,6 +25,14 @@ public:
     void SetBinaryPath(std::string binaryPath);
     const std::string& BinaryPath() const noexcept;
     void SetExecutor(CommandExecutor executor);
+    void SetStreamingExecutor(StreamingExecutor executor);
+    void SetOutputCallback(stream::OutputCallback callback);
+    const stream::OutputCallback& OutputCallbackHandler() const noexcept;
+
+    Result RunFlatpakCommandWithOutput(
+        std::vector<std::string> arguments,
+        stream::OutputCallback onOutput = {}
+    ) const;
 
     bool IsAvailable() const;
     std::string Version() const;
@@ -96,9 +105,13 @@ public:
     Result InstallFlatpakPackage(
         const std::string& packageId,
         const std::string& remote = "flathub",
-        const std::string& branch = "stable"
+        const std::string& branch = "stable",
+        stream::OutputCallback onOutput = {}
     );
-    Result InstallFlatpakPackageFromRef(const std::string& ref);
+    Result InstallFlatpakPackageFromRef(
+        const std::string& ref,
+        stream::OutputCallback onOutput = {}
+    );
     Result UninstallFlatpakPackage(const std::string& packageId);
     Result UpdateFlatpakPackage(const std::string& packageId);
     Result UpdateAllFlatpakPackages();
@@ -155,6 +168,10 @@ public:
     void ClearFlatpakGroups();
 
 private:
+    stream::OutputCallback ResolveOutputCallback(
+        stream::OutputCallback explicitCallback
+    ) const;
+
     FlatpakCommand command_;
     std::filesystem::path iconCacheDirectory_;
     std::unordered_map<std::string, std::filesystem::path> iconOverrides_;
@@ -162,6 +179,7 @@ private:
     std::unordered_map<std::string, Group> groups_;
     std::unordered_map<std::string, std::vector<std::string>>
         categoryOverrides_;
+    stream::OutputCallback outputCallback_;
 };
 
 } // namespace fpk

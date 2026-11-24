@@ -205,7 +205,8 @@ std::vector<std::string> SplitRef(const std::string& ref) {
 Result Flatpak::InstallFlatpakPackage(
     const std::string& packageId,
     const std::string& remote,
-    const std::string& branch
+    const std::string& branch,
+    stream::OutputCallback onOutput
 ) {
     if (packageId.empty() || remote.empty()) {
         return Failure("package id and remote are required");
@@ -223,21 +224,29 @@ Result Flatpak::InstallFlatpakPackage(
     }
 
     StartOperation(operations_, packageId, "install");
-    Result result = command_.Run(std::move(arguments));
+    Result result = command_.Run(
+        std::move(arguments),
+        ResolveOutputCallback(std::move(onOutput))
+    );
     FinishOperation(operations_, packageId, "install", result);
     return result;
 }
 
-Result Flatpak::InstallFlatpakPackageFromRef(const std::string& ref) {
+Result Flatpak::InstallFlatpakPackageFromRef(
+    const std::string& ref, stream::OutputCallback onOutput
+) {
     const std::vector<std::string> parts = SplitRef(ref);
     if (parts.size() == 1U) {
-        return InstallFlatpakPackage(parts[0]);
+        return InstallFlatpakPackage(parts[0], "flathub", "stable",
+                                     std::move(onOutput));
     }
     if (parts.size() == 2U) {
-        return InstallFlatpakPackage(parts[1], parts[0]);
+        return InstallFlatpakPackage(parts[1], parts[0], "stable",
+                                     std::move(onOutput));
     }
     if (parts.size() == 3U) {
-        return InstallFlatpakPackage(parts[1], parts[0], parts[2]);
+        return InstallFlatpakPackage(parts[1], parts[0], parts[2],
+                                     std::move(onOutput));
     }
     return Failure("invalid flatpak ref: " + ref);
 }

@@ -11,7 +11,10 @@ namespace fpk {
 
 namespace {
 
-Result RunProcess(const std::vector<std::string>& command) {
+Result RunProcess(
+    const std::vector<std::string>& command,
+    const stream::OutputCallback& onOutput
+) {
     Result result;
     result.Command = command;
 
@@ -59,11 +62,14 @@ Result RunProcess(const std::vector<std::string>& command) {
     (void)::close(pipe_fd[1]);
 
     std::string output;
-    char buffer[4096] = {};
+    stream::OutputLineBuffer lines(onOutput);
+    char readBuffer[4096] = {};
     for (;;) {
-        const ssize_t count = ::read(pipe_fd[0], buffer, sizeof(buffer));
+        const ssize_t count = ::read(pipe_fd[0], readBuffer, sizeof(readBuffer));
         if (count > 0) {
-            output.append(buffer, static_cast<std::size_t>(count));
+            output.append(readBuffer, static_cast<std::size_t>(count));
+            lines.Push(std::string_view(readBuffer,
+                                        static_cast<std::size_t>(count)));
             continue;
         }
         if (count < 0 && errno == EINTR) {
@@ -71,6 +77,7 @@ Result RunProcess(const std::vector<std::string>& command) {
         }
         break;
     }
+    lines.Flush();
     (void)::close(pipe_fd[0]);
 
     int status = 0;
@@ -117,7 +124,13 @@ void FlatpakCommand::SetExecutor(CommandExecutor executor) {
     executor_ = std::move(executor);
 }
 
-Result FlatpakCommand::Run(std::vector<std::string> arguments) const {
+void FlatpakCommand::SetStreamingExecutor(StreamingExecutor executor) {
+    streamingExecutor_ = std::move(executor);
+}
+
+Result FlatpakCommand::Run(
+    std::vector<std::string> arguments, stream::OutputCallback onOutput
+) const {
     std::vector<std::string> command;
     command.reserve(arguments.size() + 1U);
     command.push_back(binary_);
@@ -131,15 +144,26 @@ Result FlatpakCommand::Run(std::vector<std::string> arguments) const {
         return result;
     }
 
-    if (executor_) {
-        result = executor_(command);
+    if (streamingExecutor_) {
+        result = streamingExecutor_(command, onOutput);
         if (result.Command.empty()) {
             result.Command = command;
         }
         return result;
     }
 
-    return RunProcess(command);
+    if (executor_) {
+        result = executor_(command);
+        if (onOutput && !result.Output.empty()) {
+            onOutput(result.Output);
+        }
+        if (result.Command.empty()) {
+            result.Command = command;
+        }
+        return result;
+    }
+
+    return RunProcess(command, onOutput);
 }
 
 } // namespace fpk

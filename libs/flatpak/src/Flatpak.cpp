@@ -34,6 +34,32 @@ void Flatpak::SetExecutor(CommandExecutor executor) {
     command_.SetExecutor(std::move(executor));
 }
 
+void Flatpak::SetStreamingExecutor(StreamingExecutor executor) {
+    command_.SetStreamingExecutor(std::move(executor));
+}
+
+void Flatpak::SetOutputCallback(stream::OutputCallback callback) {
+    outputCallback_ = std::move(callback);
+}
+
+const stream::OutputCallback& Flatpak::OutputCallbackHandler() const noexcept {
+    return outputCallback_;
+}
+
+stream::OutputCallback Flatpak::ResolveOutputCallback(
+    stream::OutputCallback explicitCallback
+) const {
+    return explicitCallback ? explicitCallback : outputCallback_;
+}
+
+Result Flatpak::RunFlatpakCommandWithOutput(
+    std::vector<std::string> arguments, stream::OutputCallback onOutput
+) const {
+    return command_.Run(
+        std::move(arguments), ResolveOutputCallback(std::move(onOutput))
+    );
+}
+
 bool Flatpak::IsAvailable() const {
     return !Version().empty();
 }
