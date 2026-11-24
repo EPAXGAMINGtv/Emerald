@@ -10,6 +10,7 @@ list(FILTER CFG_SOURCES EXCLUDE REGEX ".*/Log\\.(cpp|hpp)$")
 add_library(cfg SHARED ${CFG_SOURCES})
 
 add_library(Emerald::cfg ALIAS cfg)
+add_library(cfg::cfg ALIAS cfg)
 
 target_include_directories(cfg
     PUBLIC
@@ -17,9 +18,12 @@ target_include_directories(cfg
         $<INSTALL_INTERFACE:include>
 )
 
+# cfg only needs yaml-cpp + spdlog; SDL2/SDL2_ttf stay with emrldgui ->
 target_link_libraries(cfg
     PUBLIC
-        project_dependencies
+        cfg_deps
+    PRIVATE
+        project_warnings
 )
 
 set_target_properties(cfg PROPERTIES
