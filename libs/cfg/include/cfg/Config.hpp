@@ -48,7 +48,8 @@ class Config {
 public:
     explicit Config(std::filesystem::path path = {});
 
-    // Loads YAML from path(). Returns false on IO/parse error.
+    // Loads YAML from path(). Returns false on IO/parse error and keeps the
+    // current in-memory config untouched. Use load_or_create() to create a file.
     bool load();
     // Loads YAML from the given path and updates path().
     bool load(const std::filesystem::path& path);

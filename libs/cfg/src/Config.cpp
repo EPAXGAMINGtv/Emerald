@@ -16,41 +16,40 @@ bool Config::load() {
 }
 
 bool Config::load(const std::filesystem::path& path) {
-    path_ = path;
-    if (path_.empty()) {
+    if (path.empty()) {
         spdlog::warn("cfg::Config::load called with empty path");
         return false;
     }
 
     try {
-        if (!std::filesystem::exists(path_)) {
-            spdlog::info("Config file does not exist, creating default: {}", path_.string());
-            root_ = YAML::Node(YAML::NodeType::Map);
-            return save(path_);
+        if (!std::filesystem::exists(path)) {
+            spdlog::warn("Config file does not exist: {}", path.string());
+            return false;
         }
 
-        root_ = YAML::LoadFile(path_.string());
-        if (!root_ || !root_.IsMap()) {
-            // Normalize non-map roots to a map so set/get_by_key remain predictable.
+        YAML::Node parsed = YAML::LoadFile(path.string());
+        if (!parsed || !parsed.IsMap()) {
+            // Normalize non-map roots to a map so set/get_by_key stay predictable.
             YAML::Node map(YAML::NodeType::Map);
-            if (root_ && !root_.IsNull()) {
-                map["value"] = root_;
+            if (parsed && !parsed.IsNull()) {
+                map["value"] = parsed;
             }
-            root_ = map;
+            parsed = map;
         }
 
+        root_ = std::move(parsed);
         override_keys_.clear();
         std::vector<std::string> loaded_keys;
         collect_leaf_keys(root_, std::string{}, loaded_keys);
         override_keys_.insert(loaded_keys.begin(), loaded_keys.end());
         apply_defaults_to(root_);
+        path_ = path;
 
-        spdlog::debug("Loaded config from {}", path_.string());
+        spdlog::debug("Loaded config from {}", path.string());
         return true;
     } catch (const std::exception& e) {
-        spdlog::error("Failed to load config '{}': {}", path_.string(), e.what());
-        root_ = YAML::Node(YAML::NodeType::Map);
-        override_keys_.clear();
+        // Keep the last known-good in-memory config on IO/parse errors.
+        spdlog::error("Failed to load config '{}': {}", path.string(), e.what());
         return false;
     }
 }
@@ -60,22 +59,21 @@ bool Config::load_or_create() {
 }
 
 bool Config::load_or_create(const std::filesystem::path& path) {
-    path_ = path;
-    if (path_.empty()) {
+    if (path.empty()) {
         spdlog::warn("cfg::Config::load_or_create called with empty path");
         return false;
     }
 
-    if (std::filesystem::exists(path_)) {
-        return load(path_);
+    if (std::filesystem::exists(path)) {
+        return load(path);
     }
 
-    spdlog::info("Config file does not exist, creating default: {}", path_.string());
+    spdlog::info("Config file does not exist, creating default: {}", path.string());
     if (!root_ || !root_.IsMap()) {
         root_ = YAML::Node(YAML::NodeType::Map);
     }
     apply_defaults_to(root_);
-    return save(path_);
+    return save(path);
 }
 
 bool Config::save() const {
