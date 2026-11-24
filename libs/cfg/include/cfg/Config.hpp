@@ -2,11 +2,13 @@
 
 #include <filesystem>
 #include <functional>
+#include <initializer_list>
 #include <map>
 #include <optional>
 #include <set>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <yaml-cpp/yaml.h>
@@ -18,6 +20,24 @@ enum class SaveMode {
     Effective, // defaults + user values, fully readable
     Overrides  // only keys explicitly set or loaded from file
 };
+
+template <typename T>
+using Validator = std::function<bool(const T&)>;
+
+struct Issue {
+    std::string key;
+    std::string message;
+};
+
+template <typename T>
+Validator<T> range(T low, T high) {
+    return [low, high](const T& value) {
+        return value >= low && value <= high;
+    };
+}
+
+Validator<std::string> one_of(std::initializer_list<std::string_view> choices);
+Validator<std::string> non_empty();
 
 // Simple YAML-backed config manager.
 // - load/save from file
@@ -115,6 +135,32 @@ public:
         set_default_node(key, node);
     }
 
+    // Registers a default plus an optional typed validator in one call.
+    template <typename T>
+    void define(std::string_view key, T value, Validator<T> validator = {}) {
+        set_default(key, value);
+        if (!validator) {
+            return;
+        }
+
+        validators_.push_back({
+            normalize_key(key),
+            [validator = std::move(validator)](const YAML::Node& node) {
+                try {
+                    if (validator(node.as<T>())) {
+                        return std::string{};
+                    }
+                } catch (const YAML::Exception&) {
+                    return std::string{"value has the wrong type"};
+                }
+                return std::string{"value failed validation"};
+            }
+        });
+    }
+
+    // Returns all registered keys whose effective value violates validation.
+    std::vector<Issue> validate() const;
+
     void set_string(std::string_view key, std::string_view value);
 
     const std::filesystem::path& path() const noexcept;
@@ -124,6 +170,11 @@ public:
     YAML::Node& root() noexcept;
 
 private:
+    struct RegisteredValidator {
+        std::string key;
+        std::function<std::string(const YAML::Node&)> check;
+    };
+
     static std::vector<std::string> split_key(std::string_view key);
     static std::string normalize_key(std::string_view key);
     static YAML::Node ensure_node(YAML::Node& root, std::string_view key);
@@ -152,6 +203,7 @@ private:
     YAML::Node root_ = YAML::Node(YAML::NodeType::Map);
     std::map<std::string, YAML::Node, std::less<>> defaults_;
     std::set<std::string> override_keys_;
+    std::vector<RegisteredValidator> validators_;
     SaveMode save_mode_ = SaveMode::Effective;
 };
 

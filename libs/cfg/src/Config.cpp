@@ -1,5 +1,6 @@
 #include "cfg/Config.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <utility>
@@ -181,6 +182,22 @@ void Config::clear() {
     root_ = YAML::Node(YAML::NodeType::Map);
     defaults_.clear();
     override_keys_.clear();
+    validators_.clear();
+}
+
+std::vector<Issue> Config::validate() const {
+    std::vector<Issue> issues;
+    for (const auto& entry : validators_) {
+        const YAML::Node value = lookup(entry.key);
+        if (!value || value.IsNull()) {
+            continue;
+        }
+        const std::string message = entry.check(value);
+        if (!message.empty()) {
+            issues.push_back({entry.key, message});
+        }
+    }
+    return issues;
 }
 
 bool Config::contains(std::string_view key) const {
@@ -466,6 +483,23 @@ void Config::apply_defaults_to(YAML::Node& target) const {
             set_at(target, key, value);
         }
     }
+}
+
+Validator<std::string> one_of(
+    std::initializer_list<std::string_view> choices
+) {
+    std::vector<std::string> values;
+    values.reserve(choices.size());
+    for (const std::string_view choice : choices) {
+        values.emplace_back(choice);
+    }
+    return [values = std::move(values)](const std::string& value) {
+        return std::find(values.begin(), values.end(), value) != values.end();
+    };
+}
+
+Validator<std::string> non_empty() {
+    return [](const std::string& value) { return !value.empty(); };
 }
 
 } // namespace cfg
