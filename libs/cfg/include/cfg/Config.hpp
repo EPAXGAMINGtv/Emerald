@@ -96,7 +96,7 @@ public:
         }
         try {
             return node.as<T>();
-        } catch (const YAML::BadConversion&) {
+        } catch (const YAML::Exception&) {
             return default_value;
         }
     }
@@ -105,7 +105,10 @@ public:
     bool get_bool(std::string_view key, bool default_value = false) const;
     int get_int(std::string_view key, int default_value = 0) const;
     double get_double(std::string_view key, double default_value = 0.0) const;
-    std::vector<std::string> get_string_list(std::string_view key) const;
+    std::vector<std::string> get_string_list(
+        std::string_view key,
+        std::vector<std::string> default_value = {}
+    ) const;
 
     template <typename T>
     std::optional<T> get_optional(std::string_view key) const {
@@ -115,7 +118,7 @@ public:
         }
         try {
             return node.as<T>();
-        } catch (const YAML::BadConversion&) {
+        } catch (const YAML::Exception&) {
             return std::nullopt;
         }
     }
@@ -163,6 +166,9 @@ public:
     std::vector<Issue> validate() const;
 
     void set_string(std::string_view key, std::string_view value);
+    void set_string_list(
+        std::string_view key, const std::vector<std::string>& values
+    );
 
     const std::filesystem::path& path() const noexcept;
     void set_path(std::filesystem::path path);

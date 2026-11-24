@@ -268,18 +268,20 @@ double Config::get_double(std::string_view key, double default_value) const {
     return get<double>(key, default_value);
 }
 
-std::vector<std::string> Config::get_string_list(std::string_view key) const {
-    std::vector<std::string> out;
+std::vector<std::string> Config::get_string_list(
+    std::string_view key, std::vector<std::string> default_value
+) const {
     const YAML::Node node = lookup(key);
     if (!node || !node.IsSequence()) {
-        return out;
+        return default_value;
     }
 
+    std::vector<std::string> out;
     out.reserve(node.size());
     for (const auto& item : node) {
         try {
             out.push_back(item.as<std::string>());
-        } catch (const YAML::BadConversion&) {
+        } catch (const YAML::Exception&) {
             // Skip incompatible entries to keep the API simple and robust.
         }
     }
@@ -288,6 +290,12 @@ std::vector<std::string> Config::get_string_list(std::string_view key) const {
 
 void Config::set_string(std::string_view key, std::string_view value) {
     set<std::string>(key, std::string(value));
+}
+
+void Config::set_string_list(
+    std::string_view key, const std::vector<std::string>& values
+) {
+    set<std::vector<std::string>>(key, values);
 }
 
 const std::filesystem::path& Config::path() const noexcept {
