@@ -45,10 +45,18 @@ namespace emgui {
             return reference;
         }
 
+        ~UIComponentManager();
+
         // Non-owning registration, usage: addComponent(&myStackComponent)
         void addComponent(UIComponent* component);
 
         void removeComponent(UIComponent* component);
+
+        // True while the manager tears its components down. Container-owned
+        // children use this to skip unregistering from a dying manager.
+        bool isShuttingDown() const {
+            return shuttingDown_;
+        }
         void update();
         void render(RendererOpts& renderer);
         void clear();
@@ -80,6 +88,7 @@ namespace emgui {
         std::vector<ComponentEntry> components_;
         StyleManager styleManager_;
         Window* window_ = nullptr;
+        bool shuttingDown_ = false;
     };
 
 } // emgui

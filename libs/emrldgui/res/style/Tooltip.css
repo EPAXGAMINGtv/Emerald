@@ -1,0 +1,30 @@
+/*
+ * emgui::Tooltip - delayed hover card drawn above every widget.
+ */
+
+Tooltip {
+    background-color: var(--surface-raised);
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: var(--radius);
+    text-color: var(--text);
+
+    padding: 8px;
+
+    font-family: var(--font);
+    font-size: 15px;
+    font-style: normal;
+
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 6px;
+    shadow-spread: 1px;
+
+    delay-ms: 350ms;
+    display-ms: 3200ms;
+    fade-ms: 140ms;
+
+    offset-x: 0px;
+    offset-y: 10px;
+    max-width: 320px;
+}

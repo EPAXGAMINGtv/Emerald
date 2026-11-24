@@ -7,6 +7,10 @@
 
 namespace emgui {
 
+    UIComponentManager::~UIComponentManager() {
+        clear();
+    }
+
     void UIComponentManager::addComponent(UIComponent* component) {
         if (component == nullptr || contains(component)) {
             return;
@@ -61,7 +65,7 @@ namespace emgui {
     }
 
     void UIComponentManager::removeComponent(UIComponent* component) {
-        if (component == nullptr) {
+        if (component == nullptr || shuttingDown_) {
             return;
         }
 
@@ -100,7 +104,7 @@ namespace emgui {
         // Normal widgets first, then popups on top of all of them.
         for (const ComponentEntry& entry : components_) {
             if (UIComponent* component = entry.get()) {
-                if (component->isVisible()) {
+                if (component->isVisible() && !component->isRenderedByParent()) {
                     component->render(renderer);
                 }
             }
@@ -108,7 +112,7 @@ namespace emgui {
 
         for (const ComponentEntry& entry : components_) {
             if (UIComponent* component = entry.get()) {
-                if (component->isVisible()) {
+                if (component->isVisible() && !component->isRenderedByParent()) {
                     component->renderOverlay(renderer);
                 }
             }
@@ -116,6 +120,8 @@ namespace emgui {
     }
 
     void UIComponentManager::clear() {
+        shuttingDown_ = true;
+
         // Detach callbacks before owned components are destroyed
         for (const ComponentEntry& entry : components_) {
             detachComponent(entry.get());

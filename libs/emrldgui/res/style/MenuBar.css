@@ -1,0 +1,30 @@
+/*
+ * emgui::MenuBar - horizontal application menu strip.
+ */
+
+MenuBar {
+    background-color: var(--surface-sunken);
+    bar-color: var(--surface-raised);
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: var(--radius);
+
+    text-color: var(--text);
+    hover-background-color: var(--accent-soft);
+    active-background-color: var(--accent);
+    hover-text-color: var(--text);
+    active-text-color: #ffffff;
+
+    padding: 4px;
+    item-spacing: 6px;
+    item-padding: 12px;
+
+    font-family: var(--font);
+    font-size: 15px;
+    font-style: normal;
+
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 2px;
+    shadow-spread: 0px;
+}

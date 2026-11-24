@@ -1,0 +1,45 @@
+/*
+ * emgui::ListView - scrollable, virtualized text list
+ * (inherits ScrollArea::applyStyle, so the scrollbar properties live here too)
+ */
+
+ListView {
+    background-color: var(--surface);
+    border-color: var(--border);
+    border-width: 1px;
+    radius: var(--radius);
+    border-radius: var(--radius);
+    padding: 4px;
+    direction: column;
+
+    item-text-color: var(--text);
+    item-hover-color: var(--accent-soft);
+    item-hover-text-color: var(--text);
+    item-selected-color: var(--accent);
+    item-selected-text-color: #ffffff;
+
+    item-height: 34px;
+    item-padding: 10px;
+    item-radius: var(--radius-sm);
+
+    track-color: var(--surface-sunken);
+    thumb-color: var(--border-strong);
+    thumb-hover-color: var(--text-muted);
+    thumb-pressed-color: var(--accent);
+    scrollbar-color: var(--border);
+    scrollbar-width: 10px;
+    scrollbar-thickness: 10px;
+    scrollbar-radius: var(--radius-sm);
+    wheel-step: 60px;
+    gap: 2px;
+
+    font-family: var(--font);
+    font-size: 16px;
+    font-style: normal;
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+    shadow-color: rgba(0, 0, 0, 30);
+    shadow-offset-y: 2px;
+    shadow-spread: 0px;
+}

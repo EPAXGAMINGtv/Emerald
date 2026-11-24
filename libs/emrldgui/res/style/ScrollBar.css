@@ -1,0 +1,29 @@
+/*
+ * emgui::ScrollBar
+ *
+ * track-color / thumb-color:        idle colors
+ * thumb-hover-color / -pressed-color: interaction colors
+ * thickness:                        cross-axis size of the thumb
+ * wheel-step:                       pixels moved per mouse wheel notch
+ */
+
+ScrollBar {
+    track-color: var(--surface-sunken);
+    thumb-color: var(--border-strong);
+    thumb-hover-color: var(--accent);
+    thumb-pressed-color: var(--accent-deep);
+
+    border-color: var(--border);
+    border-width: 1px;
+    radius: var(--radius-sm);
+    thickness: 12px;
+    wheel-step: 48px;
+}
+
+ScrollBar.vertical {
+    thickness: 12px;
+}
+
+ScrollBar.horizontal {
+    thickness: 12px;
+}

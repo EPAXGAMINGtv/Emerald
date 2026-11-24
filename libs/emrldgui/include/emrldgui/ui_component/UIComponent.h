@@ -103,6 +103,16 @@ namespace emgui {
             return visible_;
         }
 
+        // Containers like ScrollArea draw their children themselves so they
+        // can clip them. The manager still handles styling, layout and events.
+        void setRenderedByParent(bool value) {
+            renderedByParent_ = value;
+        }
+
+        bool isRenderedByParent() const {
+            return renderedByParent_;
+        }
+
         // Containers override this so hiding a page also hides its descendants
         virtual void setSubtreeVisible(bool visible) {
             setVisible(visible);
@@ -129,11 +139,17 @@ namespace emgui {
         void setHovered(bool value) {
             setState(state_.hovered, value);
         }
+        bool isHovered() const {
+            return state_.hovered;
+        }
         void setActive(bool value) {
             setState(state_.active, value);
         }
         void setFocused(bool value) {
             setState(state_.focused, value);
+        }
+        bool isFocused() const {
+            return state_.focused;
         }
         void setSelected(bool value) {
             setState(state_.selected, value);
@@ -189,6 +205,7 @@ namespace emgui {
         std::string alignSelf_;
         StateFlags state_;
         bool visible_ = true;
+        bool renderedByParent_ = false;
         float flex_ = 0.0f;
     };
 } // emgui

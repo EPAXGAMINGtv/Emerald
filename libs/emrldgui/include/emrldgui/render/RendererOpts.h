@@ -76,6 +76,8 @@ namespace emgui {
                 int spread = 0
             );
             void drawTexture(SDL_Texture* texture, const SDL_Rect& destination);
+            void pushClipRect(const SDL_Rect& rect);
+            void popClipRect();
             void drawText(const std::string& text, const SDL_Point& position, const SDL_Color& color);
             void drawText(
                 const std::string& text,
@@ -156,6 +158,12 @@ namespace emgui {
             int spread = 0
         );
         void drawTexture(SDL_Texture* texture, const SDL_Rect& destination);
+
+        // Nested scissor rects used by scroll areas. Each push intersects with
+        // the active clip; pop restores the previous one.
+        void pushClipRect(const SDL_Rect& rect);
+        void popClipRect();
+
         void drawText(const std::string& text, const SDL_Point& position, const SDL_Color& color);
         void drawText(
             const std::string& text,
@@ -208,6 +216,7 @@ namespace emgui {
         mutable FontManager fontManager_;
         FontSpec defaultFontSpec_;
         SDL_Color clearColor_{0, 0, 0, 255};
+        std::vector<SDL_Rect> clipStack_;
         std::map<TextCacheKey, CachedText> textCache_;
     };
 } // emgui

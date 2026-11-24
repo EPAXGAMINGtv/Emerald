@@ -59,10 +59,18 @@ namespace emgui {
     }
 
     void Window::shutdown() {
-        uiComponentManager_.reset();
+        // Component destructors ask the window for their manager in order to
+        // unregister listeners. unique_ptr::reset() clears the pointer before
+        // deleting the object, so tear the components down first while the
+        // manager is still reachable.
+        if (uiComponentManager_) {
+            uiComponentManager_->clear();
+        }
+
         rendererOpts_.reset();
         eventManager_.reset();
         rendererContext_.reset();
+        uiComponentManager_.reset();
 
         closeWindow();
     }

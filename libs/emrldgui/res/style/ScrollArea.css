@@ -1,0 +1,34 @@
+/*
+ * emgui::ScrollArea
+ *
+ * direction: column | row  - stacking direction for registered children
+ * gap / padding:             spacing in px
+ * wheel-step:               pixels scrolled per mouse wheel notch
+ * scrollbar-thickness:      size reserved for the internal scrollbars
+ */
+
+ScrollArea {
+    background-color: var(--surface);
+    border-color: var(--border);
+    border-width: 1px;
+    radius: var(--radius);
+
+    padding: 4px;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    gap: 6px;
+
+    direction: column;
+    wheel-step: 48px;
+    scrollbar-thickness: 12px;
+}
+
+ScrollArea.column {
+    direction: column;
+}
+
+ScrollArea.row {
+    direction: row;
+}

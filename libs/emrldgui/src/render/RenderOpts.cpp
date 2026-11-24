@@ -495,6 +495,39 @@ namespace emgui {
         SDL_RenderCopy(renderer_, texture, nullptr, &destination);
     }
 
+    void RendererOpts::pushClipRect(const SDL_Rect& rect) {
+        if (renderer_ == nullptr || rect.w <= 0 || rect.h <= 0) {
+            return;
+        }
+
+        SDL_Rect clipped = rect;
+
+        if (!clipStack_.empty()) {
+            SDL_IntersectRect(&clipStack_.back(), &rect, &clipped);
+        }
+
+        if (clipped.w <= 0 || clipped.h <= 0) {
+            return;
+        }
+
+        clipStack_.push_back(clipped);
+        SDL_RenderSetClipRect(renderer_, &clipped);
+    }
+
+    void RendererOpts::popClipRect() {
+        if (renderer_ == nullptr || clipStack_.empty()) {
+            return;
+        }
+
+        clipStack_.pop_back();
+
+        if (clipStack_.empty()) {
+            SDL_RenderSetClipRect(renderer_, nullptr);
+        } else {
+            SDL_RenderSetClipRect(renderer_, &clipStack_.back());
+        }
+    }
+
     void RendererOpts::drawText(
         const std::string& text,
         const SDL_Point& position,
@@ -597,6 +630,10 @@ namespace emgui {
         if (renderer_ == nullptr) {
             return;
         }
+
+        // A frame always starts with an unrestricted draw area.
+        clipStack_.clear();
+        SDL_RenderSetClipRect(renderer_, nullptr);
 
         DrawColorGuard colorGuard(renderer_, color);
 
@@ -732,6 +769,14 @@ namespace emgui {
 
     void RendererOpts::Frame::drawTexture(SDL_Texture* texture, const SDL_Rect& destination) {
         opts_.drawTexture(texture, destination);
+    }
+
+    void RendererOpts::Frame::pushClipRect(const SDL_Rect& rect) {
+        opts_.pushClipRect(rect);
+    }
+
+    void RendererOpts::Frame::popClipRect() {
+        opts_.popClipRect();
     }
 
     void RendererOpts::Frame::drawText(
