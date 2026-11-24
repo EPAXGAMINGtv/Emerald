@@ -1,0 +1,48 @@
+/*
+ * emgui::Dialog / emgui::MessageBox - modal card drawn above every widget.
+ */
+
+Dialog {
+    backdrop-color: rgba(0, 0, 0, 150);
+
+    background-color: var(--surface-raised);
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: var(--radius-lg);
+    opacity: 1.0;
+
+    title-color: var(--text);
+    text-color: var(--text);
+
+    padding: 24px;
+    gap: 12px;
+    width: 480px;
+    max-lines: 8;
+
+    font-family: var(--font);
+    font-size: 16px;
+    font-style: normal;
+    title-font-size: 21px;
+
+    button-background-color: var(--surface);
+    button-hover-color: var(--accent-soft);
+    button-pressed-color: #bcd6f5;
+    button-border-color: var(--border-strong);
+    button-text-color: var(--text);
+    button-hover-text-color: var(--text);
+    button-font-size: 16px;
+    button-height: 42px;
+    button-radius: var(--radius);
+    button-border-width: 1px;
+    button-padding: 20px;
+    button-min-width: 96px;
+    button-gap: 12px;
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 12px;
+    shadow-spread: 2px;
+}

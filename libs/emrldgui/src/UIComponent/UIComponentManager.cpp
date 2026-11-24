@@ -8,7 +8,37 @@
 namespace emgui {
 
     UIComponentManager::~UIComponentManager() {
+        if (window_ != nullptr && window_->getWindow() != nullptr) {
+            if (auto* events = EventManager::getForWindow(window_->getWindow())) {
+                if (keyListener_ != EventManager::kInvalidListener) {
+                    events->removeListener(keyListener_);
+                }
+            }
+        }
+
         clear();
+    }
+
+    void UIComponentManager::setWindow(Window* window) {
+        window_ = window;
+
+        if (window == nullptr || keyListener_ != EventManager::kInvalidListener) {
+            return;
+        }
+
+        SDL_Window* sdlWindow = window->getWindow();
+
+        if (sdlWindow == nullptr) {
+            return;
+        }
+
+        keyListener_ = EventManager::registerEvent(
+            sdlWindow,
+            EventKeyboard(sdlWindow),
+            [this](EventKeyboard& event) {
+                onKeyEvent(event);
+            }
+        );
     }
 
     void UIComponentManager::addComponent(UIComponent* component) {
@@ -71,6 +101,13 @@ namespace emgui {
 
         detachComponent(component);
 
+        if (focusedComponent_ == component) {
+            focusedComponent_ = nullptr;
+        }
+        if (modalComponent_ == component) {
+            modalComponent_ = nullptr;
+        }
+
         components_.erase(
             std::remove_if(
                 components_.begin(),
@@ -81,6 +118,107 @@ namespace emgui {
             ),
             components_.end()
         );
+    }
+
+    void UIComponentManager::setFocusedComponent(UIComponent* component) {
+        if (component != nullptr &&
+            (!component->isVisible() || component->isDisabled())) {
+            return;
+        }
+
+        if (focusedComponent_ == component) {
+            if (component != nullptr) {
+                component->setFocused(true);
+            }
+            return;
+        }
+
+        if (focusedComponent_ != nullptr) {
+            focusedComponent_->setFocused(false);
+        }
+
+        focusedComponent_ = component;
+
+        if (focusedComponent_ != nullptr) {
+            focusedComponent_->setFocused(true);
+        }
+    }
+
+    void UIComponentManager::focusNext() {
+        moveFocus(1);
+    }
+
+    void UIComponentManager::focusPrevious() {
+        moveFocus(-1);
+    }
+
+    void UIComponentManager::moveFocus(int direction) {
+        std::vector<UIComponent*> focusables;
+
+        if (modalComponent_ != nullptr) {
+            modalComponent_->collectFocusable(focusables);
+        } else {
+            for (const ComponentEntry& entry : components_) {
+                if (UIComponent* component = entry.get()) {
+                    component->collectFocusable(focusables);
+                }
+            }
+        }
+
+        // Containers list their children themselves, so a directly registered
+        // child can appear more than once in the collected list
+        focusables.erase(
+            std::unique(focusables.begin(), focusables.end()),
+            focusables.end()
+        );
+
+        if (focusables.empty()) {
+            return;
+        }
+
+        const std::size_t count = focusables.size();
+        std::size_t index = direction > 0 ? 0 : count - 1;
+
+        if (focusedComponent_ != nullptr) {
+            const auto found = std::find(
+                focusables.begin(),
+                focusables.end(),
+                focusedComponent_
+            );
+
+            if (found != focusables.end()) {
+                const auto distance = std::distance(focusables.begin(), found);
+                const auto current = static_cast<std::size_t>(distance);
+
+                if (direction > 0) {
+                    index = (current + 1) % count;
+                } else {
+                    index = (current + count - 1) % count;
+                }
+            }
+        }
+
+        setFocusedComponent(focusables[index]);
+    }
+
+    void UIComponentManager::onKeyEvent(EventKeyboard& event) {
+        if (!event.isPressed() || event.isRepeat() ||
+            event.getKey() != SDLK_TAB) {
+            return;
+        }
+
+        // A modal dialog traps Tab and moves focus between its own buttons
+        if (modalComponent_ != nullptr) {
+            return;
+        }
+
+        if ((event.getModifiers() & KMOD_SHIFT) != KMOD_NONE) {
+            focusPrevious();
+        } else {
+            focusNext();
+        }
+
+        event.handled = true;
     }
 
     void UIComponentManager::update() {
@@ -121,6 +259,8 @@ namespace emgui {
 
     void UIComponentManager::clear() {
         shuttingDown_ = true;
+        focusedComponent_ = nullptr;
+        modalComponent_ = nullptr;
 
         // Detach callbacks before owned components are destroyed
         for (const ComponentEntry& entry : components_) {

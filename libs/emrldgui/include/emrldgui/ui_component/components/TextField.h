@@ -51,8 +51,8 @@ namespace emgui {
         void onFocusGained(Action action);
         void onFocusLost(Action action);
 
-        void setFocused(bool focused);
-        bool isFocused() const {
+        void setFocused(bool focused) override;
+        bool isFocused() const override {
             return focused_;
         }
 

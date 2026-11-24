@@ -145,20 +145,35 @@ namespace emgui {
         void setActive(bool value) {
             setState(state_.active, value);
         }
-        void setFocused(bool value) {
-            setState(state_.focused, value);
+        // Widgets that take part in Tab navigation opt in explicitly
+        void setFocusable(bool value) {
+            focusable_ = value;
         }
-        bool isFocused() const {
+        bool isFocusable() const {
+            return focusable_;
+        }
+
+        // Virtual so text inputs can additionally manage SDL text input state
+        virtual void setFocused(bool value);
+        virtual bool isFocused() const {
             return state_.focused;
         }
+
         void setSelected(bool value) {
             setState(state_.selected, value);
         }
         void setDisabled(bool value) {
             setState(state_.disabled, value);
         }
+        bool isDisabled() const {
+            return state_.disabled;
+        }
 
         bool hasState(const std::string& state) const;
+
+        // Containers override this to expose their focusable descendants.
+        // The manager uses the collected list for Tab navigation.
+        virtual void collectFocusable(std::vector<UIComponent*>& out);
 
         // Components that participate in layouts report their natural size here
         virtual SDL_Point getLayoutSize() const {
@@ -206,6 +221,7 @@ namespace emgui {
         StateFlags state_;
         bool visible_ = true;
         bool renderedByParent_ = false;
+        bool focusable_ = false;
         float flex_ = 0.0f;
     };
 } // emgui

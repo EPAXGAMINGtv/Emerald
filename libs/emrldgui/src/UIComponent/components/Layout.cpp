@@ -99,6 +99,16 @@ namespace emgui {
         geometry_.lockToLayout(rect.w, rect.h);
     }
 
+    void Layout::collectFocusable(std::vector<UIComponent*>& out) {
+        UIComponent::collectFocusable(out);
+
+        for (UIComponent* child : children_) {
+            if (child != nullptr) {
+                child->collectFocusable(out);
+            }
+        }
+    }
+
     void Layout::addChild(UIComponent* child) {
         if (child == nullptr || child == this) {
             return;

@@ -123,6 +123,17 @@ namespace emgui {
         }
     }
 
+    void ScrollArea::collectFocusable(std::vector<UIComponent*>& out) {
+        UIComponent::collectFocusable(out);
+
+        for (UIComponent* child : children_) {
+            if (child != nullptr && child != &verticalBar_ &&
+                child != &horizontalBar_) {
+                child->collectFocusable(out);
+            }
+        }
+    }
+
     void ScrollArea::addChild(UIComponent* child) {
         if (child == nullptr || child == this) {
             return;

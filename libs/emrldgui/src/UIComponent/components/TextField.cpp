@@ -98,6 +98,7 @@ namespace emgui {
         geometry_.width = width_;
         geometry_.height = height_;
         caretBlinkStart_ = SDL_GetTicks();
+        setFocusable(true);
     }
 
     TextField::~TextField() {

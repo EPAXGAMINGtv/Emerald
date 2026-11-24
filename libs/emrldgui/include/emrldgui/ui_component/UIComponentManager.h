@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "UIComponent.h"
+#include "emrldgui/event/EventKeyboard.h"
+#include "emrldgui/event/EventManager.h"
 #include "emrldgui/style/StyleManager.h"
 
 namespace emgui {
@@ -57,14 +59,30 @@ namespace emgui {
         bool isShuttingDown() const {
             return shuttingDown_;
         }
+
+        // Tab / Shift+Tab focus navigation. Only widgets that opted in with
+        // UIComponent::setFocusable(true) participate.
+        void setFocusedComponent(UIComponent* component);
+        UIComponent* getFocusedComponent() const {
+            return focusedComponent_;
+        }
+        void focusNext();
+        void focusPrevious();
+
+        // While a modal is open, focus navigation stays inside it.
+        void setModalComponent(UIComponent* component) {
+            modalComponent_ = component;
+        }
+        UIComponent* getModalComponent() const {
+            return modalComponent_;
+        }
+
         void update();
         void render(RendererOpts& renderer);
         void clear();
 
         // The owning window injects itself here so every component can use it
-        void setWindow(Window* window) {
-            window_ = window;
-        }
+        void setWindow(Window* window);
 
         Window* getWindow() const {
             return window_;
@@ -84,10 +102,15 @@ namespace emgui {
     private:
         void finalizeRegistration(UIComponent* component);
         void detachComponent(UIComponent* component);
+        void onKeyEvent(EventKeyboard& event);
+        void moveFocus(int direction);
 
         std::vector<ComponentEntry> components_;
         StyleManager styleManager_;
         Window* window_ = nullptr;
+        EventManager::ListenerId keyListener_ = EventManager::kInvalidListener;
+        UIComponent* focusedComponent_ = nullptr;
+        UIComponent* modalComponent_ = nullptr;
         bool shuttingDown_ = false;
     };
 

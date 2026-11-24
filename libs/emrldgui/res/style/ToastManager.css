@@ -1,0 +1,34 @@
+/*
+ * emgui::ToastManager - transient notifications drawn in the overlay pass.
+ */
+
+ToastManager {
+    background-color: var(--surface-raised);
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: var(--radius);
+    opacity: 1.0;
+
+    title-color: var(--text);
+    text-color: var(--text);
+
+    padding: 12px;
+    gap: 10px;
+    width: 360px;
+    max-lines: 4;
+
+    font-family: var(--font);
+    font-size: 15px;
+    font-style: normal;
+    title-font-size: 17px;
+
+    shadow-color: var(--shadow);
+    shadow-offset-x: 0px;
+    shadow-offset-y: 6px;
+    shadow-spread: 1px;
+
+    duration-ms: 3000ms;
+    direction: top-down;
+    progress-color: var(--accent);
+    progress-height: 4px;
+}

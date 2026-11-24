@@ -14,6 +14,16 @@ namespace emgui {
         visible_ = values.getBool("visible", visible_);
     }
 
+    void UIComponent::setFocused(bool value) {
+        setState(state_.focused, value);
+    }
+
+    void UIComponent::collectFocusable(std::vector<UIComponent*>& out) {
+        if (isFocusable() && isVisible() && !isDisabled()) {
+            out.push_back(this);
+        }
+    }
+
     bool UIComponent::hasState(const std::string& state) const {
         if (state == "hover") {
             return state_.hovered;

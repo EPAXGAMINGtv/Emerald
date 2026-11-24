@@ -52,6 +52,7 @@ namespace emgui {
 
         void setLayoutRect(const SDL_Rect& rect) override;
         void setSubtreeVisible(bool visible) override;
+        void collectFocusable(std::vector<UIComponent*>& out) override;
 
         // Children are drawn by this area; register them with the manager as
         // usual so styling, layout, updates and events keep working

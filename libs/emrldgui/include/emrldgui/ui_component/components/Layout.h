@@ -35,6 +35,7 @@ namespace emgui {
 
         void setLayoutRect(const SDL_Rect& rect) override;
         void setSubtreeVisible(bool visible) override;
+        void collectFocusable(std::vector<UIComponent*>& out) override;
 
         void addChild(UIComponent* child);
         void removeChild(UIComponent* child);

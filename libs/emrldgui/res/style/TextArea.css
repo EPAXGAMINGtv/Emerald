@@ -1,0 +1,54 @@
+/*
+ * emgui::TextArea
+ *
+ * word-wrap / show-line-numbers: boolean editor behaviour
+ * gutter-width / line-height / tab-size / caret-blink-ms: pixel or time values
+ */
+
+TextArea {
+    background-color: var(--surface);
+    background-gradient: #ffffff, #fcfcfc;
+    background-gradient-direction: vertical;
+    background-focus-color: var(--surface);
+    background-focus-gradient: #ffffff, #f4f9ff;
+
+    border-color: var(--border-strong);
+    border-focus-color: var(--accent);
+    disabled-border-color: var(--border);
+    border-width: 1px;
+    border-radius: var(--radius);
+
+    padding-top: 10px;
+    padding-right: 12px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+
+    text-color: var(--text);
+    placeholder-color: var(--text-muted);
+    disabled-text-color: var(--text-muted);
+
+    caret-color: var(--accent);
+    caret-width: 2px;
+    caret-blink-ms: 500ms;
+
+    selection-color: rgba(53, 132, 228, 90);
+    selection-text-color: #ffffff;
+
+    font-family: var(--font);
+    font-size: 16px;
+    font-style: normal;
+
+    line-height: 22px;
+    word-wrap: true;
+    tab-size: 4;
+    show-line-numbers: false;
+    gutter-width: 40px;
+    gutter-color: var(--text-muted);
+
+    scrollbar-color: var(--border-strong);
+
+    focus-ring-color: var(--accent);
+    focus-ring-width: 2px;
+
+    disabled-background-color: var(--surface-sunken);
+}
