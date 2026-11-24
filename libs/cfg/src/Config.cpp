@@ -477,16 +477,22 @@ YAML::Node Config::lookup_in(
         return {};
     }
 
-    // Copying a YAML::Node is a cheap handle copy; YAML::Clone would deep-copy
-    // the whole tree on every read.
-    YAML::Node current = root;
+    // Node assignment copies values into the same handle. Re-seat a fresh
+    // handle on every step instead; copying a Node handle itself is cheap.
+    std::optional<YAML::Node> current;
+    current.emplace(root);
     for (const auto& part : parts) {
-        if (!current || !current.IsMap()) {
+        const YAML::Node& view = *current;
+        if (!view || !view.IsMap()) {
             return {};
         }
-        current = current[part];
+        YAML::Node child = view[part];
+        if (!child) {
+            return {};
+        }
+        current.emplace(child);
     }
-    return current;
+    return *current;
 }
 
 YAML::Node Config::lookup(std::string_view key) const {
@@ -515,19 +521,21 @@ YAML::Node Config::ensure_node(YAML::Node& root, std::string_view key) {
         root = YAML::Node(YAML::NodeType::Map);
     }
 
-    YAML::Node current = root;
+    std::optional<YAML::Node> current;
+    current.emplace(root);
     for (std::size_t i = 0; i < parts.size(); ++i) {
         const std::string& part = parts[i];
         const bool leaf = (i + 1 == parts.size());
-        if (!current[part] || (!leaf && !current[part].IsMap())) {
-            current[part] = YAML::Node(
-                leaf ? YAML::NodeType::Null : YAML::NodeType::Map
-            );
+        YAML::Node child = (*current)[part];
+        // Do not materialize a Null leaf: yaml-cpp keeps a Null node Null when
+        // a Node is assigned afterwards. An undefined node accepts any value.
+        if (!leaf && (!child || !child.IsMap())) {
+            child = YAML::Node(YAML::NodeType::Map);
         }
         if (leaf) {
-            return current[part];
+            return child;
         }
-        current = current[part];
+        current.emplace(child);
     }
 
     return root;
@@ -539,23 +547,32 @@ bool Config::remove_at(YAML::Node& root, std::string_view key) {
         return false;
     }
 
-    YAML::Node current = root;
+    std::optional<YAML::Node> current;
+    current.emplace(root);
     for (std::size_t i = 0; i + 1 < parts.size(); ++i) {
-        if (!current || !current.IsMap()) {
+        const YAML::Node& view = *current;
+        if (!view || !view.IsMap()) {
             return false;
         }
-        current = current[parts[i]];
+        const YAML::Node existing = view[parts[i]];
+        if (!existing || !existing.IsMap()) {
+            return false;
+        }
+        YAML::Node child = (*current)[parts[i]];
+        current.emplace(child);
     }
 
-    if (!current || !current.IsMap()) {
+    const YAML::Node& view = *current;
+    if (!view || !view.IsMap()) {
         return false;
     }
 
     const std::string& leaf = parts.back();
-    if (!current[leaf]) {
+    const YAML::Node existing = view[leaf];
+    if (!existing) {
         return false;
     }
-    current.remove(leaf);
+    current->remove(leaf);
     return true;
 }
 
