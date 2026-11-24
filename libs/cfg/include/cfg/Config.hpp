@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
+#include <map>
 #include <optional>
 #include <set>
 #include <string>
@@ -58,6 +60,10 @@ public:
     void clear();
 
     bool contains(std::string_view key) const;
+
+    // Removes an explicit value so the registered default becomes effective again.
+    bool reset(std::string_view key);
+    // Hard-deletes a key from both values and registered defaults.
     bool remove(std::string_view key);
 
     // Generic typed access. Returns default_value when key is missing or invalid.
@@ -100,6 +106,15 @@ public:
         override_keys_.insert(normalize_key(key));
     }
 
+    // Registers an in-memory default. It is used whenever the key is missing
+    // from the loaded file and stays out of override-only saves.
+    template <typename T>
+    void set_default(std::string_view key, const T& value) {
+        YAML::Node node;
+        node = value;
+        set_default_node(key, node);
+    }
+
     void set_string(std::string_view key, std::string_view value);
 
     const std::filesystem::path& path() const noexcept;
@@ -112,6 +127,10 @@ private:
     static std::vector<std::string> split_key(std::string_view key);
     static std::string normalize_key(std::string_view key);
     static YAML::Node ensure_node(YAML::Node& root, std::string_view key);
+    static YAML::Node lookup_in(
+        const YAML::Node& root, std::string_view key
+    );
+    static bool remove_at(YAML::Node& root, std::string_view key);
     static void collect_leaf_keys(
         const YAML::Node& node,
         std::string prefix,
@@ -123,12 +142,15 @@ private:
 
     YAML::Node lookup(std::string_view key) const;
     YAML::Node build_output_node(SaveMode mode) const;
+    void set_default_node(std::string_view key, const YAML::Node& value);
+    void apply_defaults_to(YAML::Node& target) const;
 
     //const save() and save(path) share this write-only implementation ->
     bool writeToFile(const std::filesystem::path& path, SaveMode mode) const;
 
     std::filesystem::path path_;
     YAML::Node root_ = YAML::Node(YAML::NodeType::Map);
+    std::map<std::string, YAML::Node, std::less<>> defaults_;
     std::set<std::string> override_keys_;
     SaveMode save_mode_ = SaveMode::Effective;
 };

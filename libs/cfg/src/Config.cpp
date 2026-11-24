@@ -42,6 +42,7 @@ bool Config::load(const std::filesystem::path& path) {
         std::vector<std::string> loaded_keys;
         collect_leaf_keys(root_, std::string{}, loaded_keys);
         override_keys_.insert(loaded_keys.begin(), loaded_keys.end());
+        apply_defaults_to(root_);
 
         spdlog::debug("Loaded config from {}", path_.string());
         return true;
@@ -72,9 +73,7 @@ bool Config::load_or_create(const std::filesystem::path& path) {
     if (!root_ || !root_.IsMap()) {
         root_ = YAML::Node(YAML::NodeType::Map);
     }
-    std::vector<std::string> initial_keys;
-    collect_leaf_keys(root_, std::string{}, initial_keys);
-    override_keys_.insert(initial_keys.begin(), initial_keys.end());
+    apply_defaults_to(root_);
     return save(path_);
 }
 
@@ -154,6 +153,7 @@ bool Config::load_from_string(std::string_view yaml_text) {
         std::vector<std::string> parsed_keys;
         collect_leaf_keys(root_, std::string{}, parsed_keys);
         override_keys_.insert(parsed_keys.begin(), parsed_keys.end());
+        apply_defaults_to(root_);
         return true;
     } catch (const std::exception& e) {
         spdlog::error("Failed to parse config string: {}", e.what());
@@ -179,6 +179,7 @@ std::string Config::dump(SaveMode mode) const {
 
 void Config::clear() {
     root_ = YAML::Node(YAML::NodeType::Map);
+    defaults_.clear();
     override_keys_.clear();
 }
 
@@ -187,35 +188,48 @@ bool Config::contains(std::string_view key) const {
     return node && !node.IsNull();
 }
 
-bool Config::remove(std::string_view key) {
-    const auto parts = split_key(key);
-    if (parts.empty()) {
+bool Config::reset(std::string_view key) {
+    const std::string normalized = normalize_key(key);
+    if (normalized.empty()) {
         return false;
     }
 
-    YAML::Node current = root_;
-    for (std::size_t i = 0; i + 1 < parts.size(); ++i) {
-        if (!current || !current.IsMap()) {
-            return false;
+    remove_at(root_, key);
+
+    const std::string child_prefix = normalized + ".";
+    for (auto it = override_keys_.begin(); it != override_keys_.end();) {
+        if (*it == normalized || it->starts_with(child_prefix)) {
+            it = override_keys_.erase(it);
+        } else {
+            ++it;
         }
-        current = current[parts[i]];
     }
 
-    if (!current || !current.IsMap()) {
+    const auto default_it = defaults_.find(normalized);
+    if (default_it == defaults_.end()) {
         return false;
     }
+    set_at(root_, key, default_it->second);
+    return true;
+}
 
-    const std::string& leaf = parts.back();
-    if (!current[leaf]) {
+bool Config::remove(std::string_view key) {
+    if (!remove_at(root_, key)) {
         return false;
     }
-    current.remove(leaf);
 
     const std::string normalized = normalize_key(key);
     const std::string child_prefix = normalized + ".";
     for (auto it = override_keys_.begin(); it != override_keys_.end();) {
         if (*it == normalized || it->starts_with(child_prefix)) {
             it = override_keys_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = defaults_.begin(); it != defaults_.end();) {
+        if (it->first == normalized || it->first.starts_with(child_prefix)) {
+            it = defaults_.erase(it);
         } else {
             ++it;
         }
@@ -310,7 +324,9 @@ YAML::Node Config::build_output_node(SaveMode mode) const {
     return output;
 }
 
-YAML::Node Config::lookup(std::string_view key) const {
+YAML::Node Config::lookup_in(
+    const YAML::Node& root, std::string_view key
+) {
     const auto parts = split_key(key);
     if (parts.empty()) {
         return {};
@@ -318,7 +334,7 @@ YAML::Node Config::lookup(std::string_view key) const {
 
     // Copying a YAML::Node is a cheap handle copy; YAML::Clone would deep-copy
     // the whole tree on every read.
-    YAML::Node current = root_;
+    YAML::Node current = root;
     for (const auto& part : parts) {
         if (!current || !current.IsMap()) {
             return {};
@@ -326,6 +342,10 @@ YAML::Node Config::lookup(std::string_view key) const {
         current = current[part];
     }
     return current;
+}
+
+YAML::Node Config::lookup(std::string_view key) const {
+    return lookup_in(root_, key);
 }
 
 std::string Config::normalize_key(std::string_view key) {
@@ -368,6 +388,32 @@ YAML::Node Config::ensure_node(YAML::Node& root, std::string_view key) {
     return root;
 }
 
+bool Config::remove_at(YAML::Node& root, std::string_view key) {
+    const auto parts = split_key(key);
+    if (parts.empty()) {
+        return false;
+    }
+
+    YAML::Node current = root;
+    for (std::size_t i = 0; i + 1 < parts.size(); ++i) {
+        if (!current || !current.IsMap()) {
+            return false;
+        }
+        current = current[parts[i]];
+    }
+
+    if (!current || !current.IsMap()) {
+        return false;
+    }
+
+    const std::string& leaf = parts.back();
+    if (!current[leaf]) {
+        return false;
+    }
+    current.remove(leaf);
+    return true;
+}
+
 void Config::collect_leaf_keys(
     const YAML::Node& node,
     std::string prefix,
@@ -395,6 +441,31 @@ void Config::set_at(
 ) {
     YAML::Node target = ensure_node(root, key);
     target = YAML::Clone(value);
+}
+
+void Config::set_default_node(
+    std::string_view key, const YAML::Node& value
+) {
+    const std::string normalized = normalize_key(key);
+    if (normalized.empty()) {
+        return;
+    }
+
+    defaults_[normalized] = YAML::Clone(value);
+
+    const YAML::Node existing = lookup(key);
+    if (!existing || existing.IsNull()) {
+        set_at(root_, key, defaults_[normalized]);
+    }
+}
+
+void Config::apply_defaults_to(YAML::Node& target) const {
+    for (const auto& [key, value] : defaults_) {
+        const YAML::Node existing = lookup_in(target, key);
+        if (!existing || existing.IsNull()) {
+            set_at(target, key, value);
+        }
+    }
 }
 
 } // namespace cfg
