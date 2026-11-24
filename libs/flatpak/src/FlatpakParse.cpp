@@ -43,4 +43,14 @@ std::vector<std::string> SplitTabs(const std::string& line) {
     return SplitBy(line, '\t', true);
 }
 
+std::string Trim(const std::string& text) {
+    const std::size_t first = text.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) {
+        return {};
+    }
+
+    const std::size_t last = text.find_last_not_of(" \t\r\n");
+    return text.substr(first, last - first + 1U);
+}
+
 } // namespace fpk::detail

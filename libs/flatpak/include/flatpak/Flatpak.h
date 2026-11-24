@@ -1,7 +1,9 @@
 #pragma once
 
+#include <filesystem>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "flatpak/FlatpakCommand.h"
@@ -72,8 +74,24 @@ public:
     std::vector<std::string> ListAvailableApplicationIds() const;
     std::vector<std::string> ListInstalledApplicationIds() const;
 
+    // Icon group
+    void SetIconCacheDirectory(std::filesystem::path directory);
+    const std::filesystem::path& IconCacheDirectory() const noexcept;
+    std::filesystem::path GetApplicationIconPath(
+        const std::string& id
+    ) const;
+    std::filesystem::path GetApplicationIcon(const std::string& id) const;
+    bool HasApplicationIcon(const std::string& id) const;
+    bool SetApplicationIcon(
+        const std::string& id, std::filesystem::path path
+    );
+    bool ClearApplicationIcon(const std::string& id);
+    void ClearApplicationIcons();
+
 private:
     FlatpakCommand command_;
+    std::filesystem::path iconCacheDirectory_;
+    std::unordered_map<std::string, std::filesystem::path> iconOverrides_;
 };
 
 } // namespace fpk
