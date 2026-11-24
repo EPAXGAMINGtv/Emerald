@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -88,10 +89,44 @@ public:
     bool ClearApplicationIcon(const std::string& id);
     void ClearApplicationIcons();
 
+    // Install/update/progress group
+    Result InstallFlatpakPackage(
+        const std::string& packageId,
+        const std::string& remote = "flathub",
+        const std::string& branch = "stable"
+    );
+    Result InstallFlatpakPackageFromRef(const std::string& ref);
+    Result UninstallFlatpakPackage(const std::string& packageId);
+    Result UpdateFlatpakPackage(const std::string& packageId);
+    Result UpdateAllFlatpakPackages();
+    std::vector<std::string> ListFlatpakUpdates() const;
+    Result RunFlatpakPackage(
+        const std::string& packageId,
+        const std::vector<std::string>& arguments = {}
+    );
+
+    Progress GetPackageInstallProgress(const std::string& packageId) const;
+    std::optional<std::chrono::milliseconds>
+    GetRemainingPackageInstallTimeForPackage(
+        const std::string& packageId
+    ) const;
+    std::optional<std::chrono::milliseconds>
+    GetElapsedPackageInstallTimeForPackage(const std::string& packageId) const;
+    double GetPackageInstallFraction(const std::string& packageId) const;
+    OperationStatus GetPackageOperationStatus(
+        const std::string& packageId
+    ) const;
+    std::vector<Operation> ListPackageOperations() const;
+    bool IsPackageOperationRunning(const std::string& packageId) const;
+    bool QueueFlatpakPackageOperation(const std::string& packageId);
+    bool CancelPackageOperation(const std::string& packageId);
+    void ClearPackageOperations();
+
 private:
     FlatpakCommand command_;
     std::filesystem::path iconCacheDirectory_;
     std::unordered_map<std::string, std::filesystem::path> iconOverrides_;
+    std::unordered_map<std::string, Operation> operations_;
 };
 
 } // namespace fpk
