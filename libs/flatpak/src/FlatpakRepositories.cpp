@@ -1,5 +1,7 @@
 #include "flatpak/Flatpak.h"
 
+#include "FlatpakParse.h"
+
 #include <algorithm>
 #include <exception>
 #include <string>
@@ -10,46 +12,11 @@ namespace fpk {
 
 namespace {
 
-std::vector<std::string> SplitTabs(const std::string& line) {
-    std::vector<std::string> fields;
-    std::size_t start = 0U;
-
-    for (;;) {
-        const std::size_t found = line.find('\t', start);
-        if (found == std::string::npos) {
-            fields.push_back(line.substr(start));
-            break;
-        }
-        fields.push_back(line.substr(start, found - start));
-        start = found + 1U;
-    }
-    return fields;
-}
-
-std::vector<std::string> SplitLines(const std::string& output) {
-    std::vector<std::string> lines;
-    std::size_t start = 0U;
-
-    for (;;) {
-        const std::size_t found = output.find('\n', start);
-        if (found == std::string::npos) {
-            const std::string last = output.substr(start);
-            if (!last.empty()) {
-                lines.push_back(last);
-            }
-            break;
-        }
-        lines.push_back(output.substr(start, found - start));
-        start = found + 1U;
-    }
-    return lines;
-}
-
 std::vector<Repository> ParseRepositories(const std::string& output) {
     std::vector<Repository> repositories;
 
-    for (const std::string& line : SplitLines(output)) {
-        const std::vector<std::string> fields = SplitTabs(line);
+    for (const std::string& line : detail::SplitLines(output)) {
+        const std::vector<std::string> fields = detail::SplitTabs(line);
         if (fields.size() < 3U || fields[0].empty()) {
             continue;
         }
@@ -217,7 +184,7 @@ std::vector<std::string> Flatpak::ListFlatpakRefs(
     }
 
     std::vector<std::string> refs;
-    for (const std::string& line : SplitLines(result.Output)) {
+    for (const std::string& line : detail::SplitLines(result.Output)) {
         if (!line.empty()) {
             refs.push_back(line);
         }

@@ -50,6 +50,28 @@ public:
     Result SetFlatpakRepoPriority(const std::string& name, int priority);
     std::vector<std::string> ListFlatpakRefs(const std::string& remote) const;
 
+    // Application/catalog group
+    std::vector<Application> GetAllApplicationsAvailable() const;
+    std::vector<Application> GetAllInstalledApplications() const;
+    std::optional<Application> GetApplicationById(const std::string& id) const;
+    bool IsApplicationAvailable(const std::string& id) const;
+    bool IsApplicationInstalled(const std::string& id) const;
+    std::string GetApplicationName(const std::string& id) const;
+    std::string GetApplicationSummary(const std::string& id) const;
+    std::string GetApplicationDescription(const std::string& id) const;
+    std::string GetApplicationVersion(const std::string& id) const;
+    std::vector<std::string> GetApplicationCategories(
+        const std::string& id
+    ) const;
+    std::vector<Application> SearchFlatpakApplications(
+        const std::string& query
+    ) const;
+    std::vector<Application> GetApplicationsByRemote(
+        const std::string& remote
+    ) const;
+    std::vector<std::string> ListAvailableApplicationIds() const;
+    std::vector<std::string> ListInstalledApplicationIds() const;
+
 private:
     FlatpakCommand command_;
 };
