@@ -57,6 +57,7 @@ if(EMERALD_BUILD_TESTS)
         tests/test_flatpak_applications.cpp
         tests/test_flatpak_icons.cpp
         tests/test_flatpak_operations.cpp
+        tests/test_flatpak_groups.cpp
     )
     target_link_libraries(test PRIVATE cfg emrldgui flatpak project_warnings)
 

@@ -72,6 +72,9 @@ public:
     std::vector<Application> GetApplicationsByRemote(
         const std::string& remote
     ) const;
+    std::vector<Application> GetApplicationsByCategory(
+        const std::string& category
+    ) const;
     std::vector<std::string> ListAvailableApplicationIds() const;
     std::vector<std::string> ListInstalledApplicationIds() const;
 
@@ -122,11 +125,43 @@ public:
     bool CancelPackageOperation(const std::string& packageId);
     void ClearPackageOperations();
 
+    // In-memory grouping group
+    Result CreateFlatpakGroup(
+        const std::string& id, const std::string& name = {}
+    );
+    bool RemoveFlatpakGroup(const std::string& id);
+    bool RenameFlatpakGroup(const std::string& id, const std::string& name);
+    bool AddApplicationToGroup(
+        const std::string& groupId, const std::string& applicationId
+    );
+    bool RemoveApplicationFromGroup(
+        const std::string& groupId, const std::string& applicationId
+    );
+    std::optional<Group> GetFlatpakGroup(const std::string& id) const;
+    std::vector<Group> ListFlatpakGroups() const;
+    std::vector<std::string> ListFlatpakGroupIds() const;
+    std::vector<std::string> GetApplicationsInGroup(
+        const std::string& groupId
+    ) const;
+    std::vector<std::string> GetGroupsForApplication(
+        const std::string& applicationId
+    ) const;
+    bool FlatpakGroupExists(const std::string& id) const;
+    bool SetApplicationCategories(
+        const std::string& applicationId,
+        std::vector<std::string> categories
+    );
+    bool ClearApplicationCategories(const std::string& applicationId);
+    void ClearFlatpakGroups();
+
 private:
     FlatpakCommand command_;
     std::filesystem::path iconCacheDirectory_;
     std::unordered_map<std::string, std::filesystem::path> iconOverrides_;
     std::unordered_map<std::string, Operation> operations_;
+    std::unordered_map<std::string, Group> groups_;
+    std::unordered_map<std::string, std::vector<std::string>>
+        categoryOverrides_;
 };
 
 } // namespace fpk

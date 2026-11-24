@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -98,6 +99,32 @@ std::vector<std::string> IdsOf(const std::vector<Application>& applications) {
     return ids;
 }
 
+void ApplyStoredMetadata(
+    std::vector<Application>& applications,
+    const std::unordered_map<std::string, std::vector<std::string>>& categories,
+    const std::unordered_map<std::string, Group>& groups
+) {
+    for (Application& application : applications) {
+        const auto found = categories.find(application.Id);
+        if (found != categories.end()) {
+            application.Categories = found->second;
+        }
+
+        std::vector<std::string> groupIds;
+        for (const auto& entry : groups) {
+            const std::vector<std::string>& members =
+                entry.second.ApplicationIds;
+            const auto member = std::find(
+                members.begin(), members.end(), application.Id
+            );
+            if (member != members.end()) {
+                groupIds.push_back(entry.first);
+            }
+        }
+        application.Groups = std::move(groupIds);
+    }
+}
+
 } // namespace
 
 std::vector<Application> Flatpak::GetAllApplicationsAvailable() const {
@@ -109,7 +136,9 @@ std::vector<Application> Flatpak::GetAllApplicationsAvailable() const {
     if (!result.Ok) {
         return {};
     }
-    return ParseCatalog(result.Output);
+    std::vector<Application> applications = ParseCatalog(result.Output);
+    ApplyStoredMetadata(applications, categoryOverrides_, groups_);
+    return applications;
 }
 
 std::vector<Application> Flatpak::GetAllInstalledApplications() const {
@@ -121,7 +150,9 @@ std::vector<Application> Flatpak::GetAllInstalledApplications() const {
     if (!result.Ok) {
         return {};
     }
-    return ParseCatalog(result.Output);
+    std::vector<Application> applications = ParseCatalog(result.Output);
+    ApplyStoredMetadata(applications, categoryOverrides_, groups_);
+    return applications;
 }
 
 std::optional<Application> Flatpak::GetApplicationById(
@@ -196,7 +227,9 @@ std::vector<Application> Flatpak::SearchFlatpakApplications(
     if (!result.Ok) {
         return {};
     }
-    return ParseSearchResults(result.Output);
+    std::vector<Application> applications = ParseSearchResults(result.Output);
+    ApplyStoredMetadata(applications, categoryOverrides_, groups_);
+    return applications;
 }
 
 std::vector<Application> Flatpak::GetApplicationsByRemote(
@@ -209,6 +242,27 @@ std::vector<Application> Flatpak::GetApplicationsByRemote(
     std::vector<Application> matches;
     for (const Application& application : GetAllApplicationsAvailable()) {
         if (application.Remote == remote) {
+            matches.push_back(application);
+        }
+    }
+    return matches;
+}
+
+std::vector<Application> Flatpak::GetApplicationsByCategory(
+    const std::string& category
+) const {
+    if (category.empty()) {
+        return {};
+    }
+
+    std::vector<Application> matches;
+    for (const Application& application : GetAllApplicationsAvailable()) {
+        const auto found = std::find(
+            application.Categories.begin(),
+            application.Categories.end(),
+            category
+        );
+        if (found != application.Categories.end()) {
             matches.push_back(application);
         }
     }
