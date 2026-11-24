@@ -10,6 +10,7 @@
 #include "flatpak/FlatpakCommand.h"
 #include "flatpak/FlatpakTypes.h"
 #include "flatpak/streaming/OutputCallback.h"
+#include "flatpak/terminal/TerminalSession.h"
 
 namespace fpk {
 
@@ -19,7 +20,8 @@ class Flatpak {
 public:
     explicit Flatpak(
         std::string binaryPath = "flatpak",
-        CommandExecutor executor = {}
+        CommandExecutor executor = {},
+        terminal::InteractiveExecutor terminalExecutor = {}
     );
 
     void SetBinaryPath(std::string binaryPath);
@@ -33,6 +35,14 @@ public:
         std::vector<std::string> arguments,
         stream::OutputCallback onOutput = {}
     ) const;
+
+    void SetTerminalExecutor(terminal::InteractiveExecutor executor);
+    void SetTerminalOptions(terminal::TerminalOptions options);
+    const terminal::TerminalOptions& TerminalConfiguration() const noexcept;
+    Result RunFlatpakCommandInTerminal(
+        std::vector<std::string> arguments
+    ) const;
+    Result OpenFlatpakConsole() const;
 
     bool IsAvailable() const;
     std::string Version() const;
@@ -173,6 +183,7 @@ private:
     ) const;
 
     FlatpakCommand command_;
+    terminal::TerminalSession terminal_;
     std::filesystem::path iconCacheDirectory_;
     std::unordered_map<std::string, std::filesystem::path> iconOverrides_;
     std::unordered_map<std::string, Operation> operations_;

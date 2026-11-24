@@ -19,8 +19,13 @@ Result MakeResult(bool ok, std::string message) {
 
 } // namespace
 
-Flatpak::Flatpak(std::string binaryPath, CommandExecutor executor)
-    : command_(std::move(binaryPath), std::move(executor)) {}
+Flatpak::Flatpak(
+    std::string binaryPath,
+    CommandExecutor executor,
+    terminal::InteractiveExecutor terminalExecutor
+)
+    : command_(std::move(binaryPath), std::move(executor)),
+      terminal_({}, std::move(terminalExecutor)) {}
 
 void Flatpak::SetBinaryPath(std::string binaryPath) {
     command_.SetBinaryPath(std::move(binaryPath));
@@ -58,6 +63,30 @@ Result Flatpak::RunFlatpakCommandWithOutput(
     return command_.Run(
         std::move(arguments), ResolveOutputCallback(std::move(onOutput))
     );
+}
+
+void Flatpak::SetTerminalExecutor(terminal::InteractiveExecutor executor) {
+    terminal_.SetExecutor(std::move(executor));
+}
+
+void Flatpak::SetTerminalOptions(terminal::TerminalOptions options) {
+    terminal_.SetOptions(std::move(options));
+}
+
+const terminal::TerminalOptions& Flatpak::TerminalConfiguration() const noexcept {
+    return terminal_.Options();
+}
+
+Result Flatpak::RunFlatpakCommandInTerminal(
+    std::vector<std::string> arguments
+) const {
+    std::vector<std::string> argv = {command_.BinaryPath()};
+    argv.insert(argv.end(), arguments.begin(), arguments.end());
+    return terminal_.RunInteractive(std::move(argv));
+}
+
+Result Flatpak::OpenFlatpakConsole() const {
+    return terminal_.OpenShell();
 }
 
 bool Flatpak::IsAvailable() const {
