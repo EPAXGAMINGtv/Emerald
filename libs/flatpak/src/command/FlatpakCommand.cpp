@@ -55,7 +55,9 @@ Result RunProcess(
         ::execvp(arguments[0].c_str(), argv.data());
         const std::string failure =
             std::string("execvp failed: ") + std::strerror(errno);
-        (void)::write(STDOUT_FILENO, failure.data(), failure.size());
+        const ssize_t written =
+            ::write(STDOUT_FILENO, failure.data(), failure.size());
+        (void)written;
         ::_exit(127);
     }
 

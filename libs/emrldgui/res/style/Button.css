@@ -1,5 +1,5 @@
 /*
- * emgui::Button - Adwaita style flat buttons
+ * emgui::Button
  */
 
 Button {
@@ -7,119 +7,120 @@ Button {
     min-width: 104px;
     min-height: 44px;
 
-    background-color: var(--surface);
-    background-gradient: #ffffff, #f6f5f4;
+    background-color: var(--accent-strong);
+    background-gradient: #5c7dff, #2a3fa8;
     background-gradient-direction: vertical;
-    background-hover-gradient: #ffffff, #ebeae8;
-    background-pressed-gradient: #e6e5e4, #dcdad8;
-    background-disabled-gradient: #f6f5f4, #eeeeed;
+    background-hover-gradient: #7f99ff, #3b55c8;
+    background-pressed-gradient: #3f58d0, #1c2c78;
+    background-disabled-gradient: #3d4663, #2b3250;
 
-    background-hover-color: #f6f5f4;
-    background-pressed-color: #e6e5e4;
-    disabled-background-color: #f6f5f4;
+    background-hover-color: #5c7dff;
+    background-pressed-color: #3f58d0;
+    disabled-background-color: #3d4663;
 
-    border-color: var(--border-strong);
-    border-hover-color: var(--accent);
-    border-pressed-color: var(--accent-strong);
+    border-color: #2a3fa8;
+    border-hover-color: #6f87d8;
+    border-pressed-color: #182766;
     border-width: 1px;
-    border-radius: var(--radius);
+    border-radius: 999px;
 
-    text-color: var(--text);
-    text-hover-color: var(--text);
-    text-pressed-color: var(--text);
-    text-disabled-color: var(--text-muted);
+    text-color: #ffffff;
+    text-hover-color: #ffffff;
+    text-pressed-color: #dbe4ff;
+    text-disabled-color: #aeb6cf;
 
-    text-shadow-color: transparent;
     letter-spacing: 0px;
     text-transform: none;
 
     font-family: var(--font);
-    font-size: 16px;
+    font-size: 17px;
     font-style: bold;
 
-    padding-top: 9px;
-    padding-right: 20px;
-    padding-bottom: 10px;
-    padding-left: 20px;
+    padding-top: 10px;
+    padding-right: 22px;
+    padding-bottom: 11px;
+    padding-left: 22px;
     text-align: center;
 
-    press-offset: 1px;
-    press-duration-ms: 90ms;
-    release-duration-ms: 140ms;
+    press-offset: 2px;
+    press-duration-ms: 110ms;
+    release-duration-ms: 180ms;
 
-    shadow-color: rgba(0, 0, 0, 30);
-    shadow-offset-y: 2px;
-    shadow-spread: 0px;
+    focus-ring-width: 2px;
     opacity: 1.0;
 }
 
 Button.primary {
-    background-gradient: var(--accent), var(--accent-strong);
-    background-hover-gradient: #478feb, #2878d1;
-    background-pressed-gradient: #1a6fc4, #145ba3;
-    border-color: var(--accent-deep);
-    border-hover-color: #104a8a;
-    text-color: #ffffff;
-    text-hover-color: #ffffff;
-    text-pressed-color: #ffffff;
+    background-gradient: #5c7dff, #2a3fa8;
+    background-hover-gradient: #7f99ff, #3b55c8;
+    border-color: #2a3fa8;
 }
 
 Button.secondary {
-    background-gradient: #f6f5f4, #ebeae8;
-    background-hover-gradient: #ffffff, #f0efee;
-    border-color: var(--border-strong);
+    background-gradient: #64708f, #343d5a;
+    background-hover-gradient: #7d89a8, #424c6d;
+    border-color: #343d5a;
 }
 
 Button.success {
-    background-gradient: #33b271, #26a269;
-    background-hover-gradient: #4cbe85, #2eb774;
-    background-pressed-gradient: #26a269, #1c8452;
-    border-color: #1c8452;
-    text-color: #ffffff;
-    text-hover-color: #ffffff;
+    background-gradient: #37d39a, #147d5a;
+    background-hover-gradient: #63e5b5, #1a9b70;
+    background-pressed-gradient: #20a879, #0d5c42;
+    border-color: #147d5a;
+    border-hover-color: #9df5d2;
+    text-color: #041b13;
+    text-hover-color: #041b13;
+    text-pressed-color: #041b13;
 }
 
 Button.warning {
-    background-gradient: #f6bf36, #e5a50a;
-    background-hover-gradient: #f9cd63, #eeb41f;
-    background-pressed-gradient: #e5a50a, #c88d05;
-    border-color: #c88d05;
-    text-color: #2b1e00;
-    text-hover-color: #2b1e00;
+    background-gradient: #fcd34d, #b7791f;
+    background-hover-gradient: #fde68a, #cf8f2d;
+    background-pressed-gradient: #d69e2e, #8a5a16;
+    border-color: #b7791f;
+    border-hover-color: #fef3c7;
+    text-color: #2b1d00;
+    text-hover-color: #2b1d00;
+    text-pressed-color: #2b1d00;
 }
 
 Button.ghost {
     background-color: transparent;
-    background-gradient: transparent, transparent;
-    background-hover-gradient: var(--accent-soft), transparent;
-    background-pressed-gradient: rgba(53, 132, 228, 110), transparent;
-    border-color: transparent;
-    border-hover-color: var(--accent-soft);
-    text-color: var(--accent-deep);
-    text-hover-color: var(--accent);
-    shadow-color: transparent;
+    background-gradient: rgba(124, 156, 255, 25), transparent;
+    background-hover-gradient: rgba(124, 156, 255, 65), rgba(124, 156, 255, 20);
+    background-pressed-gradient: rgba(124, 156, 255, 100), rgba(124, 156, 255, 40);
+    border-color: var(--border-strong);
+    border-hover-color: #cbd8ff;
+    text-color: #cbd8ff;
+    text-hover-color: #ffffff;
 }
 
 Button.danger {
-    background-gradient: #ec5b62, #e01b24;
-    background-hover-gradient: #f0747a, #ed353e;
-    background-pressed-gradient: #e01b24, #ba0f18;
-    border-color: #ba0f18;
+    background-gradient: #fb7185, #9f1239;
+    background-hover-gradient: #ff9aa8, #be1b4a;
+    background-pressed-gradient: #dc4b64, #760d2b;
+    border-color: #9f1239;
+    border-hover-color: #ffc2cc;
     text-color: #ffffff;
 }
 
 #startButton {
     width: 240px;
     min-height: 52px;
-    background-gradient: var(--accent), var(--accent-strong);
-    background-hover-gradient: #478feb, #2878d1;
-    border-color: var(--accent-deep);
-    border-radius: var(--radius-lg);
-    text-transform: none;
-    letter-spacing: 0px;
+    background-gradient: #8e5be8, #4a148c;
+    background-hover-gradient: #a97cf5, #651ba8;
+    border-color: #4a148c;
+    border-hover-color: #d4b3ff;
+    border-radius: 26px;
+    font-size: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 #dangerButton {
-    background-gradient: #ec5b62, #e01b24;
-    border-color: #ba0f18;
+    background-gradient: #fb7185, #9f1239;
+    background-hover-gradient: #ff9aa8, #be1b4a;
+    border-color: #9f1239;
+    border-hover-color: #ffc2cc;
+    font-size: 17px;
 }

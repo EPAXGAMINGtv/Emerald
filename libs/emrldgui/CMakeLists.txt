@@ -26,7 +26,8 @@ add_custom_target(emrldgui_resources ALL
 )
 add_dependencies(emrldgui emrldgui_resources)
 target_compile_definitions(emrldgui PUBLIC
-    EMERLDGUI_RES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/res"
+    $<BUILD_INTERFACE:EMERLDGUI_RES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/res\">
+    $<INSTALL_INTERFACE:EMERLDGUI_RES_DIR=\"${CMAKE_INSTALL_DATADIR}/Emerald\">
 )
 
 target_include_directories(emrldgui
@@ -44,3 +45,11 @@ target_link_libraries(emrldgui
 set_target_properties(emrldgui PROPERTIES
     EXPORT_NAME emrldgui
 )
+
+install(TARGETS emrldgui
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY res/ DESTINATION ${CMAKE_INSTALL_DATADIR}/Emerald)

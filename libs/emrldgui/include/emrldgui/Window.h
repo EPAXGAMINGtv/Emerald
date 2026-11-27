@@ -42,6 +42,12 @@ namespace emgui {
         void setTitle(std::string title) ;
         void setHeight(int height);
         void setWidth(int width);
+
+        void setVisible(bool visible);
+        // Alias for the spelling used in the app code
+        void setVisibality(bool visible) { setVisible(visible); }
+        bool isVisible() const;
+
         void closeWindow();
 
         bool shouldClose() const {

@@ -4,6 +4,7 @@
 
 #include "cfg/Config.hpp"
 
+#include <cstddef>
 #include <memory>
 
 namespace emgui {
@@ -38,4 +39,7 @@ private:
     std::unique_ptr<emgui::Window> window_;
     std::unique_ptr<emgui::Keyboard> keyboard_;
     std::unique_ptr<emgui::Mouse> mouse_;
+
+    std::size_t resizeListener_ = 0;
+    bool resizePending_ = false;
 };

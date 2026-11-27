@@ -4,6 +4,8 @@
 
 #include "emrldgui/EmeraldGUI.h"
 #include "emrldgui/Window.h"
+#include "emrldgui/event/EventManager.h"
+#include "events/EventWindowResize.h"
 #include "emrldgui/input/Keyboard.h"
 #include "emrldgui/input/Mouse.h"
 
@@ -62,6 +64,20 @@ void Emerald::init() {
 
         keyboard_ = std::make_unique<emgui::Keyboard>(*window_);
         mouse_ = std::make_unique<emgui::Mouse>(*window_);
+
+        emgui::EventManager::registerEvent(
+            window_->getWindow(), emerald::EventWindowResize(window_->getWindow())
+        );
+        resizeListener_ = window_->getEventManager()
+            .addEventListener<emerald::EventWindowResize>(
+                [this](emerald::EventWindowResize& event) {
+                    if (!event.isResized()) {
+                        return;
+                    }
+                    resizePending_ = true;
+                    event.handled = true;
+                }
+            );
     } catch (const std::exception& error) {
         spdlog::error("Emerald initialization failed: {}", error.what());
         shutdown();
@@ -76,6 +92,20 @@ void Emerald::run() {
 
     while (!window_->shouldClose()) {
         window_->updateWindow();
+
+        if (resizePending_) {
+            resizePending_ = false;
+
+            int width = 0;
+            int height = 0;
+            SDL_GetWindowSize(window_->getWindow(), &width, &height);
+
+            if (width > 0 && height > 0) {
+                config_.set_string("app.width", std::to_string(width));
+                config_.set_string("app.height", std::to_string(height));
+                config_.save();
+            }
+        }
 
         [[maybe_unused]] auto frame =
             window_->getRendererOpts().beginFrame();
@@ -94,6 +124,12 @@ void Emerald::run() {
 }
 
 void Emerald::shutdown() {
+    if (window_ &&
+        resizeListener_ != emgui::EventManager::kInvalidListener) {
+        window_->getEventManager().removeListener(resizeListener_);
+        resizeListener_ = emgui::EventManager::kInvalidListener;
+    }
+
     mouse_.reset();
     keyboard_.reset();
     window_.reset();

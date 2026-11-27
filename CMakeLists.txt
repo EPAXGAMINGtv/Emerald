@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.25)
 
 project(Emerald VERSION 0.1.0 LANGUAGES CXX)
 
+include(GNUInstallDirs)
+
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR};$ORIGIN")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -30,6 +35,7 @@ target_link_libraries(Emerald
         emrldgui
         eemerge
         cfg
+        flatpak
         project_dependencies
 )
 
@@ -71,3 +77,26 @@ if(EMERALD_BUILD_TESTS)
         VERBATIM
     )
 endif()
+
+install(TARGETS Emerald
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+# Ship the third-party shared objects that were built via FetchContent next to
+# our libraries, so the installed tree is self-contained.
+install(DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    FILES_MATCHING PATTERN "*.so*"
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/EmeraldConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EmeraldConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/EmeraldConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Emerald
+)
