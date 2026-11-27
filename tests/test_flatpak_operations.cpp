@@ -56,7 +56,7 @@ TEST(flatpak_install_tracks_progress_and_time) {
         flatpak.GetPackageInstallProgress("org.test.App");
     CHECK(progress.PackageId == "org.test.App");
     CHECK(progress.Phase == "install");
-    CHECK(progress.Fraction == 0.25);
+    CHECK_NEAR(progress.Fraction, 0.25);
     CHECK(progress.Elapsed == std::chrono::milliseconds{2500});
 
     const auto remaining =
@@ -69,7 +69,7 @@ TEST(flatpak_install_tracks_progress_and_time) {
         flatpak.GetElapsedPackageInstallTimeForPackage("org.test.App");
     CHECK(elapsed.has_value());
     CHECK(elapsed.has_value() && *elapsed == std::chrono::milliseconds{2500});
-    CHECK(flatpak.GetPackageInstallFraction("org.test.App") == 0.25);
+    CHECK_NEAR(flatpak.GetPackageInstallFraction("org.test.App"), 0.25);
 
     const std::vector<fpk::Operation> operations =
         flatpak.ListPackageOperations();
@@ -143,7 +143,7 @@ TEST(flatpak_update_uninstall_and_update_list) {
     }));
     CHECK(flatpak.GetPackageInstallProgress("org.test.App").Phase ==
           "update");
-    CHECK(flatpak.GetPackageInstallFraction("org.test.App") == 0.5);
+    CHECK_NEAR(flatpak.GetPackageInstallFraction("org.test.App"), 0.5);
 
     CHECK(flatpak.UninstallFlatpakPackage("org.test.App").Ok);
     CHECK(seen.back() == std::vector<std::string>({
@@ -181,7 +181,7 @@ TEST(flatpak_operation_queue_cancel_clear_and_failure) {
     );
 
     CHECK(flatpak.GetPackageInstallProgress("missing").Phase == "none");
-    CHECK(flatpak.GetPackageInstallFraction("missing") == 0.0);
+    CHECK_NEAR(flatpak.GetPackageInstallFraction("missing"), 0.0);
     CHECK(flatpak.GetPackageOperationStatus("missing") ==
           fpk::OperationStatus::None);
     CHECK(!flatpak.GetRemainingPackageInstallTimeForPackage(

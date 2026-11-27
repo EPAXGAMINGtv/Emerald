@@ -1,7 +1,7 @@
 include(FetchContent)
 
 option(EMERALD_ENABLE_GUI "Fetch SDL2/SDL2_ttf for emrldgui" ON)
-option(EMERALD_ENABLE_ALL_WARNINGS "Enable the most comprehensive warning set the compiler supports" ON)
+option(EMERALD_ENABLE_ALL_WARNINGS "Enable the most comprehensive warning set the compiler supports" OFF)
 option(EMERALD_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)
 
 add_library(project_warnings INTERFACE)

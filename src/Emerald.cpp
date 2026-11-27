@@ -14,12 +14,15 @@
 
 #include <SDL.h>
 
+#include <chrono>
 #include <exception>
 #include <string>
 
 Emerald::Emerald() = default;
 
 void Emerald::init() {
+    const auto initStart = std::chrono::steady_clock::now();
+
     auto logger = spdlog::get("emerald");
     if (!logger) {
         logger = spdlog::stdout_color_mt("emerald");
@@ -81,6 +84,19 @@ void Emerald::init() {
     } catch (const std::exception& error) {
         spdlog::error("Emerald initialization failed: {}", error.what());
         shutdown();
+    }
+
+    const auto initEnd = std::chrono::steady_clock::now();
+    const auto initMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        initEnd - initStart
+    ).count();
+
+    if (window_) {
+        spdlog::info(
+            "Emerald initialized in {} ms - entering main loop", initMs
+        );
+    } else {
+        spdlog::warn("Emerald initialization failed after {} ms", initMs);
     }
 }
 

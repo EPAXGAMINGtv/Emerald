@@ -34,7 +34,7 @@ struct Issue {
 
 template <typename T>
 Validator<T> range(T low, T high) {
-    return [low, high](const T& value) {
+    return [low, high](const T& value) noexcept {
         return value >= low && value <= high;
     };
 }

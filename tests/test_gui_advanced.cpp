@@ -53,8 +53,8 @@ TEST(gui_style_values_css_and_resolver) {
     CHECK(emgui::lowerCase("AbC") == "abc");
     CHECK(emgui::isAuto("AUTO"));
     CHECK(!emgui::isAuto("120px"));
-    CHECK(emgui::easeOutCubic(0.0f) == 0.0f);
-    CHECK(emgui::easeOutCubic(1.0f) == 1.0f);
+    CHECK_NEAR(emgui::easeOutCubic(0.0f), 0.0f);
+    CHECK_NEAR(emgui::easeOutCubic(1.0f), 1.0f);
     CHECK(emgui::withOpacity(SDL_Color{10, 20, 30, 200}, 0.5f).a == 100);
     CHECK(emgui::blendColor(
         SDL_Color{0, 0, 0, 255}, SDL_Color{100, 100, 100, 255}, 0.5f
@@ -107,9 +107,9 @@ TEST(gui_style_values_css_and_resolver) {
 
 TEST(gui_animation_engine) {
     emgui::Animation::cancelAll();
-    CHECK(emgui::Animation::ease(emgui::Animation::Easing::Linear, 0.5f) == 0.5f);
-    CHECK(emgui::Animation::ease(emgui::Animation::Easing::EaseInQuad, 0.0f) == 0.0f);
-    CHECK(emgui::Animation::ease(emgui::Animation::Easing::EaseInQuad, 1.0f) == 1.0f);
+    CHECK_NEAR(emgui::Animation::ease(emgui::Animation::Easing::Linear, 0.5f), 0.5f);
+    CHECK_NEAR(emgui::Animation::ease(emgui::Animation::Easing::EaseInQuad, 0.0f), 0.0f);
+    CHECK_NEAR(emgui::Animation::ease(emgui::Animation::Easing::EaseInQuad, 1.0f), 1.0f);
     CHECK(emgui::Animation::ease(emgui::Animation::Easing::EaseOutCubic, 0.5f) > 0.5f);
 
     float last = 0.0f;
@@ -118,11 +118,11 @@ TEST(gui_animation_engine) {
     const Uint32 start = SDL_GetTicks();
     const emgui::Animation::Handle handle = emgui::Animation::run(
         0.0f, 100.0f, 50,
-        [&last, &updates](float value) {
+        [&last, &updates](float value) noexcept {
             last = value;
             ++updates;
         },
-        [&completions]() { ++completions; },
+        [&completions]() noexcept { ++completions; },
         emgui::Animation::Easing::Linear
     );
     CHECK(handle != emgui::Animation::kInvalidHandle);
@@ -130,7 +130,7 @@ TEST(gui_animation_engine) {
     emgui::Animation::tick(start + 100U);
     CHECK(completions == 1);
     CHECK(updates >= 1);
-    CHECK(last == 100.0f);
+    CHECK_NEAR(last, 100.0f);
 
     float tweened = 5.0f;
     const emgui::Animation::Handle tween = emgui::Animation::tween(
@@ -161,11 +161,11 @@ TEST(gui_drag_and_drop) {
     int begins = 0;
     int drops = 0;
     int ends = 0;
-    drag.onDragBegin([&begins](emgui::UIComponent*, const std::any&) { ++begins; });
-    drag.onDrop([&drops](emgui::UIComponent*, emgui::UIComponent*, const std::any&) {
+    drag.onDragBegin([&begins](emgui::UIComponent*, const std::any&) noexcept { ++begins; });
+    drag.onDrop([&drops](emgui::UIComponent*, emgui::UIComponent*, const std::any&) noexcept {
         ++drops;
     });
-    drag.onDragEnd([&ends](emgui::UIComponent*, bool) { ++ends; });
+    drag.onDragEnd([&ends](emgui::UIComponent*, bool) noexcept { ++ends; });
 
     drag.beginDrag(&source, std::string("payload"), 11, 22);
     CHECK(drag.isDragging());
@@ -214,7 +214,7 @@ TEST(gui_table_and_tree_views) {
 
     int selected_row = -1;
     std::string sorted_key;
-    table.onRowSelected([&selected_row](emgui::Table&, int row) {
+    table.onRowSelected([&selected_row](emgui::Table&, int row) noexcept {
         selected_row = row;
     });
     table.onColumnSorted([&sorted_key](emgui::Table&, const std::string& key, bool) {
@@ -276,7 +276,7 @@ TEST(gui_layout_and_scroll_containers) {
     CHECK(splitter.getFirst() == &first);
     CHECK(splitter.getSecond() == &second);
     int split_changes = 0;
-    splitter.onSplitChanged([&split_changes](emgui::Splitter&) { ++split_changes; });
+    splitter.onSplitChanged([&split_changes](emgui::Splitter&) noexcept { ++split_changes; });
     splitter.setSplit(0.35f);
     CHECK(splitter.getSplit() > 0.34f);
     CHECK(splitter.getSplit() < 0.36f);

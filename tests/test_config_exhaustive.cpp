@@ -20,7 +20,7 @@ TEST(config_exhaustive_scalar_roundtrip) {
         config.set_string("scalars.text" + suffix, text);
 
         CHECK(config.get_int("scalars.count" + suffix, -1) == index);
-        CHECK(config.get_double("scalars.ratio" + suffix, -1.0) == fractional);
+        CHECK_NEAR(config.get_double("scalars.ratio" + suffix, -1.0), fractional);
         CHECK(config.get_bool("scalars.enabled" + suffix, false) == ((index % 2) == 0));
         CHECK(config.get_string("scalars.text" + suffix, "missing") == text);
         CHECK(config.get_optional<int>("scalars.count" + suffix).value() == index);
@@ -66,13 +66,13 @@ TEST(config_exhaustive_callbacks) {
         cfg::Config config;
         config.set_default("audio.volume", 0.0);
         int notifications = 0;
-        config.on_change<double>("audio.volume", [&notifications](double) {
+        config.on_change<double>("audio.volume", [&notifications](double) noexcept {
             ++notifications;
         });
 
         config.set("audio.volume", static_cast<double>(index) / 10.0);
         CHECK(notifications == 1);
-        CHECK(config.get_double("audio.volume", -1.0) == static_cast<double>(index) / 10.0);
+        CHECK_NEAR(config.get_double("audio.volume", -1.0), static_cast<double>(index) / 10.0);
     }
 }
 

@@ -43,7 +43,7 @@ TEST(gui_toggle_and_radio_buttons) {
 
     auto& toggle = ui.addComponent<emgui::ToggleButton>("Auto", 20, 20, 140, 44);
     int toggle_changes = 0;
-    toggle.onCheckedChanged([&toggle_changes](emgui::ToggleButton&) {
+    toggle.onCheckedChanged([&toggle_changes](emgui::ToggleButton&) noexcept {
         ++toggle_changes;
     });
     CHECK(toggle.getComponentName() == "ToggleButton");
@@ -62,7 +62,7 @@ TEST(gui_toggle_and_radio_buttons) {
     auto& first = ui.addComponent<emgui::RadioButton>("First", "mode", false, 20, 100);
     auto& second = ui.addComponent<emgui::RadioButton>("Second", "mode", false, 20, 140);
     int radio_changes = 0;
-    first.onCheckedChanged([&radio_changes](emgui::RadioButton&) { ++radio_changes; });
+    first.onCheckedChanged([&radio_changes](emgui::RadioButton&) noexcept { ++radio_changes; });
     CHECK(first.getComponentName() == "RadioButton");
     CHECK(first.getGroup() == "mode");
     CHECK(first.getLabel() == "First");
@@ -93,7 +93,7 @@ TEST(gui_menus_tooltips_dialogs_and_toasts) {
 
     auto& menu = ui.addComponent<emgui::ContextMenu>();
     int action_count = 0;
-    menu.addItem("Open", [&action_count](emgui::ContextMenu&) { ++action_count; });
+    menu.addItem("Open", [&action_count](emgui::ContextMenu&) noexcept { ++action_count; });
     menu.addSeparator();
     menu.addSubmenu("More", nullptr);
     CHECK(menu.getComponentName() == "ContextMenu");
@@ -129,10 +129,10 @@ TEST(gui_menus_tooltips_dialogs_and_toasts) {
     auto& dialog = ui.addComponent<emgui::Dialog>();
     dialog.setTitle("Confirm");
     dialog.setMessage("Continue?");
-    dialog.addButton("OK", [](emgui::Dialog&) {});
-    dialog.addButton("Cancel", [](emgui::Dialog&) {});
+    dialog.addButton("OK", [](emgui::Dialog&) noexcept {});
+    dialog.addButton("Cancel", [](emgui::Dialog&) noexcept {});
     int closes = 0;
-    dialog.onClose([&closes](emgui::Dialog&) { ++closes; });
+    dialog.onClose([&closes](emgui::Dialog&) noexcept { ++closes; });
     CHECK(dialog.getComponentName() == "Dialog");
     CHECK(dialog.getTitle() == "Confirm");
     CHECK(dialog.getMessage() == "Continue?");

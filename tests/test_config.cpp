@@ -15,15 +15,15 @@ TEST(config_defaults_and_overrides) {
 
     CHECK(config.get_string("app.name") == "Emerald");
     CHECK(config.get_bool("gui.enabled"));
-    CHECK(config.get_double("audio.volume") == 35.0);
+    CHECK_NEAR(config.get_double("audio.volume"), 35.0);
     CHECK(config.contains("app.name"));
 
     config.set("audio.volume", 42.0);
-    CHECK(config.get_double("audio.volume") == 42.0);
-    CHECK(config.get_optional<double>("audio.volume").value() == 42.0);
+    CHECK_NEAR(config.get_double("audio.volume"), 42.0);
+    CHECK_NEAR(config.get_optional<double>("audio.volume").value(), 42.0);
 
     config.reset("audio.volume");
-    CHECK(config.get_double("audio.volume") == 35.0);
+    CHECK_NEAR(config.get_double("audio.volume"), 35.0);
     CHECK(!config.get_optional<int>("app.name").has_value());
 
     config.remove("app.name");
@@ -73,23 +73,23 @@ TEST(config_change_callbacks) {
 
     int changes = 0;
     double last = 0.0;
-    config.on_change_any("audio.volume", [&changes](std::string_view, const YAML::Node&) {
+    config.on_change_any("audio.volume", [&changes](std::string_view, const YAML::Node&) noexcept {
         ++changes;
     });
-    config.on_change<double>("audio.volume", [&last](double value) {
+    config.on_change<double>("audio.volume", [&last](double value) noexcept {
         last = value;
     });
 
     config.set("audio.volume", 55.0);
     CHECK(changes == 1);
-    CHECK(last == 55.0);
+    CHECK_NEAR(last, 55.0);
 
     config.set("unrelated.key", 1);
     CHECK(changes == 1);
 
     config.reset("audio.volume");
     CHECK(changes == 2);
-    CHECK(last == 35.0);
+    CHECK_NEAR(last, 35.0);
 
     config.remove("audio.volume");
     CHECK(changes == 3);
@@ -143,7 +143,7 @@ TEST(config_strict_load_and_reload) {
     CHECK(config.save());
 
     int changes = 0;
-    config.on_change_any("app.name", [&changes](std::string_view, const YAML::Node&) {
+    config.on_change_any("app.name", [&changes](std::string_view, const YAML::Node&) noexcept {
         ++changes;
     });
 

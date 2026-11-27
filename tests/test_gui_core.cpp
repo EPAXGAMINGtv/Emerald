@@ -90,7 +90,7 @@ TEST(gui_button_and_checkbox_state) {
     CHECK(button.isEnabled());
     CHECK(!button.isHovered());
     CHECK(!button.isPressed());
-    CHECK(button.getPressProgress() == 0.0f);
+    CHECK_NEAR(button.getPressProgress(), 0.0f);
     button.setEnabled(false);
     CHECK(!button.isEnabled());
     button.setEnabled(true);
@@ -98,7 +98,7 @@ TEST(gui_button_and_checkbox_state) {
 
     auto& box = ui.addComponent<emgui::CheckBox>("Option", false, 10, 100);
     int changes = 0;
-    box.onCheckedChanged([&changes](emgui::CheckBox&) { ++changes; });
+    box.onCheckedChanged([&changes](emgui::CheckBox&) noexcept { ++changes; });
     CHECK(box.getComponentName() == "CheckBox");
     CHECK(box.getLabel() == "Option");
     CHECK(!box.isChecked());
@@ -128,7 +128,7 @@ TEST(gui_text_inputs) {
 
     auto& field = ui.addComponent<emgui::TextField>("hint", 20, 20, 200, 40);
     int field_changes = 0;
-    field.onTextChanged([&field_changes](emgui::TextField&) { ++field_changes; });
+    field.onTextChanged([&field_changes](emgui::TextField&) noexcept { ++field_changes; });
     CHECK(field.getComponentName() == "TextField");
     CHECK(field.getPlaceholder() == "hint");
     CHECK(field.getText().empty());
@@ -156,7 +156,7 @@ TEST(gui_text_inputs) {
 
     auto& area = ui.addComponent<emgui::TextArea>("notes", 20, 90, 320, 160);
     int area_changes = 0;
-    area.onTextChanged([&area_changes](emgui::TextArea&) { ++area_changes; });
+    area.onTextChanged([&area_changes](emgui::TextArea&) noexcept { ++area_changes; });
     CHECK(area.getComponentName() == "TextArea");
     CHECK(area.getPlaceholder() == "notes");
     area.setText("first\nsecond\nthird");
@@ -219,7 +219,7 @@ TEST(gui_selection_components) {
     auto& second_page = ui.addComponent<emgui::Button>("second", 0, 0, 100, 30);
     auto& tabs = ui.addComponent<emgui::Tabs>(20, 250, 400, 200);
     int tab_index = -1;
-    tabs.onSelectionChanged([&tab_index](emgui::Tabs&, int index) {
+    tabs.onSelectionChanged([&tab_index](emgui::Tabs&, int index) noexcept {
         tab_index = index;
     });
     CHECK(tabs.getComponentName() == "Tabs");
@@ -240,22 +240,22 @@ TEST(gui_value_components) {
 
     auto& slider = ui.addComponent<emgui::Slider>(0.0f, 100.0f, 25.0f, 20, 20, 260, 56);
     int slider_changes = 0;
-    slider.onValueChanged([&slider_changes](emgui::Slider&) { ++slider_changes; });
+    slider.onValueChanged([&slider_changes](emgui::Slider&) noexcept { ++slider_changes; });
     CHECK(slider.getComponentName() == "Slider");
-    CHECK(slider.getMinimum() == 0.0f);
-    CHECK(slider.getMaximum() == 100.0f);
-    CHECK(slider.getValue() == 25.0f);
+    CHECK_NEAR(slider.getMinimum(), 0.0f);
+    CHECK_NEAR(slider.getMaximum(), 100.0f);
+    CHECK_NEAR(slider.getValue(), 25.0f);
     CHECK(slider.getNormalizedValue() > 0.24f);
     CHECK(slider.getNormalizedValue() < 0.26f);
     slider.setStep(5.0f);
-    CHECK(slider.getStep() == 5.0f);
+    CHECK_NEAR(slider.getStep(), 5.0f);
     slider.setValue(27.0f);
-    CHECK(slider.getValue() == 25.0f);
+    CHECK_NEAR(slider.getValue(), 25.0f);
     slider.setValue(30.0f);
-    CHECK(slider.getValue() == 30.0f);
+    CHECK_NEAR(slider.getValue(), 30.0f);
     CHECK(slider_changes == 1);
     slider.setRange(0.0f, 200.0f);
-    CHECK(slider.getMaximum() == 200.0f);
+    CHECK_NEAR(slider.getMaximum(), 200.0f);
     slider.setEnabled(false);
     CHECK(!slider.isEnabled());
     slider.setEnabled(true);
@@ -263,18 +263,18 @@ TEST(gui_value_components) {
 
     auto& progress = ui.addComponent<emgui::ProgressBar>(0.0f, 100.0f, 40.0f, 20, 100);
     int progress_changes = 0;
-    progress.onValueChanged([&progress_changes](emgui::ProgressBar&) {
+    progress.onValueChanged([&progress_changes](emgui::ProgressBar&) noexcept {
         ++progress_changes;
     });
     CHECK(progress.getComponentName() == "ProgressBar");
-    CHECK(progress.getMinimum() == 0.0f);
-    CHECK(progress.getMaximum() == 100.0f);
-    CHECK(progress.getValue() == 40.0f);
+    CHECK_NEAR(progress.getMinimum(), 0.0f);
+    CHECK_NEAR(progress.getMaximum(), 100.0f);
+    CHECK_NEAR(progress.getValue(), 40.0f);
     CHECK(progress.getNormalizedValue() > 0.39f);
     CHECK(progress.getNormalizedValue() < 0.41f);
     progress.setRange(0.0f, 200.0f);
     progress.setValue(50.0f);
-    CHECK(progress.getValue() == 50.0f);
+    CHECK_NEAR(progress.getValue(), 50.0f);
     CHECK(progress_changes >= 1);
     progress.setIndeterminate(true);
     CHECK(progress.isIndeterminate());

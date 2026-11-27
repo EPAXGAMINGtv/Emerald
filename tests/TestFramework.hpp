@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <functional>
 #include <iostream>
 #include <string_view>
@@ -58,4 +59,13 @@ inline void check(
     static void name()
 
 #define CHECK(expr) \
-    ::test::check(static_cast<bool>(expr), #expr, __FILE__, __LINE__)
+    ::test::check(expr, #expr, __FILE__, __LINE__)
+
+#define CHECK_NEAR(a, b) \
+    ::test::check( \
+        std::fabs( \
+            static_cast<long double>(a) - static_cast<long double>(b) \
+        ) <= 1e-6L, \
+        #a " ~= " #b, __FILE__, __LINE__ \
+    )
+

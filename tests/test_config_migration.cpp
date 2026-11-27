@@ -62,9 +62,9 @@ TEST(config_migration_applies_steps_in_order) {
 
 TEST(config_migration_reports_failures) {
     cfg::ConfigMigration migrations;
-    CHECK(migrations.add(1, 2, [](cfg::Config&) { return true; }));
-    CHECK(migrations.add(2, 3, [](cfg::Config&) { return true; }));
-    CHECK(migrations.add(3, 4, [](cfg::Config&) { return false; }, "broken"));
+    CHECK(migrations.add(1, 2, [](cfg::Config&) noexcept { return true; }));
+    CHECK(migrations.add(2, 3, [](cfg::Config&) noexcept { return true; }));
+    CHECK(migrations.add(3, 4, [](cfg::Config&) noexcept { return false; }, "broken"));
 
     cfg::Config config;
     config.set("schema.version", 1);
@@ -87,12 +87,12 @@ TEST(config_migration_reports_failures) {
 
 TEST(config_migration_registration_and_custom_key) {
     cfg::ConfigMigration migrations;
-    CHECK(!migrations.add(2, 2, [](cfg::Config&) { return true; }));
-    CHECK(!migrations.add(3, 1, [](cfg::Config&) { return true; }));
+    CHECK(!migrations.add(2, 2, [](cfg::Config&) noexcept { return true; }));
+    CHECK(!migrations.add(3, 1, [](cfg::Config&) noexcept { return true; }));
     CHECK(migrations.migrations().empty());
 
-    CHECK(migrations.add(1, 2, [](cfg::Config&) { return true; }));
-    CHECK(!migrations.add(1, 2, [](cfg::Config&) { return true; }));
+    CHECK(migrations.add(1, 2, [](cfg::Config&) noexcept { return true; }));
+    CHECK(!migrations.add(1, 2, [](cfg::Config&) noexcept { return true; }));
     CHECK(migrations.migrations().size() == 1U);
     CHECK(migrations.path(1, 2).size() == 1U);
     CHECK(migrations.path(2, 3).empty());
@@ -104,7 +104,7 @@ TEST(config_migration_registration_and_custom_key) {
     cfg::ConfigMigration custom("meta.version");
     CHECK(custom.version_key() == "meta.version");
     CHECK(custom.current_version(config) == 1);
-    CHECK(custom.add(1, 2, [](cfg::Config&) { return true; }));
+    CHECK(custom.add(1, 2, [](cfg::Config&) noexcept { return true; }));
 
     custom.set_version(config, 7);
     CHECK(config.get_int("meta.version") == 7);
