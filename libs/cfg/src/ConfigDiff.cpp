@@ -123,6 +123,8 @@ std::string ConfigDiff::to_string(const std::vector<Change>& changes) {
                 result += " -> ";
                 result += single_line(node_text(change.after));
                 break;
+            default:
+                break;
         }
         result += '\n';
     }

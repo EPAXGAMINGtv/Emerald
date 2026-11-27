@@ -644,7 +644,7 @@ Validator<std::string> one_of(
 }
 
 Validator<std::string> non_empty() {
-    return [](const std::string& value) { return !value.empty(); };
+    return [](const std::string& value) noexcept { return !value.empty(); };
 }
 
 } // namespace cfg

@@ -1,6 +1,8 @@
 include(FetchContent)
 
 option(EMERALD_ENABLE_GUI "Fetch SDL2/SDL2_ttf for emrldgui" ON)
+option(EMERALD_ENABLE_ALL_WARNINGS "Enable the most comprehensive warning set the compiler supports" ON)
+option(EMERALD_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)
 
 add_library(project_warnings INTERFACE)
 add_library(cfg_deps INTERFACE)
@@ -24,9 +26,10 @@ if(MSVC)
         /w14242 /w14254 /w14263 /w14265 /w14287 /we4289
         /w14296 /w14311 /w14545 /w14546 /w14547 /w14549
         /w14555 /w14619 /w14640 /w14826 /w14905 /w14906 /w14928
-        /WX
+        $<$<BOOL:${EMERALD_WARNINGS_AS_ERRORS}>:/WX>
     )
 else()
+    # Baseline that every GCC/Clang build gets.
     target_compile_options(project_warnings INTERFACE
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wall>
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wextra>
@@ -35,7 +38,6 @@ else()
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wformat=2>
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wconversion>
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wsign-conversion>
-        $<$<COMPILE_LANGUAGE:C,CXX>:-Wcast-align>
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wcast-qual>
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wold-style-cast>
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wnull-dereference>
@@ -44,8 +46,64 @@ else()
         $<$<COMPILE_LANGUAGE:C,CXX>:-Wnon-virtual-dtor>
         $<$<COMPILE_LANGUAGE:CXX>:-Wextra-semi>
         $<$<COMPILE_LANGUAGE:CXX>:-Wzero-as-null-pointer-constant>
-        $<$<COMPILE_LANGUAGE:C,CXX>:-Werror>
+        $<$<BOOL:${EMERALD_WARNINGS_AS_ERRORS}>:-Werror>
     )
+
+    if(EMERALD_ENABLE_ALL_WARNINGS)
+        target_compile_options(project_warnings INTERFACE
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wunused-but-set-variable>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wunused-but-set-parameter>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wundef>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wswitch-default>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wswitch-enum>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wswitch-unreachable>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Wimplicit-fallthrough=5>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wlogical-op>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wlogical-not-parentheses>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wduplicated-cond>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wduplicated-branches>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wrestrict>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wformat-overflow=2>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wformat-truncation=2>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wstringop-overflow=4>
+            $<$<COMPILE_LANGUAGE:CXX>:-Warray-bounds=2>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wshift-negative-value>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wshift-overflow=2>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wuse-after-free=3>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wdangling-pointer=2>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wredundant-decls>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wmissing-include-dirs>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wmissing-declarations>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wmissing-noreturn>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wdisabled-optimization>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wuseless-cast>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wsuggest-override>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wcatch-value=3>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wconditionally-supported>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wctor-dtor-privacy>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wdeprecated-copy>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wdeprecated-enum-enum-conversion>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wdeprecated-enum-float-conversion>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wsign-promo>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wfloat-equal>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wfloat-conversion>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wnonnull-compare>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wsizeof-pointer-memaccess>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wnoexcept>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wattributes>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wbuiltin-macro-redefined>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wdangling-else>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wempty-body>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wignored-qualifiers>
+            $<$<COMPILE_LANGUAGE:CXX>:-Winit-self>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wmisleading-indentation>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wparentheses>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wtype-limits>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wunknown-pragmas>
+            $<$<COMPILE_LANGUAGE:CXX>:-Wwrite-strings>
+        )
+    endif()
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(project_warnings INTERFACE
             $<$<COMPILE_LANGUAGE:C,CXX>:-Weverything>
@@ -53,6 +111,10 @@ else()
             $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-c++98-compat-pedantic>
             $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-padded>
             $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-unsafe-buffer-usage>
+        )
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(project_warnings INTERFACE
+            $<$<COMPILE_LANGUAGE:CXX>:-Wcast-align=strict>
         )
     endif()
 endif()
@@ -100,6 +162,19 @@ elseif(TARGET SDL2-static)
     target_link_libraries(gui_deps INTERFACE SDL2-static)
 endif()
 
+# SDL headers are third-party: never let them trip our warning policy in our files.
+foreach(_sdl_target SDL2::SDL2 SDL2 SDL2-static)
+    if(TARGET ${_sdl_target})
+        get_target_property(_sdl_alias ${_sdl_target} ALIASED_TARGET)
+        if(NOT _sdl_alias)
+            set_target_properties(${_sdl_target} PROPERTIES SYSTEM TRUE)
+        endif()
+    endif()
+endforeach()
+if(DEFINED SDL2_SOURCE_DIR)
+    target_include_directories(gui_deps SYSTEM INTERFACE "${SDL2_SOURCE_DIR}/include")
+endif()
+
 find_package(SDL2_ttf QUIET)
 if(TARGET SDL2_ttf::SDL2_ttf)
     target_link_libraries(gui_deps INTERFACE SDL2_ttf::SDL2_ttf)
@@ -135,9 +210,14 @@ else()
 endif()
 
 #third party headers are system headers, so their warnings stay out of our files ->
-if(TARGET SDL2_ttf)
-    set_target_properties(SDL2_ttf PROPERTIES SYSTEM TRUE)
-endif()
+foreach(_ttf_target SDL2_ttf::SDL2_ttf SDL2_ttf)
+    if(TARGET ${_ttf_target})
+        get_target_property(_ttf_alias ${_ttf_target} ALIASED_TARGET)
+        if(NOT _ttf_alias)
+            set_target_properties(${_ttf_target} PROPERTIES SYSTEM TRUE)
+        endif()
+    endif()
+endforeach()
 if(DEFINED SDL_ttf_SOURCE_DIR)
     target_include_directories(gui_deps SYSTEM INTERFACE "${SDL_ttf_SOURCE_DIR}")
 endif()
@@ -171,6 +251,14 @@ else()
             target_compile_options(yaml-cpp PRIVATE -include cstdint)
         endif()
     endif()
+endif()
+
+# yaml-cpp is third-party: its headers must not trigger our warning policy.
+if(TARGET yaml-cpp)
+    set_target_properties(yaml-cpp PROPERTIES SYSTEM TRUE)
+endif()
+if(DEFINED yaml-cpp_SOURCE_DIR)
+    target_include_directories(cfg_deps SYSTEM INTERFACE "${yaml-cpp_SOURCE_DIR}/include")
 endif()
 
 find_package(spdlog QUIET)

@@ -192,6 +192,8 @@ bool ConfigEnvironment::apply(Config& config) const {
             case Type::StringList:
                 config.set(binding.key, split(text, binding.separator));
                 break;
+            default:
+                break;
         }
     }
 

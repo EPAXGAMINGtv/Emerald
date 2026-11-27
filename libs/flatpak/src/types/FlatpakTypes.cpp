@@ -16,6 +16,8 @@ const char* ToString(OperationStatus status) noexcept {
             return "failed";
         case OperationStatus::Cancelled:
             return "cancelled";
+        default:
+            break;
     }
     return "unknown";
 }

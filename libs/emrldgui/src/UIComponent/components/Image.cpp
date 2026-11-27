@@ -298,6 +298,8 @@ namespace emgui {
                 };
                 break;
             }
+            default:
+                break;
         }
 
         SDL_Renderer* sdlRenderer = renderer.getRenderer();

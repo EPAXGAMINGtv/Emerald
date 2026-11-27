@@ -115,7 +115,7 @@ namespace emgui {
             value,
             to,
             durationMs,
-            [target](float interpolated) {
+            [target](float interpolated) noexcept {
                 *target = interpolated;
             },
             std::move(onComplete),

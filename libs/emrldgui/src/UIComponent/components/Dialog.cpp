@@ -718,43 +718,45 @@ namespace emgui {
 
         switch (buttons) {
             case Buttons::Ok:
-                addButton("OK", [](Dialog& dialog) {
+                addButton("OK", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultOk);
                 });
                 break;
 
             case Buttons::OkCancel:
-                addButton("OK", [](Dialog& dialog) {
+                addButton("OK", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultOk);
                 });
-                addButton("Cancel", [](Dialog& dialog) {
+                addButton("Cancel", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultCancel);
                 });
                 break;
 
             case Buttons::YesNo:
-                addButton("Yes", [](Dialog& dialog) {
+                addButton("Yes", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultYes);
                 });
-                addButton("No", [](Dialog& dialog) {
+                addButton("No", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultNo);
                 });
                 break;
 
             case Buttons::YesNoCancel:
-                addButton("Yes", [](Dialog& dialog) {
+                addButton("Yes", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultYes);
                 });
-                addButton("No", [](Dialog& dialog) {
+                addButton("No", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultNo);
                 });
-                addButton("Cancel", [](Dialog& dialog) {
+                addButton("Cancel", [](Dialog& dialog) noexcept {
                     dialog.setResult(ResultCancel);
                 });
                 break;
+            default:
+                break;
         }
 
-        onClose([](Dialog& dialog) {
+        onClose([](Dialog& dialog) noexcept {
             if (dialog.getResult() == ResultNone) {
                 dialog.setResult(ResultCancel);
             }

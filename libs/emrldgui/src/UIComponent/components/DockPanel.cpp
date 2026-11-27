@@ -252,7 +252,7 @@ namespace emgui {
                 const std::size_t dockedIndex = static_cast<std::size_t>(bound);
 
                 splitter->onSplitChanged(
-                    [this, dockedIndex](Splitter& source) {
+                    [this, dockedIndex](Splitter& source) noexcept {
                         if (dockedIndex < docked_.size()) {
                             docked_[dockedIndex].fraction = source.getSplit();
                         }

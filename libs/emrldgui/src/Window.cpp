@@ -213,6 +213,26 @@ namespace emgui {
         }
     }
 
+    void Window::setVisible(bool visible) {
+        if (window_ == nullptr) {
+            spdlog::warn("Window visibility cannot be changed: no SDL window");
+            return;
+        }
+
+        if (visible) {
+            SDL_ShowWindow(window_);
+        } else {
+            SDL_HideWindow(window_);
+        }
+    }
+
+    bool Window::isVisible() const {
+        if (window_ == nullptr) {
+            return false;
+        }
+        return (SDL_GetWindowFlags(window_) & SDL_WINDOW_HIDDEN) == 0;
+    }
+
     void Window::closeWindow() {
         
         if (window_ != nullptr) {

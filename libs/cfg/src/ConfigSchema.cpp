@@ -251,6 +251,8 @@ void ConfigSchema::apply_to(Config& config) const {
             case Type::StringList:
                 install_field<std::vector<std::string>>(config, field);
                 break;
+            default:
+                break;
         }
     }
 }
@@ -279,6 +281,8 @@ std::string ConfigSchema::type_name(Type type) {
             return "boolean";
         case Type::StringList:
             return "string-list";
+        default:
+            break;
     }
     return "unknown";
 }
@@ -351,6 +355,9 @@ std::string ConfigSchema::check_field(
                     }
                 }
             }
+            break;
+        default:
+            valid = false;
             break;
     }
 
